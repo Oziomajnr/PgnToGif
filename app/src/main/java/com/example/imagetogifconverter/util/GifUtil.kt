@@ -14,25 +14,12 @@ import java.util.*
 
 class GifUtil {
     companion object {
-        private fun generateGIF(context: Context): ByteArray {
-            val drawableResources = listOf(
-                R.drawable.ic_search_black,
-                R.drawable.ic_send,
-                R.drawable.ic_settings,
-                R.drawable.ic_share,
-                R.drawable.ic_skip_next,
-                R.drawable.ic_sleep_timer
-            )
-
-            val bitmaps = mutableListOf<Bitmap>()
-            drawableResources.forEach {
-                val bitmapDrawable = ContextCompat.getDrawable(context, it)
-                bitmapDrawable?.toBitmap()?.let { it1 -> bitmaps.add(it1) }
-            }
+        private fun generateGIF(context: Context, bitmaps: List<Bitmap>): ByteArray {
 
             val bos = ByteArrayOutputStream()
             val encoder = AnimatedGifEncoder()
-            encoder.setDelay(2000)
+            encoder.setSize(980, 980)
+            encoder.setDelay(1000)
             encoder.start(bos)
             for (bitmap in bitmaps) {
                 encoder.addFrame(bitmap)
@@ -41,15 +28,14 @@ class GifUtil {
             return bos.toByteArray()
         }
 
-        fun saveGif(context: Context) {
-            context.contentResolver.insert()
-
-            val contentValue = ContentValues()
+        fun saveGif(context: Context, bitmaps: List<Bitmap>): String {
+            val filePath =
+                Environment.getExternalStorageDirectory().absolutePath + "/generated_gif" + Date().time + ".gif"
             val outStream =
-                FileOutputStream(Environment.getExternalStorageDirectory().absolutePath + "/generated_gif" + Date().time + ".gif")
-            outStream.write(generateGIF(context))
+                FileOutputStream(filePath)
+            outStream.write(generateGIF(context, bitmaps))
             outStream.close()
-
+            return filePath
         }
     }
 }
