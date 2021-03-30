@@ -1,4 +1,4 @@
-package com.example.imagetogifconverter.util;
+package com.example.pgntogifconverter.util;
 
 import java.io.IOException;
 import java.io.OutputStream;

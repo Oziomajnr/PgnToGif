@@ -1,4 +1,4 @@
-package com.example.imagetogifconverter
+package com.example.pgntogifconverter
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

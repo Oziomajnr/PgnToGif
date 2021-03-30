@@ -1,10 +1,10 @@
-package com.example.imagetogifconverter
+package com.example.pgntogifconverter
 
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import com.example.imagetogifconverter.databinding.ActivityMainBinding
+import com.example.pgntogifconverter.databinding.ActivityMainBinding
 import com.github.bhlangonijr.chesslib.Board
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -17,15 +17,15 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import com.bumptech.glide.Glide
-import com.example.imagetogifconverter.util.AnimatedGifEncoder
+import com.example.pgntogifconverter.util.AnimatedGifEncoder
 import com.github.bhlangonijr.chesslib.Piece
 import com.github.bhlangonijr.chesslib.pgn.PgnHolder
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.util.*
-import com.example.imagetogifconverter.util.toFile
-import com.example.imagetogifconverter.util.extention.uriToFile
+import com.example.pgntogifconverter.util.extention.uriToFile
+import com.example.pgntogifconverter.util.toFile
 
 
 class MainActivity : BaseActivity<ActivityMainBinding>() {
@@ -237,7 +237,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         }
     }
 
-    fun handleIntent(intent: Intent) {
+    private fun handleIntent(intent: Intent) {
         val selectedFile = intent.data?.uriToFile(this.applicationContext)
         if (selectedFile != null) {
             createGifFromPgn(selectedFile)

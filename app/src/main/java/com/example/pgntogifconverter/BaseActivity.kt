@@ -1,4 +1,4 @@
-package com.example.imagetogifconverter
+package com.example.pgntogifconverter
 
 import android.os.Bundle
 import androidx.annotation.LayoutRes

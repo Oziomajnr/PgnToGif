@@ -1,4 +1,4 @@
-package com.example.imagetogifconverter.util.extention
+package com.example.pgntogifconverter.util.extention
 
 import android.content.ContentResolver
 import android.content.Context

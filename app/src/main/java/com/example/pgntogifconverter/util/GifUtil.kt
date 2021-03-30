@@ -1,14 +1,10 @@
-package com.example.imagetogifconverter.util
+package com.example.pgntogifconverter.util
 
-import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.Environment
-import androidx.core.content.ContextCompat
-import com.example.imagetogifconverter.R
 import java.io.ByteArrayOutputStream
 import java.io.FileOutputStream
-import java.lang.Exception
 import java.util.*
 
 

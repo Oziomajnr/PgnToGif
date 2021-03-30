@@ -1,4 +1,4 @@
-package com.example.imagetogifconverter
+package com.example.pgntogifconverter
 
 import org.junit.Test
 
