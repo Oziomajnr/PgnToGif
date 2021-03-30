@@ -1,4 +1,4 @@
-package com.example.imagetogifconverter.util
+package com.example.imagetogifconverter.util.extention
 
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
