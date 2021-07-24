@@ -14,10 +14,19 @@
         android:theme="@style/Theme.ImageToGifConverter">
         <activity
             android:name="com.example.pgntogifconverter.MainActivity"
+            android:launchMode="singleTop"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="application/vnd.chess-pgn" />
+                <data android:mimeType="application/x-chess-pgn" />
+                <data android:mimeType="text/*" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -32,3 +41,12 @@
     </application>
 
 </manifest>
+
+    <!--<intent-filter>-->
+    <!--<action android:name="android.intent.action.SENDTO" />-->
+    <!--<action android:name="android.intent.action.SEND" />-->
+    <!--<category android:name="android.intent.category.DEFAULT" />-->
+    <!--<data android:mimeType="application/vnd.chess-pgn" />-->
+    <!--<data android:mimeType="application/x-chess-pgn" />-->
+    <!--</intent-filter>-->
+

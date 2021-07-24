@@ -3,68 +3,119 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <ScrollView
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/parent"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:focusable="true"
+        android:orientation="vertical">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/parent"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clickable="true"
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/image_parent"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginHorizontal="32dp"
+            android:layout_marginVertical="20dp"
+            android:backgroundTint="@color/window_background"
             android:clipChildren="false"
             android:clipToPadding="false"
-            android:focusable="true"
-            android:orientation="vertical">
+            app:cardCornerRadius="0dp"
+            app:layout_constraintDimensionRatio="W,1:1"
+            app:layout_constraintEnd_toEndOf="@id/parent"
+            app:layout_constraintStart_toStartOf="@id/parent"
+            app:layout_constraintTop_toTopOf="@id/parent"
+            app:strokeColor="#979797"
+            app:strokeWidth="1dp">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="GIF Preview"
+                android:textAppearance="?attr/textAppearanceHeadline4" />
 
             <ImageView
                 android:id="@+id/image"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_margin="20dp"
-                android:layout_marginHorizontal="32dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:adjustViewBounds="true"
-                android:scaleType="fitCenter"
-                app:layout_constraintDimensionRatio="W,1:1"
-                app:layout_constraintEnd_toEndOf="@id/parent"
-                app:layout_constraintStart_toStartOf="@id/parent"
-                app:layout_constraintTop_toTopOf="@id/parent" />
+                android:background="@color/transparent"
+                android:scaleType="fitCenter" />
+        </com.google.android.material.card.MaterialCardView>
 
-            <EditText
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_margin="16dp"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:gravity="center"
+            android:hint="@string/paste_pgn_of_game"
+            android:inputType="textMultiLine"
+            app:layout_constraintBottom_toTopOf="@id/createGifButton"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/image_parent">
+
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/pgnInput"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_margin="16dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
                 android:gravity="center"
-                android:hint="Paste Pgn of game"
-                app:layout_constraintBottom_toTopOf="@id/createGifButton"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/image" />
+                android:padding="8dp"
+                android:textAlignment="center" />
 
-            <Button
-                android:id="@+id/createGifButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:layout_marginBottom="8dp"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:text="Create Gif From Pgn"
-                app:layout_constraintBottom_toTopOf="@id/loadPgn"
-                app:layout_constraintEnd_toEndOf="parent" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-            <Button
-                android:id="@+id/loadPgn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:layout_marginBottom="8dp"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:text="Import"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/createGifButton" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </ScrollView>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/createGifButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/generate_gif"
+            app:backgroundTint="?attr/colorSecondary"
+            app:cornerRadius="8dp"
+            app:layout_constraintBottom_toTopOf="@id/loadPgn"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/loadPgn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:layout_marginBottom="8dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/import_pgn"
+            app:backgroundTint="?attr/colorSecondary"
+            app:cornerRadius="8dp"
+            app:icon="@drawable/ic_file_download"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/saveGif"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/saveGif"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:layout_marginBottom="8dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/save_gif"
+            app:backgroundTint="?attr/colorSecondary"
+            app:cornerRadius="8dp"
+            app:icon="@drawable/ic_file_upload"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/loadPgn" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

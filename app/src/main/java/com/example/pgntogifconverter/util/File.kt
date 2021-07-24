@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Environment
 import android.provider.MediaStore
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -14,8 +15,9 @@ import java.io.FileOutputStream
 fun String.toFile(fileName: String, applicationContext: Context): File {
     applicationContext.openFileOutput(fileName, Context.MODE_PRIVATE).use {
         it.write(this.toByteArray())
+        it.close()
     }
-    return File(applicationContext.cacheDir, "game.pgn")
+    return File(applicationContext.filesDir, fileName)
 }
 
 private fun saveMediaFile2(

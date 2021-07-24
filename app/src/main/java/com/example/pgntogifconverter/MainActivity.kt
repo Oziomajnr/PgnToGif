@@ -13,6 +13,8 @@ import android.graphics.Paint
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
@@ -52,7 +54,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding.createGifButton.setOnClickListener {
-            if (binding.pgnInput.text.isBlank()) {
+            if (binding.pgnInput.text.isNullOrBlank()) {
                 Toast.makeText(this, "Please enter Pgn", Toast.LENGTH_LONG).show()
             } else {
                 createGifFromPgn(
@@ -71,10 +73,25 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     }
 
-    fun handleFromSystemIntent() {
+    private fun handleFromSystemIntent() {
         val intentData = intent.data
+        val clipData = intent.clipData
         if (intentData != null) {
-            handleIntent(intent)
+            handleIntent(intentData)
+        } else if (clipData != null) {
+            val firstItem = if (clipData.itemCount > 0) {
+                clipData.getItemAt(0)
+            } else {
+                null
+            }
+            if (firstItem != null) {
+                createGifFromPgn(
+                    firstItem.text.toString().toFile(
+                        "game.pgn",
+                        this.applicationContext
+                    )
+                )
+            }
         }
     }
 
@@ -92,6 +109,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         encoder.start(bos)
 
         pgn.loadPgn()
+        binding.pgnInput.setText(pgn.toString())
         for (game in pgn.games) {
             game.loadMoveText()
             val moves = game.halfMoves
@@ -103,12 +121,21 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         }
         encoder.finish()
         val filePath =
-            File(application.cacheDir, Date().time.toString() + ".gif")
+            File(application.filesDir, Date().time.toString() + ".gif")
         val outStream =
             FileOutputStream(filePath)
         outStream.write(bos.toByteArray())
         outStream.close()
         Glide.with(this).load(filePath).into(binding.image)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.option_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return super.onOptionsItemSelected(item)
     }
 
     private fun createBitmapFromChessBoard(chessBoard: Board): Bitmap {
@@ -231,14 +258,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == PICK_PDF_FILE) {
-            if (data != null) {
-                handleIntent(data)
+            if (data != null && data.data != null) {
+                handleIntent(data.data!!)
             }
         }
     }
 
-    private fun handleIntent(intent: Intent) {
-        val selectedFile = intent.data?.uriToFile(this.applicationContext)
+    private fun handleIntent(data: Uri) {
+        val selectedFile = data.uriToFile(this.applicationContext)
         if (selectedFile != null) {
             createGifFromPgn(selectedFile)
         }

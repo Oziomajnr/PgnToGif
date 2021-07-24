@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">PgnToGif</string>
+    <string name="settings">Settings</string>
+    <string name="generate_gif">Generate Gif</string>
+    <string name="paste_pgn_of_game">Paste Pgn of game</string>
+    <string name="import_pgn">Import Pgn</string>
+    <string name="save_gif">Save Gif</string>
 </resources>
