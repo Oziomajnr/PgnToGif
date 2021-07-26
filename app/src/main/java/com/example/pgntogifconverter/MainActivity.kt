@@ -3,13 +3,11 @@ package com.example.pgntogifconverter
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.graphics.*
+import android.graphics.drawable.Animatable
 import android.os.Bundle
 import com.example.pgntogifconverter.databinding.ActivityMainBinding
 import com.github.bhlangonijr.chesslib.Board
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
@@ -27,7 +25,14 @@ import java.io.File
 import java.io.FileOutputStream
 import java.util.*
 import com.example.pgntogifconverter.util.extention.uriToFile
+import com.example.pgntogifconverter.util.getCoordinateFromSquare
 import com.example.pgntogifconverter.util.toFile
+import com.github.bhlangonijr.chesslib.Side
+import com.github.bhlangonijr.chesslib.Square
+import com.github.bhlangonijr.chesslib.move.Move
+import android.graphics.drawable.Drawable
+import android.util.Log
+import android.widget.ImageView
 
 
 class MainActivity : BaseActivity<ActivityMainBinding>() {
@@ -35,17 +40,40 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     private val blackSquarePaint by lazy {
         Paint().apply {
             color = ContextCompat.getColor(this@MainActivity, R.color.dark_square_color)
+            colorFilter = PorterDuffColorFilter(color, PorterDuff.Mode.DST_OVER)
         }
     }
     private val whiteSquarePaint by lazy {
         Paint().apply {
             color = ContextCompat.getColor(this@MainActivity, R.color.light_square_color)
+            colorFilter = PorterDuffColorFilter(color, PorterDuff.Mode.DST_OVER)
+        }
+    }
+
+    private val kingAttackedPaint by lazy {
+        Paint().apply {
+            color = ContextCompat.getColor(this@MainActivity, R.color.kind_attached_colour)
+            colorFilter = PorterDuffColorFilter(color, PorterDuff.Mode.DST_OVER)
+        }
+    }
+
+    private val clearPaint by lazy {
+        Paint().apply {
+            color = ContextCompat.getColor(this@MainActivity, R.color.kind_attached_colour)
+            colorFilter = PorterDuffColorFilter(color, PorterDuff.Mode.CLEAR)
+        }
+    }
+
+    private val highlightedSquarePaint by lazy {
+        Paint().apply {
+            color = ContextCompat.getColor(this@MainActivity, R.color.highlighted_square_paint)
+            colorFilter = PorterDuffColorFilter(color, PorterDuff.Mode.LIGHTEN)
         }
     }
 
     private val piecePaint by lazy {
         Paint().apply {
-            color = Color.RED
+            color = ContextCompat.getColor(this@MainActivity, R.color.light_square_color)
         }
     }
 
@@ -69,6 +97,20 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         binding.loadPgn.setOnClickListener {
             selectPgnFileFromSystem()
         }
+
+        binding.image.setOnClickListener {
+            val drawable: Drawable = (it as ImageView).drawable
+            if (drawable is Animatable) {
+                val animatedble = (drawable as Animatable)
+                if (animatedble.isRunning) {
+                    animatedble.stop()
+                } else {
+                    animatedble.start()
+                }
+
+            }
+        }
+
         handleFromSystemIntent()
 
     }
@@ -115,7 +157,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             val moves = game.halfMoves
             for (move in moves) {
                 board.doMove(move)
-                val bitmap = createBitmapFromChessBoard(board)
+                val bitmap = createBitmapFromChessBoard(board, move)
                 encoder.addFrame(bitmap)
             }
         }
@@ -138,10 +180,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         return super.onOptionsItemSelected(item)
     }
 
-    private fun createBitmapFromChessBoard(chessBoard: Board): Bitmap {
+    private fun createBitmapFromChessBoard(chessBoard: Board, currentMove: Move): Bitmap {
         val boardArray = chessBoard.boardToArray()
 
-        val boardSize = 500
+        val boardSize = 505
 
         var currentx = 0f
         var currenty = 0f
@@ -172,21 +214,52 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                     currentx + sizePerSquare,
                     currenty + sizePerSquare, paint
                 )
+
+
                 val currentPiece = boardArray[boardArrayIndex]
+                if (chessBoard.isKingAttacked && ((currentPiece == Piece.BLACK_KING && chessBoard.sideToMove == Side.BLACK)
+                            || (currentPiece == Piece.WHITE_KING && chessBoard.sideToMove == Side.WHITE))
+                ) {
+                    canvas.drawRect(
+                        currentx,
+                        currenty,
+                        currentx + sizePerSquare,
+                        currenty + sizePerSquare, kingAttackedPaint
+                    )
+                }
+
+                val coordinateFrom = getCoordinateFromSquare(currentMove.from)
+                val coordinateTo = getCoordinateFromSquare(currentMove.to)
+                if (coordinateFrom.first == y && coordinateFrom.second == x) {
+                    canvas.drawRect(
+                        currentx,
+                        currenty,
+                        currentx + sizePerSquare,
+                        currenty + sizePerSquare, highlightedSquarePaint
+                    )
+                }
+                if (coordinateTo.first == y && coordinateTo.second == x) {
+                    canvas.drawRect(
+                        currentx,
+                        currenty,
+                        currentx + sizePerSquare,
+                        currenty + sizePerSquare, highlightedSquarePaint
+                    )
+                }
                 val pieceDrawableId = pieceToDrawableMap[currentPiece]
 
                 if (pieceDrawableId != null) {
                     val pieceDrawable = ContextCompat.getDrawable(this, pieceDrawableId)
                     val bitmap =
                         pieceDrawable?.toBitmap(
-                            sizePerSquare - 5,
-                            sizePerSquare - 5
+                            sizePerSquare,
+                            sizePerSquare
                         )
                     bitmap?.let {
                         canvas.drawBitmap(
-                            it, currentx + 5,
-                            currenty + 5,
-                            piecePaint
+                            it, currentx,
+                            currenty,
+                            null
                         )
                     }
                 }
@@ -198,46 +271,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             currenty += sizePerSquare
         }
         return finalBitmap
-    }
-
-    private fun generateGIF(context: Context, bitmaps: List<Bitmap>): ByteArray {
-
-        val bos = ByteArrayOutputStream()
-        val encoder = AnimatedGifEncoder()
-        encoder.setSize(980, 980)
-        encoder.setDelay(50)
-        encoder.start(bos)
-        for (bitmap in bitmaps) {
-            encoder.addFrame(bitmap)
-        }
-        encoder.finish()
-        return bos.toByteArray()
-    }
-
-    fun saveGif(file: File): Uri? {
-        // Add a specific media item.
-        val resolver = applicationContext.contentResolver
-
-// Find all audio files on the primary external storage device.
-        val imageCollection =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                MediaStore.Images.Media.getContentUri(
-                    MediaStore.VOLUME_EXTERNAL_PRIMARY
-                )
-            } else {
-                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-            }
-
-// Publish a new song.
-        val newSongDetails = ContentValues().apply {
-            put(MediaStore.Audio.Media.DISPLAY_NAME, "My Song.mp3")
-        }
-
-// Keeps a handle to the new song's URI in case we need to modify it
-// later.
-        val myFavoriteSongUri = resolver
-            .insert(imageCollection, newSongDetails)
-        return myFavoriteSongUri
     }
 
     private fun selectPgnFileFromSystem() {

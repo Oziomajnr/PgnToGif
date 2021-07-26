@@ -23,8 +23,9 @@
             android:clipChildren="false"
             android:clipToPadding="false"
             app:cardCornerRadius="0dp"
-            app:layout_constraintDimensionRatio="W,1:1"
-            app:layout_constraintEnd_toEndOf="@id/parent"
+            app:layout_constraintBottom_toBottomOf="@id/parent"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toStartOf="@id/mid_guideline"
             app:layout_constraintStart_toStartOf="@id/parent"
             app:layout_constraintTop_toTopOf="@id/parent"
             app:strokeColor="#979797"
@@ -47,6 +48,7 @@
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -58,8 +60,8 @@
             android:inputType="textMultiLine"
             app:layout_constraintBottom_toTopOf="@id/createGifButton"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/image_parent">
+            app:layout_constraintStart_toEndOf="@id/mid_guideline"
+            app:layout_constraintTop_toTopOf="parent">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/pgnInput"
@@ -84,7 +86,7 @@
             app:cornerRadius="8dp"
             app:layout_constraintBottom_toTopOf="@id/loadPgn"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="@id/mid_guideline" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/loadPgn"
@@ -100,7 +102,7 @@
             app:icon="@drawable/ic_file_download"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/saveGif"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="@id/mid_guideline" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/saveGif"
@@ -117,5 +119,12 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/loadPgn" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/mid_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
