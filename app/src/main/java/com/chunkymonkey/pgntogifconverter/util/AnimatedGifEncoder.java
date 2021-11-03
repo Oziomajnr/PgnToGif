@@ -1,4 +1,4 @@
-package com.example.pgntogifconverter.util;
+package com.chunkymonkey.pgntogifconverter.util;
 
 import java.io.IOException;
 import java.io.OutputStream;

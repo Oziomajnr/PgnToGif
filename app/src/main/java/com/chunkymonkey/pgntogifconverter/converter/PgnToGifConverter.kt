@@ -1,13 +1,13 @@
-package com.example.pgntogifconverter.converter
+package com.chunkymonkey.pgntogifconverter.converter
 
-import android.content.Context
+import android.app.Application
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.os.Environment
 import androidx.core.graphics.drawable.toBitmap
+import com.chunkymonkey.pgntogifconverter.util.AnimatedGifEncoder
 import com.example.pgntogifconverter.resource.ChessPieceResource
 import com.example.pgntogifconverter.resource.PaintResource
-import com.example.pgntogifconverter.util.AnimatedGifEncoder
 import com.example.pgntogifconverter.util.getCoordinateFromSquare
 import com.github.bhlangonijr.chesslib.Board
 import com.github.bhlangonijr.chesslib.Piece
@@ -19,7 +19,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.util.*
 
-class PgnToGifConverter(private val context: Context) {
+class PgnToGifConverter(private val context: Application) {
     private val paintResource = PaintResource(context)
     private val chessPieceResource = ChessPieceResource(context)
     private fun createBitmapFromChessBoard(chessBoard: Board, currentMove: Move): Bitmap {
@@ -114,7 +114,7 @@ class PgnToGifConverter(private val context: Context) {
         return finalBitmap
     }
 
-     fun createGifFileFromPgn(pgn: PgnHolder): File {
+    fun createGifFileFromPgn(pgn: PgnHolder): File {
         val board = Board()
         val bos = ByteArrayOutputStream()
 

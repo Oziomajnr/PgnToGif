@@ -13,10 +13,24 @@
         android:focusable="true"
         android:orientation="vertical">
 
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:indeterminate="true"
+            android:visibility="gone"
+            android:translationZ="360dp"
+            app:layout_constraintBottom_toBottomOf="@id/image_parent"
+            app:layout_constraintEnd_toEndOf="@id/image_parent"
+            app:layout_constraintStart_toStartOf="@id/image_parent"
+            app:layout_constraintTop_toTopOf="@id/image_parent"
+            tools:visibility="visible" />
+
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/image_parent"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            app:layout_constraintHeight_percent="0.5"
             android:layout_marginHorizontal="32dp"
             android:layout_marginVertical="20dp"
             android:backgroundTint="@color/gif_preview_background"
@@ -110,10 +124,10 @@
             android:layout_marginBottom="8dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:text="@string/save_gif"
+            android:text="@string/export"
             app:backgroundTint="?attr/colorSecondary"
             app:cornerRadius="8dp"
-            app:icon="@drawable/ic_file_upload"
+            app:icon="@drawable/ic_share"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/loadPgn" />

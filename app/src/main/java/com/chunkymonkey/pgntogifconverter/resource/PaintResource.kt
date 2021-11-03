@@ -3,7 +3,7 @@ package com.example.pgntogifconverter.resource
 import android.content.Context
 import android.graphics.Paint
 import androidx.core.content.ContextCompat
-import com.example.pgntogifconverter.R
+import com.chunkymonkey.pgntogifconverter.R
 
 class PaintResource(context: Context) {
     val blackSquarePaint by lazy {

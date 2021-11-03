@@ -3,7 +3,7 @@ package com.example.pgntogifconverter.resource
 import android.content.Context
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
-import com.example.pgntogifconverter.R
+import com.chunkymonkey.pgntogifconverter.R
 import com.github.bhlangonijr.chesslib.Piece
 
 class ChessPieceResource(val context: Context) {

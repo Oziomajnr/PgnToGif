@@ -1,9 +1,8 @@
-package com.example.pgntogifconverter
+package com.chunkymonkey.pgntogifconverter
 
 import android.content.Intent
 import android.graphics.drawable.Animatable
 import android.os.Bundle
-import com.example.pgntogifconverter.databinding.ActivityMainBinding
 import android.net.Uri
 import android.view.Menu
 import android.view.MenuItem
@@ -15,10 +14,20 @@ import android.graphics.drawable.Drawable
 import android.widget.ImageView
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
+import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
-import com.example.pgntogifconverter.converter.PgnToGifConverter
+import com.chunkymonkey.pgntogifconverter.databinding.ActivityMainBinding
+import com.chunkymonkey.pgntogifconverter.converter.PgnToGifConverter
+import com.example.pgntogifconverter.BaseActivity
 import com.example.pgntogifconverter.util.MediaStoreUtils
+import com.example.pgntogifconverter.util.extention.getStrictModeUri
 import com.github.bhlangonijr.chesslib.pgn.PgnHolder
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.lang.Exception
 
 
@@ -28,8 +37,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     override val layout = R.layout.activity_main
     val pgnToGifConverter: PgnToGifConverter by lazy {
-        PgnToGifConverter(this.applicationContext)
+        PgnToGifConverter(this.application)
     }
+
+    var job: Job? = null
 
     private val getContent =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { activityResult: ActivityResult ->
@@ -49,11 +60,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                             this.applicationContext
                         )
                     )
-                    if (currentFilePath != null) {
-                        Glide.with(this).load(currentFilePath).into(binding.image)
-                    }
+
                 } catch (ex: Exception) {
-                    Toast.makeText(this, getString(R.string.unable_to_generate_gif), Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        this,
+                        getString(R.string.unable_to_generate_gif),
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             }
         }
@@ -76,10 +89,27 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         }
         binding.saveGif.setOnClickListener {
             currentFilePath?.let {
-                MediaStoreUtils.storeImage(this.applicationContext, it, "image/gif")
-            }
+                shareCurrentGif()
+            } ?: Toast.makeText(this, "Please load in a GIF", Toast.LENGTH_LONG).show()
         }
         handleFromSystemIntent()
+    }
+
+    private fun shareCurrentGif() {
+        val shareIntent: Intent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(
+                Intent.EXTRA_STREAM,
+                currentFilePath?.getStrictModeUri(this@MainActivity)
+            )
+            type = "image/gif"
+        }
+        startActivity(
+            Intent.createChooser(
+                shareIntent,
+                resources.getText(R.string.share)
+            )
+        )
     }
 
     private fun handleFromSystemIntent() {
@@ -110,9 +140,21 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         )
         pgn.loadPgn()
         binding.pgnInput.setText(pgn.toString())
-        currentFilePath = pgnToGifConverter.createGifFileFromPgn(
-            pgn
-        )
+        job?.cancel()
+        job = lifecycleScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) {
+                binding.progressBar.isVisible = true
+            }
+            currentFilePath = pgnToGifConverter.createGifFileFromPgn(
+                pgn
+            )
+            withContext(Dispatchers.Main) {
+                binding.progressBar.isVisible = false
+                if (currentFilePath != null) {
+                    Glide.with(this@MainActivity).load(currentFilePath).into(binding.image)
+                }
+            }
+        }
     }
 
 
@@ -145,5 +187,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         if (selectedFile != null) {
             processPgnFile(selectedFile)
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        job?.cancel()
     }
 }
