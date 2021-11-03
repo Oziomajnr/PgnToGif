@@ -18,6 +18,6 @@
     <color name="light_square_color">#F0D9B5</color>
     <color name="dark_square_color">#946f51</color>
     <color name="kind_attached_colour">#F42C2C</color>
-    <color name="highlighted_square_paint">#AAE3AC</color>
+    <color name="highlighted_square_paint">#FCAAE3AC</color>
     <color name="gif_preview_background">@color/window_background</color>
 </resources>
