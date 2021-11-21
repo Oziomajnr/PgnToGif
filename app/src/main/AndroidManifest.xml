@@ -10,10 +10,9 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/chess_gif_icon"
         android:label="@string/app_name"
         android:requestLegacyExternalStorage="true"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ImageToGifConverter">
         <provider
@@ -56,12 +55,4 @@
     </application>
 
 </manifest>
-
-    <!--<intent-filter>-->
-    <!--<action android:name="android.intent.action.SENDTO" />-->
-    <!--<action android:name="android.intent.action.SEND" />-->
-    <!--<category android:name="android.intent.category.DEFAULT" />-->
-    <!--<data android:mimeType="application/vnd.chess-pgn" />-->
-    <!--<data android:mimeType="application/x-chess-pgn" />-->
-    <!--</intent-filter>-->
 
