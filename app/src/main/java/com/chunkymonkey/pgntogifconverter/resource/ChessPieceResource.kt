@@ -1,4 +1,4 @@
-package com.example.pgntogifconverter.resource
+package com.chunkymonkey.pgntogifconverter.resource
 
 import android.content.Context
 import android.graphics.drawable.Drawable

@@ -3,12 +3,16 @@ package com.chunkymonkey.pgntogifconverter.converter
 import android.app.Application
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import android.os.Environment
+import android.util.Log
 import androidx.core.graphics.drawable.toBitmap
+import com.chunkymonkey.pgntogifconverter.model.GameMetaData
 import com.chunkymonkey.pgntogifconverter.util.AnimatedGifEncoder
-import com.example.pgntogifconverter.resource.ChessPieceResource
-import com.example.pgntogifconverter.resource.PaintResource
-import com.example.pgntogifconverter.util.getCoordinateFromSquare
+import com.chunkymonkey.pgntogifconverter.resource.ChessPieceResource
+import com.chunkymonkey.pgntogifconverter.resource.PaintResource
+import com.chunkymonkey.pgntogifconverter.util.getCoordinateFromSquare
 import com.github.bhlangonijr.chesslib.Board
 import com.github.bhlangonijr.chesslib.Piece
 import com.github.bhlangonijr.chesslib.Side
@@ -22,15 +26,19 @@ import java.util.*
 class PgnToGifConverter(private val context: Application) {
     private val paintResource = PaintResource(context)
     private val chessPieceResource = ChessPieceResource(context)
-    private fun createBitmapFromChessBoard(chessBoard: Board, currentMove: Move): Bitmap {
+    private fun createBitmapFromChessBoard(
+        chessBoard: Board,
+        currentMove: Move,
+        gameMetaData: GameMetaData
+    ): Bitmap {
         val boardArray = chessBoard.boardToArray()
 
         val boardSize = 505
 
-        var currentx = 0f
-        var currenty = 0f
-
         val sizePerSquare = boardSize / 8
+
+        var currentX = 0f
+        var currentY = (sizePerSquare * 7).toFloat()
 
         val conf = Bitmap.Config.ARGB_8888 // see other conf types
 
@@ -39,22 +47,23 @@ class PgnToGifConverter(private val context: Application) {
 
         val canvas = Canvas(finalBitmap)
 
+
         var boardArrayIndex = 0
-        for (x in 0 until 8) {
-            for (y in 0 until 8) {
+        for (x in 0..7) {
+            for (y in 0..7) {
                 val xIsOddNumber = x % 2 != 0
                 val yIsOddNumber = y % 2 != 0
-                val paint =
+                val squarePaint =
                     if (xIsOddNumber && yIsOddNumber || !xIsOddNumber && !yIsOddNumber) {
                         paintResource.blackSquarePaint
                     } else {
                         paintResource.whiteSquarePaint
                     }
                 canvas.drawRect(
-                    currentx,
-                    currenty,
-                    currentx + sizePerSquare,
-                    currenty + sizePerSquare, paint
+                    currentX,
+                    currentY,
+                    currentX + sizePerSquare,
+                    currentY + sizePerSquare, squarePaint
                 )
 
 
@@ -63,10 +72,10 @@ class PgnToGifConverter(private val context: Application) {
                             || (currentPiece == Piece.WHITE_KING && chessBoard.sideToMove == Side.WHITE))
                 ) {
                     canvas.drawRect(
-                        currentx,
-                        currenty,
-                        currentx + sizePerSquare,
-                        currenty + sizePerSquare, paintResource.kingAttackedPaint
+                        currentX,
+                        currentY,
+                        currentX + sizePerSquare,
+                        currentY + sizePerSquare, paintResource.kingAttackedPaint
                     )
                 }
 
@@ -74,18 +83,18 @@ class PgnToGifConverter(private val context: Application) {
                 val coordinateTo = getCoordinateFromSquare(currentMove.to)
                 if (coordinateFrom.first == y && coordinateFrom.second == x) {
                     canvas.drawRect(
-                        currentx,
-                        currenty,
-                        currentx + sizePerSquare,
-                        currenty + sizePerSquare, paintResource.highlightedSquarePaint
+                        currentX,
+                        currentY,
+                        currentX + sizePerSquare,
+                        currentY + sizePerSquare, paintResource.highlightedSquarePaint
                     )
                 }
                 if (coordinateTo.first == y && coordinateTo.second == x) {
                     canvas.drawRect(
-                        currentx,
-                        currenty,
-                        currentx + sizePerSquare,
-                        currenty + sizePerSquare, paintResource.highlightedSquarePaint
+                        currentX,
+                        currentY,
+                        currentX + sizePerSquare,
+                        currentY + sizePerSquare, paintResource.highlightedSquarePaint
                     )
                 }
                 val pieceDrawable = chessPieceResource.getDrawableFromChessPiece(currentPiece)
@@ -98,18 +107,18 @@ class PgnToGifConverter(private val context: Application) {
                         )
                     bitmap.let {
                         canvas.drawBitmap(
-                            it, currentx,
-                            currenty,
+                            it, currentX,
+                            currentY,
                             null
                         )
                     }
                 }
-                currentx += sizePerSquare
+                currentX += sizePerSquare
 
                 boardArrayIndex++
             }
-            currentx = 0f
-            currenty += sizePerSquare
+            currentX = 0f
+            currentY -= sizePerSquare
         }
         return finalBitmap
     }
@@ -130,7 +139,11 @@ class PgnToGifConverter(private val context: Application) {
             val moves = game.halfMoves
             for (move in moves) {
                 board.doMove(move)
-                val bitmap = createBitmapFromChessBoard(board, move)
+                val bitmap = createBitmapFromChessBoard(
+                    board,
+                    move,
+                    GameMetaData(game.blackPlayer.name, game.whitePlayer.name)
+                )
                 encoder.addFrame(bitmap)
             }
         }

@@ -10,4 +10,5 @@ java {
 
 dependencies {
     implementation 'com.github.bhlangonijr:chesslib:1.2.5'
+    implementation 'junit:junit:4.12'
 }
