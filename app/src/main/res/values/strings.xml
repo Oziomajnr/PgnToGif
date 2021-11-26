@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">PgnToGif</string>
+    <string name="app_name">Chess to Gif</string>
     <string name="settings">Settings</string>
     <string name="share">Share</string>
     <string name="save">Save</string>
