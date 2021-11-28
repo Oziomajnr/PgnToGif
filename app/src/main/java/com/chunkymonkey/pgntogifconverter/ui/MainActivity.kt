@@ -1,4 +1,4 @@
-package com.chunkymonkey.pgntogifconverter
+package com.chunkymonkey.pgntogifconverter.ui
 
 import android.content.Intent
 import android.graphics.drawable.Animatable
@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.net.Uri
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
 import java.io.File
 import com.example.pgntogifconverter.util.extention.uriToFile
 import com.example.pgntogifconverter.util.extention.toFile
@@ -14,14 +13,14 @@ import android.graphics.drawable.Drawable
 import android.widget.ImageView
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
+import com.chunkymonkey.pgntogifconverter.R
 import com.chunkymonkey.pgntogifconverter.databinding.ActivityMainBinding
 import com.chunkymonkey.pgntogifconverter.converter.PgnToGifConverter
-import com.example.pgntogifconverter.BaseActivity
-import com.example.pgntogifconverter.util.MediaStoreUtils
+import com.chunkymonkey.pgntogifconverter.ui.error.ToastUiErrorHandler
+import com.chunkymonkey.pgntogifconverter.ui.error.UiErrorHandler
 import com.example.pgntogifconverter.util.extention.getStrictModeUri
 import com.github.bhlangonijr.chesslib.pgn.PgnHolder
 import kotlinx.coroutines.Dispatchers
@@ -34,6 +33,9 @@ import java.lang.Exception
 class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     private var currentFilePath: File? = null
+    private val errorMessageHandler: UiErrorHandler by lazy {
+        ToastUiErrorHandler(this)
+    }
 
     override val layout = R.layout.activity_main
     val pgnToGifConverter: PgnToGifConverter by lazy {
@@ -51,7 +53,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         super.onCreate(savedInstanceState)
         binding.createGifButton.setOnClickListener {
             if (binding.pgnInput.text.isNullOrBlank()) {
-                Toast.makeText(this, getString(R.string.please_enter_pgn), Toast.LENGTH_LONG).show()
+                errorMessageHandler.showError(getString(R.string.please_enter_pgn))
             } else {
                 try {
                     processPgnFile(
@@ -62,11 +64,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                     )
 
                 } catch (ex: Exception) {
-                    Toast.makeText(
-                        this,
-                        getString(R.string.unable_to_generate_gif),
-                        Toast.LENGTH_LONG
-                    ).show()
+                    errorMessageHandler.showError(getString(R.string.unable_to_generate_gif))
                 }
             }
         }
@@ -90,7 +88,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         binding.saveGif.setOnClickListener {
             currentFilePath?.let {
                 shareCurrentGif()
-            } ?: Toast.makeText(this, "Please load in a GIF", Toast.LENGTH_LONG).show()
+            } ?: run {
+                errorMessageHandler.showError(getString(R.string.load_in_a_gif))
+            }
         }
         handleFromSystemIntent()
     }
@@ -145,9 +145,15 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             withContext(Dispatchers.Main) {
                 binding.progressBar.isVisible = true
             }
-            currentFilePath = pgnToGifConverter.createGifFileFromPgn(
-                pgn
-            )
+            val game = pgn.games.firstOrNull()
+            if (game == null) {
+                errorMessageHandler.showError(getString(R.string.current_pgn_does_not_contain_any_game))
+            } else {
+                currentFilePath = pgnToGifConverter.createGifFileFromChessGame(
+                    game
+                )
+            }
+
             withContext(Dispatchers.Main) {
                 binding.progressBar.isVisible = false
                 if (currentFilePath != null) {

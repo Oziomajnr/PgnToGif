@@ -1,4 +1,4 @@
-package com.example.pgntogifconverter
+package com.chunkymonkey.pgntogifconverter.ui
 
 import android.os.Bundle
 import androidx.annotation.LayoutRes

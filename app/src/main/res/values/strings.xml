@@ -9,4 +9,9 @@
     <string name="export">Export</string>
     <string name="unable_to_generate_gif">Unable to generate gif</string>
     <string name="please_enter_pgn">Please enter Pgn</string>
+    <string name="load_in_a_gif">Please load in a GIF</string>
+    <string name="current_pgn_does_not_contain_any_game">The current pgn does not contain any chess game</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_compose">ComposeActivity</string>
 </resources>

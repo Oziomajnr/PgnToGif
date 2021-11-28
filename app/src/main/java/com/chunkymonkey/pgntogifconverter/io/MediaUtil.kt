@@ -1,4 +1,4 @@
-package com.example.pgntogifconverter.util
+package com.chunkymonkey.pgntogifconverter.io
 
 import android.content.ContentValues
 import android.content.Context
@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import com.chunkymonkey.pgntogifconverter.util.FileUtils
 import java.io.File
 import java.io.FileNotFoundException
 
