@@ -1,5 +1,5 @@
 # PgnToGif
-A mobile application to help convert chess pin files to animated gifs
+A mobile application to help convert chess PGN files to animated gifs
 
 See how PGNs work from this article
 https://en.wikipedia.org/wiki/Portable_Game_Notation
