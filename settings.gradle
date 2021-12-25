@@ -11,6 +11,3 @@ rootProject.name = "ImageToGifConverter"
 include ':app'
 include ':chesslibrarywrapper'
 include ':gifencoder'
-include ':chesslib'
-include ':chesslibrary'
-include ':chesslibrary1'
