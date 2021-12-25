@@ -1,4 +1,4 @@
-package com.example.pgntogifconverter.util.extention
+package com.chunkymonkey.pgntogifconverter.util.extention
 
 import android.content.ContentResolver
 import android.content.Context

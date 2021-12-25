@@ -23,7 +23,7 @@ class PgnToGifConverter(private val context: Application) {
         val bos = ByteArrayOutputStream()
 
         val encoder = AnimatedGifEncoder()
-        encoder.setSize(500, 600)
+        encoder.setSize(500, 500)
         encoder.setDelay(500)
         encoder.setRepeat(1)
         encoder.start(bos)

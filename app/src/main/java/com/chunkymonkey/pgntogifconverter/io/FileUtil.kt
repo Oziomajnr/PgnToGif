@@ -1,4 +1,4 @@
-package com.chunkymonkey.pgntogifconverter.util
+package com.chunkymonkey.pgntogifconverter.io
 
 import java.io.*
 

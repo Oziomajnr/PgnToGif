@@ -9,4 +9,9 @@ class InputParserTest {
     @Test
     fun toInput() {
     }
+
+    @Test
+    fun test() {
+        Day1().getNumberOfIncrements()
+    }
 }

@@ -1,5 +1,6 @@
 package com.chunkymonkey.pgntogifconverter.ui
 
+import android.app.ActivityOptions
 import android.content.Intent
 import android.graphics.drawable.Animatable
 import android.os.Bundle
@@ -7,8 +8,8 @@ import android.net.Uri
 import android.view.Menu
 import android.view.MenuItem
 import java.io.File
-import com.example.pgntogifconverter.util.extention.uriToFile
-import com.example.pgntogifconverter.util.extention.toFile
+import com.chunkymonkey.pgntogifconverter.util.extention.uriToFile
+import com.chunkymonkey.pgntogifconverter.util.extention.toFile
 import android.graphics.drawable.Drawable
 import android.widget.ImageView
 import androidx.activity.result.ActivityResult
@@ -21,7 +22,8 @@ import com.chunkymonkey.pgntogifconverter.databinding.ActivityMainBinding
 import com.chunkymonkey.pgntogifconverter.converter.PgnToGifConverter
 import com.chunkymonkey.pgntogifconverter.ui.error.ToastUiErrorHandler
 import com.chunkymonkey.pgntogifconverter.ui.error.UiErrorHandler
-import com.example.pgntogifconverter.util.extention.getStrictModeUri
+import com.chunkymonkey.pgntogifconverter.ui.settings.SettingsActivity
+import com.chunkymonkey.pgntogifconverter.util.extention.getStrictModeUri
 import com.github.bhlangonijr.chesslib.pgn.PgnHolder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -170,6 +172,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.settings_menu_item) {
+            startActivity(
+                Intent(this, SettingsActivity::class.java),
+                ActivityOptions.makeSceneTransitionAnimation(this).toBundle()
+            )
+        }
         return super.onOptionsItemSelected(item)
     }
 

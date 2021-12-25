@@ -15,7 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ImageToGifConverter">
         <activity
-            android:name=".ui.ComposeActivity"
+            android:name=".ui.settings.SettingsActivity"
             android:exported="true"
             android:label="@string/title_activity_compose"
             android:theme="@style/Theme.ImageToGifConverter.NoActionBar" />
