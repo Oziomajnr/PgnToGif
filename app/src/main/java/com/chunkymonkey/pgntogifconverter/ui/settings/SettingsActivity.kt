@@ -49,7 +49,6 @@ fun Parent(settingsViewModel: SettingsViewModel, onBackPressed: () -> Unit = {})
                 content = {
                     ShowPlayerNameSettings(settingsViewModel)
                     ShowPlayerRatingSettings(settingsViewModel)
-                    ShowBoardCoordniateSettings(settingsViewModel)
                     MoveDelaySetting(settingsViewModel)
                     BoardStyleSettings()
                 }
