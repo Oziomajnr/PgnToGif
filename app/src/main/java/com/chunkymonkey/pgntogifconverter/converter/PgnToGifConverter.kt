@@ -40,11 +40,22 @@ class PgnToGifConverter(private val context: Application) {
         } else {
             500
         }
+        val blackPlayerName = if (settingsData.showPlayerRating && game.blackPlayer.elo != 0) {
+            "${game.blackPlayer.name} (${game.blackPlayer.elo})"
+        } else {
+            game.blackPlayer.name
+        }
+
+        val whitePlayerName = if (settingsData.showPlayerRating && game.whitePlayer.elo != 0) {
+            "${game.whitePlayer.name} (${game.whitePlayer.elo})"
+        } else {
+            game.whitePlayer.name
+        }
         val encoder = AnimatedGifEncoder()
         encoder.setSize(bitmapWidth, bitmapHeight)
         encoder.setDelay((settingsData.moveDelay * 1000).roundToInt())
         encoder.setRepeat(1)
-        encoder.setQuality(10)
+        encoder.setQuality(7)
         encoder.start(bos)
 
         game.loadMoveText()
@@ -59,8 +70,8 @@ class PgnToGifConverter(private val context: Application) {
                 if (shouldAddName) {
                     mergeBoardAndText(
                         bitmap,
-                        getTextBitmap(game.blackPlayer.name),
-                        getTextBitmap(game.whitePlayer.name)
+                        getTextBitmap(blackPlayerName),
+                        getTextBitmap(whitePlayerName)
                     )
                 } else {
                     bitmap
