@@ -11,6 +11,9 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/chesslib" />
+            <option value="$PROJECT_DIR$/chesslibrary" />
+            <option value="$PROJECT_DIR$/chesslibrary1" />
             <option value="$PROJECT_DIR$/chesslibrarywrapper" />
             <option value="$PROJECT_DIR$/gifencoder" />
           </set>
