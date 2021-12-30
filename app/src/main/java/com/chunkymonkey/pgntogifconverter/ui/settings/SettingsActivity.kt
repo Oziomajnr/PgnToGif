@@ -169,8 +169,8 @@ fun MoveDelaySetting(settingsViewModel: SettingsViewModel) {
         )
 
         Slider(
-            valueRange = 0.5F..5F,
-            steps = 8,
+            valueRange = 0.2F..3F,
+            steps = 13,
             onValueChange = {
                 settingsViewModel.onMoveDelaySettingsChange(it)
             },

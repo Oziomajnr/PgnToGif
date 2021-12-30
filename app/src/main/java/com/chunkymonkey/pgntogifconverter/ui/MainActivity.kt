@@ -20,6 +20,9 @@ import com.bumptech.glide.Glide
 import com.chunkymonkey.pgntogifconverter.R
 import com.chunkymonkey.pgntogifconverter.databinding.ActivityMainBinding
 import com.chunkymonkey.pgntogifconverter.converter.PgnToGifConverter
+import com.chunkymonkey.pgntogifconverter.data.PreferenceSettingsStorage
+import com.chunkymonkey.pgntogifconverter.data.SettingsStorage
+import com.chunkymonkey.pgntogifconverter.preference.PreferenceService
 import com.chunkymonkey.pgntogifconverter.ui.error.ToastUiErrorHandler
 import com.chunkymonkey.pgntogifconverter.ui.error.UiErrorHandler
 import com.chunkymonkey.pgntogifconverter.ui.settings.SettingsActivity
@@ -37,6 +40,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     private var currentFilePath: File? = null
     private val errorMessageHandler: UiErrorHandler by lazy {
         ToastUiErrorHandler(this)
+    }
+    private val settingsStorage: SettingsStorage by lazy {
+        PreferenceSettingsStorage(PreferenceService(this.applicationContext))
     }
 
     override val layout = R.layout.activity_main
@@ -152,7 +158,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                 errorMessageHandler.showError(getString(R.string.current_pgn_does_not_contain_any_game))
             } else {
                 currentFilePath = pgnToGifConverter.createGifFileFromChessGame(
-                    game
+                    game,
+                    settingsStorage.getSettings()
                 )
             }
 

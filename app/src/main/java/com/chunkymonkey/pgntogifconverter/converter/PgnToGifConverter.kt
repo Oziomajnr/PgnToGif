@@ -1,7 +1,14 @@
 package com.chunkymonkey.pgntogifconverter.converter
 
 import android.app.Application
+import android.graphics.*
 import android.os.Environment
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
+import com.chunkymonkey.pgntogifconverter.R
+import com.chunkymonkey.pgntogifconverter.data.SettingsData
 import com.chunkymonkey.pgntogifconverter.resource.ChessPieceResource
 import com.chunkymonkey.pgntogifconverter.resource.PaintResource
 import com.chunkymonkey.pgntogifconverter.util.AnimatedGifEncoder
@@ -11,6 +18,8 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.util.*
+import kotlin.math.roundToInt
+
 
 class PgnToGifConverter(private val context: Application) {
     private val paintResource = PaintResource(context)
@@ -18,16 +27,25 @@ class PgnToGifConverter(private val context: Application) {
     private val chessBoardToBitmapConverter =
         ChessBoardToBitmapConverter(paintResource, chessPieceResource)
 
-    fun createGifFileFromChessGame(game: Game): File {
+    fun createGifFileFromChessGame(game: Game, settingsData: SettingsData): File {
         val board = Board()
         val bos = ByteArrayOutputStream()
-
+        val shouldAddName =
+            settingsData.showPlayerName
+                    && game.blackPlayer.name != null
+                    && game.whitePlayer.name != null
+        val bitmapWidth = 500
+        val bitmapHeight = if (shouldAddName) {
+            560
+        } else {
+            500
+        }
         val encoder = AnimatedGifEncoder()
-        encoder.setSize(500, 500)
-        encoder.setDelay(500)
+        encoder.setSize(bitmapWidth, bitmapHeight)
+        encoder.setDelay((settingsData.moveDelay * 1000).roundToInt())
         encoder.setRepeat(1)
+        encoder.setQuality(10)
         encoder.start(bos)
-
 
         game.loadMoveText()
         val moves = game.halfMoves
@@ -37,7 +55,17 @@ class PgnToGifConverter(private val context: Application) {
                 board,
                 move
             )
-            encoder.addFrame(bitmap)
+            encoder.addFrame(
+                if (shouldAddName) {
+                    mergeBoardAndText(
+                        bitmap,
+                        getTextBitmap(game.blackPlayer.name),
+                        getTextBitmap(game.whitePlayer.name)
+                    )
+                } else {
+                    bitmap
+                }
+            )
         }
         encoder.finish()
         val currentFilePath =
@@ -51,4 +79,36 @@ class PgnToGifConverter(private val context: Application) {
         outStream.close()
         return currentFilePath
     }
+
+    private fun getTextBitmap(playerName: String): Bitmap {
+        val finalBitmap =
+            Bitmap.createBitmap(500, 30, Bitmap.Config.ARGB_8888)
+
+        val canvas = Canvas(finalBitmap)
+        val paint = Paint()
+        val textColor = ContextCompat.getColor(context, R.color.player_name_text_color)
+        val textBackgroundColor =
+            ContextCompat.getColor(context, R.color.player_name_background_color)
+        paint.color = textBackgroundColor
+        paint.style = Paint.Style.FILL
+        canvas.drawPaint(paint)
+        paint.typeface = ResourcesCompat.getFont(context, R.font.roboto_bolditalic)
+        paint.color = textColor
+        paint.textSize = 25F
+        canvas.drawText(playerName, 10F, 25F, paint)
+        canvas.drawBitmap(finalBitmap, 0F, 0F, null)
+        return finalBitmap
+    }
+
+    private fun mergeBoardAndText(bmp1: Bitmap, bmp2: Bitmap, bmp3: Bitmap): Bitmap {
+        val bmOverlay = Bitmap.createBitmap(bmp1.width, bmp1.height + 60, bmp1.config)
+        val canvas = Canvas(bmOverlay)
+        canvas.drawBitmap(bmp1, 0f, 25f, null)
+        canvas.drawBitmap(bmp2, 0f, 0f, null)
+        canvas.drawBitmap(bmp3, 0f, 530f, null)
+        bmp1.recycle()
+        bmp2.recycle()
+        return bmOverlay
+    }
+
 }

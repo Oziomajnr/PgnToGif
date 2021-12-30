@@ -66,7 +66,6 @@ class Part1 {
 
             }
         }
-        seen.clear()
         for (x in 0..input.lastIndex) {
             for (y in 0..input.first().lastIndex) {
                 if (input[x][y] == SouthFacing) {

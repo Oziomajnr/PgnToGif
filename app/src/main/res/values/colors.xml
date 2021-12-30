@@ -20,4 +20,8 @@
     <color name="kind_attached_colour">#F42C2C</color>
     <color name="highlighted_square_paint">#FCAAE3AC</color>
     <color name="gif_preview_background">@color/window_background</color>
+
+    <color name="player_name_background_color">#170D05</color>
+    <color name="player_name_text_color">#DCD4CE</color>
+
 </resources>
