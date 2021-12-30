@@ -60,6 +60,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding.createGifButton.setOnClickListener {
+            throw  RuntimeException("Test Crash");
             if (binding.pgnInput.text.isNullOrBlank()) {
                 errorMessageHandler.showError(getString(R.string.please_enter_pgn))
             } else {
