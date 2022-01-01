@@ -21,7 +21,7 @@ Each bitmap frame is then created by taking the current board position and repre
  I. The chess parsing library is written in Java and has some implementations that cannot be converted to KMP directly. 
  II. The images are generated using [Bitmap](https://developer.android.com/reference/android/graphics/Bitmap) and [Canvas](https://developer.android.com/reference/android/graphics/Canvas) classes which are android framework classes. 
 
-These two problems can be easily worked around.
+These two problems can be worked around.
 
 4. Improve the UI, I ran out of ideas for how the UI should look, especially the first screen.
 
