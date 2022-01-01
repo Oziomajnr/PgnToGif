@@ -3,8 +3,6 @@ package com.chunkymonkey.pgntogifconverter.converter
 import android.app.Application
 import android.graphics.*
 import android.os.Environment
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import com.chunkymonkey.pgntogifconverter.R
