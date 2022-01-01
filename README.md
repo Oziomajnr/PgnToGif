@@ -11,7 +11,8 @@ https://github.com/bhlangonijr/chesslib For Pgn validation and parsing
 https://github.com/videlalvaro/gifsockets/blob/master/src/java/AnimatedGifEncoder.java  For combining bitmaps into Gifs
 
 ## How it works
-Each bitmap frame is created by taking the current board position and representing it on an android View Canvas and converting the resulting canvas to a Bitmap object.
+The PGN is parsed using the [library](https://github.com/bhlangonijr/chesslib) mentioned above and the a game object that contains the board position for all the moves is created.
+Each bitmap frame is then created by taking the current board position and representing it on an android View Canvas and converting the resulting canvas to a Bitmap object.
 
 ## Possible improvements
 1. Improve the speed of generating the Animated Gifs without compromising the quality of the generated gifs and colour of the cells.
