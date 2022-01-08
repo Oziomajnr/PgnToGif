@@ -28,6 +28,9 @@ import com.chunkymonkey.pgntogifconverter.ui.error.UiErrorHandler
 import com.chunkymonkey.pgntogifconverter.ui.settings.SettingsActivity
 import com.chunkymonkey.pgntogifconverter.util.extention.getStrictModeUri
 import com.github.bhlangonijr.chesslib.pgn.PgnHolder
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -36,6 +39,8 @@ import java.lang.Exception
 
 
 class MainActivity : BaseActivity<ActivityMainBinding>() {
+
+    private lateinit var firebaseAnalytics: FirebaseAnalytics
 
     private var currentFilePath: File? = null
     private val errorMessageHandler: UiErrorHandler by lazy {
@@ -59,6 +64,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        firebaseAnalytics = Firebase.analytics
         binding.createGifButton.setOnClickListener {
             if (binding.pgnInput.text.isNullOrBlank()) {
                 errorMessageHandler.showError(getString(R.string.please_enter_pgn))
@@ -155,7 +161,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             }
             val game = pgn.games.firstOrNull()
             if (game == null) {
-                errorMessageHandler.showError(getString(R.string.current_pgn_does_not_contain_any_game))
+                    errorMessageHandler.showError(getString(R.string.current_pgn_does_not_contain_any_game))
             } else {
                 currentFilePath = pgnToGifConverter.createGifFileFromChessGame(
                     game,
