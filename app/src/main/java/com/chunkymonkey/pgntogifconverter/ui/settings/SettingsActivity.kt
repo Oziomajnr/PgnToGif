@@ -25,10 +25,11 @@ import com.chunkymonkey.pgntogifconverter.ui.ui.theme.ImageToGifConverterTheme
 import java.math.RoundingMode
 
 class SettingsActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Parent(SettingsViewModel(application)) {
+            Parent(SettingsViewModel()) {
                 finish()
             }
         }
@@ -50,7 +51,7 @@ fun Parent(settingsViewModel: SettingsViewModel, onBackPressed: () -> Unit = {})
                     ShowPlayerNameSettings(settingsViewModel)
                     ShowPlayerRatingSettings(settingsViewModel)
                     MoveDelaySetting(settingsViewModel)
-                    BoardStyleSettings()
+                    BoardStyleSettings(settingsViewModel)
                 }
             )
         }
@@ -132,7 +133,7 @@ fun ShowBoardCoordniateSettings(settingsViewModel: SettingsViewModel) {
 }
 
 @Composable
-fun BoardStyleSettings() {
+fun BoardStyleSettings(settingsViewModel: SettingsViewModel) {
     val context = LocalContext.current
     SettingsMenuLink(
         title = {
@@ -144,6 +145,7 @@ fun BoardStyleSettings() {
             )
         },
         onClick = {
+            settingsViewModel.settingsBoardStyleClicked()
             Toast.makeText(context, context.getString(R.string.coming_soon), Toast.LENGTH_LONG)
                 .show()
         },

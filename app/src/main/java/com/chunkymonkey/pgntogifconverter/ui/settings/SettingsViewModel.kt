@@ -1,19 +1,16 @@
 package com.chunkymonkey.pgntogifconverter.ui.settings
 
-import android.app.Application
 import androidx.compose.runtime.mutableStateOf
-import com.chunkymonkey.pgntogifconverter.data.PreferenceSettingsStorage
+import com.chunkymonkey.pgntogifconverter.analytics.AnalyticsEvent
+import com.chunkymonkey.pgntogifconverter.analytics.AnalyticsEventHandler
 import com.chunkymonkey.pgntogifconverter.data.SettingsData
 import com.chunkymonkey.pgntogifconverter.data.SettingsStorage
-import com.chunkymonkey.pgntogifconverter.preference.PreferenceService
+import com.chunkymonkey.pgntogifconverter.dependency.DependencyFactory
 
-class SettingsViewModel(applicationContext: Application) {
-
-    //TODO: Use a DI container or at least a service locator
-    private val preferenceService by lazy { PreferenceService(applicationContext.applicationContext) }
-    private val preferenceSettingsStorage: SettingsStorage by lazy {
-        PreferenceSettingsStorage(preferenceService)
-    }
+class SettingsViewModel {
+    private val analyticsEventHandler: AnalyticsEventHandler =
+        DependencyFactory.getAnalyticsEventHandler()
+    private val preferenceSettingsStorage: SettingsStorage = DependencyFactory.getSettingsStorage()
 
     val settingsUIState by lazy {
         mutableStateOf(preferenceSettingsStorage.getSettings().toSettingsState())
@@ -27,6 +24,7 @@ class SettingsViewModel(applicationContext: Application) {
         preferenceSettingsStorage.saveSettings(
             preferenceSettingsStorage.getSettings().copy(showPlayerName = shouldShowPlayerName)
         )
+        analyticsEventHandler.logEvent(AnalyticsEvent.SettingsShowPlayerNameClicked)
         refreshUiState()
     }
 
@@ -34,6 +32,7 @@ class SettingsViewModel(applicationContext: Application) {
         preferenceSettingsStorage.saveSettings(
             preferenceSettingsStorage.getSettings().copy(showPlayerRating = shouldShowPlayerRating)
         )
+        analyticsEventHandler.logEvent(AnalyticsEvent.SettingsShowPlayerRatingClicked)
         refreshUiState()
     }
 
@@ -50,7 +49,12 @@ class SettingsViewModel(applicationContext: Application) {
             preferenceSettingsStorage.getSettings()
                 .copy(moveDelay = moveDelay)
         )
+        analyticsEventHandler.logEvent(AnalyticsEvent.MoveDelaySliderClicked)
         refreshUiState()
+    }
+
+    fun settingsBoardStyleClicked() {
+        analyticsEventHandler.logEvent(AnalyticsEvent.SettingsBoardStyleClicked)
     }
 
     private fun refreshUiState() {

@@ -17,7 +17,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
+import com.chunkymonkey.pgntogifconverter.dependency.DependencyFactory
 import com.chunkymonkey.pgntogifconverter.R
+import com.chunkymonkey.pgntogifconverter.analytics.AnalyticsEvent
+import com.chunkymonkey.pgntogifconverter.analytics.AnalyticsEventHandler
 import com.chunkymonkey.pgntogifconverter.databinding.ActivityMainBinding
 import com.chunkymonkey.pgntogifconverter.converter.PgnToGifConverter
 import com.chunkymonkey.pgntogifconverter.data.PreferenceSettingsStorage
@@ -28,9 +31,6 @@ import com.chunkymonkey.pgntogifconverter.ui.error.UiErrorHandler
 import com.chunkymonkey.pgntogifconverter.ui.settings.SettingsActivity
 import com.chunkymonkey.pgntogifconverter.util.extention.getStrictModeUri
 import com.github.bhlangonijr.chesslib.pgn.PgnHolder
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.analytics
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -40,7 +40,8 @@ import java.lang.Exception
 
 class MainActivity : BaseActivity<ActivityMainBinding>() {
 
-    private lateinit var firebaseAnalytics: FirebaseAnalytics
+    private val analyticsEventHandler: AnalyticsEventHandler =
+        DependencyFactory.getAnalyticsEventHandler()
 
     private var currentFilePath: File? = null
     private val errorMessageHandler: UiErrorHandler by lazy {
@@ -55,7 +56,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         PgnToGifConverter(this.application)
     }
 
-    var job: Job? = null
+    private var job: Job? = null
 
     private val getContent =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { activityResult: ActivityResult ->
@@ -64,8 +65,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        firebaseAnalytics = Firebase.analytics
+        analyticsEventHandler.initialize()
         binding.createGifButton.setOnClickListener {
+            analyticsEventHandler.logEvent(AnalyticsEvent.CreateGifClicked(binding.pgnInput.text.toString()))
             if (binding.pgnInput.text.isNullOrBlank()) {
                 errorMessageHandler.showError(getString(R.string.please_enter_pgn))
             } else {
@@ -84,22 +86,27 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         }
 
         binding.loadPgn.setOnClickListener {
+            analyticsEventHandler.logEvent(AnalyticsEvent.ImportPgnClicked)
             selectPgnFileFromSystem()
         }
 
         binding.image.setOnClickListener {
+            analyticsEventHandler.logEvent(AnalyticsEvent.GifImageClicked)
+
             val drawable: Drawable? = (it as ImageView).drawable
             if (drawable is Animatable) {
                 val animatable = (drawable as Animatable)
                 if (animatable.isRunning) {
+                    analyticsEventHandler.logEvent(AnalyticsEvent.GifImageAnimationPaused)
                     animatable.stop()
                 } else {
+                    analyticsEventHandler.logEvent(AnalyticsEvent.GifImageAnimationStarted)
                     animatable.start()
                 }
-
             }
         }
         binding.saveGif.setOnClickListener {
+            analyticsEventHandler.logEvent(AnalyticsEvent.ExportPgnClicked(binding.pgnInput.text.toString()))
             currentFilePath?.let {
                 shareCurrentGif()
             } ?: run {
@@ -130,8 +137,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         val intentData = intent.data
         val clipData = intent.clipData
         if (intentData != null) {
+            analyticsEventHandler.logEvent(AnalyticsEvent.HandlingSystemIntent)
             handleIntent(intentData)
         } else if (clipData != null) {
+            analyticsEventHandler.logEvent(AnalyticsEvent.HandlingSystemClipData)
             val firstItem = if (clipData.itemCount > 0) {
                 clipData.getItemAt(0)
             } else {
@@ -149,11 +158,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     }
 
     private fun processPgnFile(pgnFile: File) {
+        analyticsEventHandler.logEvent(AnalyticsEvent.ProcessingPgnFile)
         val pgn = PgnHolder(
             pgnFile.absolutePath
         )
         pgn.loadPgn()
-        binding.pgnInput.setText(pgn.toString())
+        if (pgn.games.firstOrNull() != null) {
+            binding.pgnInput.setText(pgn.toString())
+        }
         job?.cancel()
         job = lifecycleScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) {
@@ -161,7 +173,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             }
             val game = pgn.games.firstOrNull()
             if (game == null) {
-                    errorMessageHandler.showError(getString(R.string.current_pgn_does_not_contain_any_game))
+                errorMessageHandler.showError(getString(R.string.current_pgn_does_not_contain_any_game))
             } else {
                 currentFilePath = pgnToGifConverter.createGifFileFromChessGame(
                     game,
@@ -186,6 +198,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.settings_menu_item) {
+            analyticsEventHandler.logEvent(AnalyticsEvent.SettingsClicked)
             startActivity(
                 Intent(this, SettingsActivity::class.java),
                 ActivityOptions.makeSceneTransitionAnimation(this).toBundle()
