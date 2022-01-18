@@ -22,19 +22,19 @@ class FirebaseAnalyticsEventHandler(
             if (this::firebaseAnalytics.isInitialized) {
                 when (analyticsEvent) {
                     is AnalyticsEvent.CreateGifClicked -> {
-                        firebaseAnalytics.logEvent(analyticsEvent::class.simpleName.orEmpty()) {
+                        firebaseAnalytics.logEvent(analyticsEvent.title) {
                             param(currentPgnTextParam, analyticsEvent.currentPgnText.take(40))
                             addParamFromSettings(this, settingsStorage.getSettings())
                         }
                     }
                     is AnalyticsEvent.ExportPgnClicked -> {
-                        firebaseAnalytics.logEvent(analyticsEvent::class.simpleName.orEmpty()) {
+                        firebaseAnalytics.logEvent(analyticsEvent.title) {
                             param(currentPgnTextParam, analyticsEvent.currentPgnText.take(40))
                             addParamFromSettings(this, settingsStorage.getSettings())
                         }
                     }
                     else -> {
-                        firebaseAnalytics.logEvent(analyticsEvent::class.simpleName.orEmpty()) {
+                        firebaseAnalytics.logEvent(analyticsEvent.title) {
                             addParamFromSettings(this, settingsStorage.getSettings())
                         }
                     }

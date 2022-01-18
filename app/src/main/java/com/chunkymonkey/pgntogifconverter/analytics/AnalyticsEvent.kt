@@ -1,23 +1,25 @@
 package com.chunkymonkey.pgntogifconverter.analytics
 
-sealed interface AnalyticsEvent {
+sealed class AnalyticsEvent(val title: String) {
     //Home screen events
-    data class CreateGifClicked(val currentPgnText: String) : AnalyticsEvent
-    object SettingsClicked : AnalyticsEvent
-    object ImportPgnClicked : AnalyticsEvent
-    data class ExportPgnClicked(val currentPgnText: String) : AnalyticsEvent
-    object GifImageClicked : AnalyticsEvent
-    object GifImageAnimationPaused : AnalyticsEvent
-    object GifImageAnimationStarted : AnalyticsEvent
-    object HandlingSystemIntent : AnalyticsEvent
-    object HandlingSystemClipData : AnalyticsEvent
-    object ProcessingPgnFile : AnalyticsEvent
+    data class CreateGifClicked(val currentPgnText: String) :
+        AnalyticsEvent("CreateGifClicked")
+
+    object SettingsClicked : AnalyticsEvent("SettingsClicked")
+    object ImportPgnClicked : AnalyticsEvent("ImportPgnClicked")
+    data class ExportPgnClicked(val currentPgnText: String) : AnalyticsEvent("ExportPgnClicked")
+    object GifImageClicked : AnalyticsEvent("GifImageClicked")
+    object GifImageAnimationPaused : AnalyticsEvent("GifImageAnimationPaused")
+    object GifImageAnimationStarted : AnalyticsEvent("GifImageAnimationStarted")
+    object HandlingSystemIntent : AnalyticsEvent("HandlingSystemIntent")
+    object HandlingSystemClipData : AnalyticsEvent("HandlingSystemClipData")
+    object ProcessingPgnFile : AnalyticsEvent("ProcessingPgnFile")
 
     //Settings Screen event
-    object SettingsBoardStyleClicked : AnalyticsEvent
-    object SettingsShowPlayerNameClicked : AnalyticsEvent
-    object SettingsShowPlayerRatingClicked : AnalyticsEvent
-    object MoveDelaySliderClicked : AnalyticsEvent
+    object SettingsBoardStyleClicked : AnalyticsEvent("SettingsBoardStyleClicked")
+    object SettingsShowPlayerNameClicked : AnalyticsEvent("SettingsShowPlayerNameClicked")
+    object SettingsShowPlayerRatingClicked : AnalyticsEvent("SettingsShowPlayerRatingClicked")
+    object MoveDelaySliderClicked : AnalyticsEvent("MoveDelaySliderClicked")
 }
 
 
