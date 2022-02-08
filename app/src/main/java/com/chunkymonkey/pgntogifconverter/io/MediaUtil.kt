@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import com.chunkymonkey.pgntogifconverter.util.ErrorHandler
 import java.io.File
 import java.io.FileNotFoundException
 
@@ -47,7 +48,7 @@ class MediaStoreUtils {
                             return insertUri
                         }
                     } catch (e: FileNotFoundException) {
-                        e.printStackTrace()
+                        ErrorHandler.logException(e)
                     }
                 }
             }

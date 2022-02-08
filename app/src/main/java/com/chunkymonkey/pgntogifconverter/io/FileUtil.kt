@@ -1,5 +1,6 @@
 package com.chunkymonkey.pgntogifconverter.io
 
+import com.chunkymonkey.pgntogifconverter.util.ErrorHandler
 import java.io.*
 
 
@@ -16,7 +17,7 @@ class FileUtils {
                 copyFile(`is`, os)
                 return true
             } catch (e: IOException) {
-                e.printStackTrace()
+                ErrorHandler.logException(e)
             }
             close(`is`)
             close(os)
@@ -31,7 +32,7 @@ class FileUtils {
                 copyFile(`is`, os)
                 return true
             } catch (e: IOException) {
-                e.printStackTrace()
+                ErrorHandler.logException(e)
             }
             close(`is`)
             close(os)
@@ -53,7 +54,7 @@ class FileUtils {
                 try {
                     closeable.close()
                 } catch (e: IOException) {
-                    e.printStackTrace()
+                    ErrorHandler.logException(e)
                 }
             }
         }

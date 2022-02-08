@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
+import com.chunkymonkey.pgntogifconverter.util.ErrorHandler
 import com.google.firebase.crashlytics.internal.common.CrashlyticsCore
 import com.google.firebase.crashlytics.internal.model.CrashlyticsReport
 
@@ -19,7 +20,7 @@ class ToastUiErrorHandler(val context: Activity) : UiErrorHandler {
                 ).show()
             }
         } catch (ex: Exception) {
-            Log.e(ToastUiErrorHandler::class.simpleName, "An error occurred when showing toast", ex)
+            ErrorHandler.logException(ex)
         }
     }
 }

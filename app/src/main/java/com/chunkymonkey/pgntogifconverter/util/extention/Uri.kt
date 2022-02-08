@@ -7,6 +7,7 @@ import android.net.Uri
 import android.provider.OpenableColumns
 import android.util.Log
 import androidx.core.net.toFile
+import com.chunkymonkey.pgntogifconverter.util.ErrorHandler
 import java.io.*
 
 fun Uri.uriToFile(context: Context): File? {
@@ -23,7 +24,7 @@ fun Uri.uriToFile(context: Context): File? {
             )
         }
     } catch (ex: Exception) {
-        Log.e(this::class.java.name, "Unable to load file with url $this ", ex)
+        ErrorHandler.logException(ex)
     }
     return null
 }
@@ -43,7 +44,7 @@ private fun copyInputStreamToFile(
             outputStream.write(buf, 0, len)
         }
     } catch (e: java.lang.Exception) {
-        e.printStackTrace()
+        ErrorHandler.logException(e)
     } finally {
         // Ensure that the InputStreams are closed even if there's an exception.
         try {
@@ -53,7 +54,7 @@ private fun copyInputStreamToFile(
             // from here but ensure that you close it yourself eventually.
             inputStream.close()
         } catch (e: IOException) {
-            e.printStackTrace()
+            ErrorHandler.logException(e)
         }
     }
     return file
@@ -70,7 +71,7 @@ fun Uri.resolveFileName(resolver: ContentResolver): String? {
         returnCursor.moveToFirst()
         return returnCursor.getString(nameIndex)
     } catch (ex: java.lang.Exception) {
-
+        ErrorHandler.logException(ex)
     } finally {
         returnCursor?.close()
     }

@@ -147,6 +147,7 @@ public class AnimatedGifEncoder {
             writePixels(); // encode and write pixel data
             firstFrame = false;
         } catch (IOException e) {
+            ErrorHandler.Companion.logException(e);
             ok = false;
         }
 
@@ -169,6 +170,7 @@ public class AnimatedGifEncoder {
                 out.close();
             }
         } catch (IOException e) {
+            ErrorHandler.Companion.logException(e);
             ok = false;
         }
 
@@ -258,6 +260,7 @@ public class AnimatedGifEncoder {
         try {
             writeString("GIF89a"); // header
         } catch (IOException e) {
+            ErrorHandler.Companion.logException(e);
             ok = false;
         }
         return started = ok;
@@ -905,6 +908,7 @@ class NeuQuant {
                     p[1] -= (a * (p[1] - g)) / alpharadbias;
                     p[2] -= (a * (p[2] - r)) / alpharadbias;
                 } catch (Exception e) {
+                    ErrorHandler.Companion.logException(e);
                 } // prevents 1.3 miscompilation
             }
             if (k > lo) {
@@ -914,6 +918,7 @@ class NeuQuant {
                     p[1] -= (a * (p[1] - g)) / alpharadbias;
                     p[2] -= (a * (p[2] - r)) / alpharadbias;
                 } catch (Exception e) {
+                    ErrorHandler.Companion.logException(e);
                 }
             }
         }

@@ -14,6 +14,7 @@ sealed class AnalyticsEvent(val title: String) {
     object HandlingSystemIntent : AnalyticsEvent("HandlingSystemIntent")
     object HandlingSystemClipData : AnalyticsEvent("HandlingSystemClipData")
     object ProcessingPgnFile : AnalyticsEvent("ProcessingPgnFile")
+    object LoadingPgnFileToView : AnalyticsEvent("LoadingPgnFileToView")
 
     //Settings Screen event
     object SettingsBoardStyleClicked : AnalyticsEvent("SettingsBoardStyleClicked")

@@ -29,6 +29,7 @@ import com.chunkymonkey.pgntogifconverter.preference.PreferenceService
 import com.chunkymonkey.pgntogifconverter.ui.error.ToastUiErrorHandler
 import com.chunkymonkey.pgntogifconverter.ui.error.UiErrorHandler
 import com.chunkymonkey.pgntogifconverter.ui.settings.SettingsActivity
+import com.chunkymonkey.pgntogifconverter.util.ErrorHandler
 import com.chunkymonkey.pgntogifconverter.util.extention.getStrictModeUri
 import com.github.bhlangonijr.chesslib.pgn.PgnHolder
 import kotlinx.coroutines.Dispatchers
@@ -80,6 +81,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                     )
 
                 } catch (ex: Exception) {
+                    ErrorHandler.logException(ex)
+                    ErrorHandler.logInfo("Failed to parse pgn with value ${binding.pgnInput.text.toString()}")
                     errorMessageHandler.showError(getString(R.string.unable_to_generate_gif))
                 }
             }
@@ -158,36 +161,37 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     }
 
     private fun processPgnFile(pgnFile: File) {
-        analyticsEventHandler.logEvent(AnalyticsEvent.ProcessingPgnFile)
-        val pgn = PgnHolder(
-            pgnFile.absolutePath
-        )
-        pgn.loadPgn()
-        if (pgn.games.firstOrNull() != null) {
-            binding.pgnInput.setText(pgn.toString())
-        }
-        job?.cancel()
-        job = lifecycleScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) {
-                binding.progressBar.isVisible = true
+            analyticsEventHandler.logEvent(AnalyticsEvent.ProcessingPgnFile)
+            val pgn = PgnHolder(
+                pgnFile.absolutePath
+            )
+            pgn.loadPgn()
+            if (pgn.games.firstOrNull() != null) {
+                binding.pgnInput.setText(pgn.toString())
             }
-            val game = pgn.games.firstOrNull()
-            if (game == null) {
-                errorMessageHandler.showError(getString(R.string.current_pgn_does_not_contain_any_game))
-            } else {
-                currentFilePath = pgnToGifConverter.createGifFileFromChessGame(
-                    game,
-                    settingsStorage.getSettings()
-                )
-            }
+            job?.cancel()
+            job = lifecycleScope.launch(Dispatchers.IO) {
+                withContext(Dispatchers.Main) {
+                    binding.progressBar.isVisible = true
+                }
+                val game = pgn.games.firstOrNull()
+                if (game == null) {
+                    errorMessageHandler.showError(getString(R.string.current_pgn_does_not_contain_any_game))
+                } else {
+                    currentFilePath = pgnToGifConverter.createGifFileFromChessGame(
+                        game,
+                        settingsStorage.getSettings()
+                    )
+                }
 
-            withContext(Dispatchers.Main) {
-                binding.progressBar.isVisible = false
-                if (currentFilePath != null) {
-                    Glide.with(this@MainActivity).load(currentFilePath).into(binding.image)
+                withContext(Dispatchers.Main) {
+                    binding.progressBar.isVisible = false
+                    if (currentFilePath != null) {
+                        analyticsEventHandler.logEvent(AnalyticsEvent.LoadingPgnFileToView)
+                        Glide.with(this@MainActivity).load(currentFilePath).into(binding.image)
+                    }
                 }
             }
-        }
     }
 
 
