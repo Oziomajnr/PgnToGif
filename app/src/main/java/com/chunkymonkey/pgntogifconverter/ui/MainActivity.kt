@@ -72,19 +72,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             if (binding.pgnInput.text.isNullOrBlank()) {
                 errorMessageHandler.showError(getString(R.string.please_enter_pgn))
             } else {
-                try {
-                    processPgnFile(
-                        binding.pgnInput.text.toString().toFile(
-                            "game.pgn",
-                            this.applicationContext
-                        )
+                processPgnFile(
+                    binding.pgnInput.text.toString().toFile(
+                        "game.pgn",
+                        this.applicationContext
                     )
-
-                } catch (ex: Exception) {
-                    ErrorHandler.logException(ex)
-                    ErrorHandler.logInfo("Failed to parse pgn with value ${binding.pgnInput.text.toString()}")
-                    errorMessageHandler.showError(getString(R.string.unable_to_generate_gif))
-                }
+                )
             }
         }
 
@@ -161,6 +154,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     }
 
     private fun processPgnFile(pgnFile: File) {
+        try {
             analyticsEventHandler.logEvent(AnalyticsEvent.ProcessingPgnFile)
             val pgn = PgnHolder(
                 pgnFile.absolutePath
@@ -192,6 +186,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                     }
                 }
             }
+        } catch (ex: Exception) {
+            ErrorHandler.logException(ex)
+            ErrorHandler.logInfo("Failed to parse pgn with value ${binding.pgnInput.text.toString()}")
+            errorMessageHandler.showError(getString(R.string.unable_to_generate_gif))
+        }
     }
 
 
