@@ -1,0 +1,19 @@
+
+------------------------------------------------------------
+Project ':chessboardcontract'
+------------------------------------------------------------
+
+compileClasspath - Compile classpath for compilation 'main' (target  (jvm)).
++--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.31
+|    +--- org.jetbrains.kotlin:kotlin-stdlib:1.5.31
+|    |    +--- org.jetbrains:annotations:13.0
+|    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.5.31
+|    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.5.31
+|         \--- org.jetbrains.kotlin:kotlin-stdlib:1.5.31 (*)
++--- com.github.bhlangonijr:chesslib:1.2.5
+\--- junit:junit:4.13.2
+     \--- org.hamcrest:hamcrest-core:1.3
+
+(*) - dependencies omitted (listed previously)
+
+A web-based, searchable dependency report is available by adding the --scan option.
