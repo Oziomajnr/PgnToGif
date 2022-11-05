@@ -20,6 +20,7 @@ sealed class AnalyticsEvent(val title: String) {
     object SettingsBoardStyleClicked : AnalyticsEvent("SettingsBoardStyleClicked")
     object SettingsShowPlayerNameClicked : AnalyticsEvent("SettingsShowPlayerNameClicked")
     object SettingsShowPlayerRatingClicked : AnalyticsEvent("SettingsShowPlayerRatingClicked")
+    object SettingsFlipBoardClicked : AnalyticsEvent("SettingsFlipBoardClicked")
     object MoveDelaySliderClicked : AnalyticsEvent("MoveDelaySliderClicked")
 }
 

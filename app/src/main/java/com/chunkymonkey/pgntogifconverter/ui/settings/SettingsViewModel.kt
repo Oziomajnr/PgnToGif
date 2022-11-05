@@ -36,6 +36,14 @@ class SettingsViewModel {
         refreshUiState()
     }
 
+    fun onFlipBoardSettingsChange(shouldFlipBoard: Boolean) {
+        preferenceSettingsStorage.saveSettings(
+            preferenceSettingsStorage.getSettings().copy(shouldFlipBoard = shouldFlipBoard)
+        )
+        analyticsEventHandler.logEvent(AnalyticsEvent.SettingsFlipBoardClicked)
+        refreshUiState()
+    }
+
     fun onShowBoardCoordinateSettingsChange(shouldShowBoardCoordinate: Boolean) {
         preferenceSettingsStorage.saveSettings(
             preferenceSettingsStorage.getSettings()
@@ -67,7 +75,8 @@ fun SettingsUiState.toSettingsData(): SettingsData {
         moveDelay = moveDelay,
         showPlayerRating = showPlayerRating,
         showBoardCoordinates = showBoardCoordinates,
-        showPlayerName = showPlayerName
+        showPlayerName = showPlayerName,
+        shouldFlipBoard = flipBoard
     )
 }
 
@@ -76,6 +85,7 @@ fun SettingsData.toSettingsState(): SettingsUiState {
         moveDelay = moveDelay,
         showPlayerRating = showPlayerRating,
         showBoardCoordinates = showBoardCoordinates,
-        showPlayerName = showPlayerName
+        showPlayerName = showPlayerName,
+        flipBoard = shouldFlipBoard
     )
 }

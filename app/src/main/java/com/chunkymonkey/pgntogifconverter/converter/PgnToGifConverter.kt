@@ -62,7 +62,8 @@ class PgnToGifConverter(private val context: Application) {
             board.doMove(move)
             val bitmap = chessBoardToBitmapConverter.createBitmapFromChessBoard(
                 board,
-                move
+                move,
+                settingsData.shouldFlipBoard
             )
             encoder.addFrame(
                 if (shouldAddName) {

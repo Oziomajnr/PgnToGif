@@ -51,6 +51,7 @@ fun Parent(settingsViewModel: SettingsViewModel, onBackPressed: () -> Unit = {})
                     ShowPlayerNameSettings(settingsViewModel)
                     ShowPlayerRatingSettings(settingsViewModel)
                     MoveDelaySetting(settingsViewModel)
+                    FlipBoardSetting(settingsViewModel)
                     BoardStyleSettings(settingsViewModel)
                 }
             )
@@ -66,7 +67,7 @@ fun ShowPlayerNameSettings(settingsViewModel: SettingsViewModel) {
         icon = {
             Icon(
                 imageVector = Icons.Default.Face,
-                contentDescription = stringResource(R.string.player_ratings)
+                contentDescription = stringResource(R.string.show_player_names)
             )
         },
         title = {
@@ -114,7 +115,7 @@ fun ShowPlayerRatingSettings(settingsViewModel: SettingsViewModel) {
 }
 
 @Composable
-fun ShowBoardCoordniateSettings(settingsViewModel: SettingsViewModel) {
+fun ShowBoardCoordinateSettings(settingsViewModel: SettingsViewModel) {
     val state =
         rememberBooleanSettingState(settingsViewModel.settingsUIState.value.showBoardCoordinates)
 
@@ -150,6 +151,31 @@ fun BoardStyleSettings(settingsViewModel: SettingsViewModel) {
                 .show()
         },
         modifier = Modifier.padding(bottom = 20.dp)
+    )
+}
+
+@Composable
+fun FlipBoardSetting(settingsViewModel: SettingsViewModel) {
+    val state =
+        rememberBooleanSettingState(settingsViewModel.settingsUIState.value.flipBoard)
+
+    SettingsSwitch(
+        title = {
+            Text(
+                modifier = Modifier.padding(start = Dp(0f)),
+                text = stringResource(R.string.flip_board_title)
+            )
+        },
+        subtitle = {
+            Text(
+                modifier = Modifier.padding(start = Dp(0f)),
+                text = stringResource(R.string.flip_board_description)
+            )
+        },
+        state = state,
+        onCheckedChange = {
+            settingsViewModel.onFlipBoardSettingsChange(it)
+        }
     )
 }
 
