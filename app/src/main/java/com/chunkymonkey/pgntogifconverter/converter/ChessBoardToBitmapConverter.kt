@@ -20,15 +20,25 @@ class ChessBoardToBitmapConverter(
     private val paintResource: PaintResource,
     private val chessPieceResource: ChessPieceResource
 ) {
+    private   val boardSize = 505
+    private val sizePerSquare = boardSize / 8
+
     fun createBitmapFromChessBoard(
         chessBoard: Board,
-        currentMove: Move
+        currentMove: Move,
+        shouldFlipBoard: Boolean
+    ): Bitmap =
+        getGameBoardBitmap(chessBoard, currentMove, shouldFlipBoard)
+
+
+
+    private fun getGameBoardBitmap(
+        chessBoard: Board,
+        currentMove: Move,
+        shouldFlipBoard: Boolean
     ): Bitmap {
         val boardArray = chessBoard.boardToArray()
 
-        val boardSize = 505
-
-        val sizePerSquare = boardSize / 8
 
         var currentX = 0f
         var currentY = (sizePerSquare * 7).toFloat()
@@ -51,7 +61,12 @@ class ChessBoardToBitmapConverter(
                     currentY + sizePerSquare, squarePaint
                 )
 
-                val currentPiece = boardArray[getBoardIndexFromBoardCoordinate(x, y)]
+                val pieceIndex = if(shouldFlipBoard) {
+                    getBoardIndexFromBoardCoordinateBlackPOV(x, y)
+                } else {
+                    getBoardIndexFromBoardCoordinate(x, y)
+                }
+                val currentPiece = boardArray[pieceIndex]
                 if (chessBoard.isKingAttacked && ((currentPiece == Piece.BLACK_KING && chessBoard.sideToMove == Side.BLACK)
                             || (currentPiece == Piece.WHITE_KING && chessBoard.sideToMove == Side.WHITE))
                 ) {
@@ -106,6 +121,10 @@ class ChessBoardToBitmapConverter(
 
     private fun getBoardIndexFromBoardCoordinate(x: Int, y: Int): Int {
         return x * 8 + y
+    }
+
+    private fun getBoardIndexFromBoardCoordinateBlackPOV(x: Int, y: Int): Int {
+        return 63 - y - ( x*8 )
     }
 
     private fun getPaintFromBoardCoordinate(x: Int, y: Int): Paint {

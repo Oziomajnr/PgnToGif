@@ -17,6 +17,8 @@
     <string name="coming_soon">Coming soon</string>
     <string name="select_colour_and_material_of_your_board">Select the colour and material of your board</string>
     <string name="board_style">Board Style</string>
+    <string name="flip_board_title">Flip Board</string>
+    <string name="flip_board_description">Show board from black player side</string>
     <string name="show_board_coordinates">Show board coordinates</string>
     <string name="show_rating_if_available">Show the rating of the players if available</string>
     <string name="show_player_rating">Show Player rating</string>

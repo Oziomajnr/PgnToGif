@@ -6,7 +6,6 @@
       <module name="ImageToGifConverter.chesslibrary1" target="1.8" />
       <module name="ImageToGifConverter.chesslibrary1.main" target="1.8" />
       <module name="ImageToGifConverter.chesslibrary1.test" target="1.8" />
-      <module name="ImageToGifConverter.chesslibrarywrapper" target="1.8" />
       <module name="ImageToGifConverter.chesslibrarywrapper.main" target="1.8" />
       <module name="ImageToGifConverter.chesslibrarywrapper.test" target="1.8" />
     </bytecodeTargetLevel>
