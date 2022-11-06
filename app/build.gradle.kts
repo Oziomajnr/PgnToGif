@@ -15,8 +15,8 @@ android {
         applicationId = "com.chunkymonkey.imagetogifconverter"
         minSdkVersion(21)
         targetSdkVersion(32)
-        versionCode = 8
-        versionName = "1.0.4"
+        versionCode = 9
+        versionName = "1.0.5"
         multiDexEnabled = true
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
