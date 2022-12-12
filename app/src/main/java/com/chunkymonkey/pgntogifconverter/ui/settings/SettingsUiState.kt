@@ -5,5 +5,6 @@ data class SettingsUiState(
     val showPlayerRating: Boolean,
     val showBoardCoordinates: Boolean,
     val moveDelay: Float,
-    val flipBoard: Boolean
+    val flipBoard: Boolean,
+    val lastMoveDelay: Float
 )

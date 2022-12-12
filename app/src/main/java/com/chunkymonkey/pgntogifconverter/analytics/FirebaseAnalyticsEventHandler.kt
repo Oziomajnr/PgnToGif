@@ -51,5 +51,6 @@ class FirebaseAnalyticsEventHandler(
         paramBuilder.param(showPlayerRatingParam, settingsData.showPlayerRating.toString())
         paramBuilder.param(showBoardCoordinatesParam, settingsData.showBoardCoordinates.toString())
         paramBuilder.param(moveDelayParam, settingsData.moveDelay.toString())
+        paramBuilder.param(lastMoveDelay, settingsData.lastMoveDelay.toString())
     }
 }

@@ -58,13 +58,16 @@ class PgnToGifConverter(private val context: Application) {
 
         game.loadMoveText()
         val moves = game.halfMoves
-        for (move in moves) {
+        moves.forEachIndexed { index, move ->
             board.doMove(move)
             val bitmap = chessBoardToBitmapConverter.createBitmapFromChessBoard(
                 board,
                 move,
                 settingsData.shouldFlipBoard
             )
+            if (index == moves.lastIndex) {
+                encoder.setDelay((settingsData.lastMoveDelay * 1000).roundToInt())
+            }
             encoder.addFrame(
                 if (shouldAddName) {
                     mergeBoardAndText(
@@ -77,6 +80,7 @@ class PgnToGifConverter(private val context: Application) {
                 }
             )
         }
+
         encoder.finish()
         val currentFilePath =
             File(

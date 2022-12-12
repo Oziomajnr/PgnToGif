@@ -48,11 +48,15 @@ fun Parent(settingsViewModel: SettingsViewModel, onBackPressed: () -> Unit = {})
                     )
                 },
                 content = {
-                    ShowPlayerNameSettings(settingsViewModel)
-                    ShowPlayerRatingSettings(settingsViewModel)
-                    MoveDelaySetting(settingsViewModel)
-                    FlipBoardSetting(settingsViewModel)
-                    BoardStyleSettings(settingsViewModel)
+                    Column(modifier = Modifier.padding(end = 16.dp)) {
+                        ShowPlayerNameSettings(settingsViewModel)
+                        ShowPlayerRatingSettings(settingsViewModel)
+                        MoveDelaySetting(settingsViewModel)
+                        LastMoveDelay(settingsViewModel)
+                        FlipBoardSetting(settingsViewModel)
+                        BoardStyleSettings(settingsViewModel)
+                    }
+
                 }
             )
         }
@@ -202,6 +206,35 @@ fun MoveDelaySetting(settingsViewModel: SettingsViewModel) {
                 settingsViewModel.onMoveDelaySettingsChange(it)
             },
             value = settingsViewModel.settingsUIState.value.moveDelay
+        )
+    }
+
+}
+
+@Composable
+fun LastMoveDelay(settingsViewModel: SettingsViewModel) {
+
+    Column(modifier = Modifier.padding(start = 64.dp)) {
+        Text(
+            text = stringResource(R.string.delay_after_last_move_in_seconds),
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        Text(
+            text = stringResource(
+                R.string.seconds,
+                settingsViewModel.settingsUIState.value.lastMoveDelay.toBigDecimal()
+                    .setScale(1, RoundingMode.HALF_EVEN).toString()
+            ),
+            fontWeight = FontWeight.Bold
+        )
+
+        Slider(
+            valueRange = 1F..10F,
+            steps = 10,
+            onValueChange = {
+                settingsViewModel.onLastMoveDelaySettingsChanged(it)
+            },
+            value = settingsViewModel.settingsUIState.value.lastMoveDelay
         )
     }
 
