@@ -14,7 +14,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_compose">ComposeActivity</string>
     <string name="move_delay_in_seconds">Move delay in seconds</string>
-    <string name="delay_after_last_move_in_seconds">Move after last move</string>
+    <string name="delay_after_last_move_in_seconds">Delay after last move</string>
     <string name="coming_soon">Coming soon</string>
     <string name="select_colour_and_material_of_your_board">Select the colour and material of your board</string>
     <string name="board_style">Board Style</string>
