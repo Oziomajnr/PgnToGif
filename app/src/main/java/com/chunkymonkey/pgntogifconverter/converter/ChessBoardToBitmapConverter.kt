@@ -15,6 +15,7 @@ import androidx.core.graphics.drawable.toBitmap
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
+import com.chunkymonkey.pgntogifconverter.util.getCoordinateFromSquareWithFlippedBoard
 
 class ChessBoardToBitmapConverter(
     private val paintResource: PaintResource,
@@ -75,8 +76,16 @@ class ChessBoardToBitmapConverter(
                         currentY + sizePerSquare, paintResource.kingAttackedPaint
                     )
                 }
-                val coordinateFrom = getCoordinateFromSquare(currentMove.from)
-                val coordinateTo = getCoordinateFromSquare(currentMove.to)
+                val coordinateFrom = if (shouldFlipBoard) {
+                    getCoordinateFromSquareWithFlippedBoard(currentMove.from)
+                } else {
+                    getCoordinateFromSquare(currentMove.from)
+                }
+                val coordinateTo = if (shouldFlipBoard) {
+                    getCoordinateFromSquareWithFlippedBoard(currentMove.to)
+                } else {
+                    getCoordinateFromSquare(currentMove.to)
+                }
                 if (coordinateFrom.first == y && coordinateFrom.second == x) {
                     canvas.drawRect(
                         currentX,
