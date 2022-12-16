@@ -16,11 +16,11 @@ Each bitmap frame is then created by taking the current board position and repre
 
 #Demo
 ![Gif Sample](images/gif_demo.gif "Gif Sample")
-<img src="images/sample1.png" alt="Sample 1" height="100"/>
-![Sample 2](images/sample_2.png "Sample 2")
-![Sample 3](images/sample_3.png "Sample 3")
-![Sample 4](images/sample_4.png "Sample 4")
-![Sample 5](images/sample_5.png "Sample 5")
+<img src="images/sample1.png" alt="Sample 1" height="500"/>
+<img src="images/sample_2.png" alt="Sample 2" height="500"/>
+<img src="images/sample_3.png" alt="Sample 3" height="500"/>
+<img src="images/sample_4.png" alt="Sample 4" height="500"/>
+<img src="images/sample_5.png" alt="Sample 5" height="500"/>
 
 
 ## Possible improvements
