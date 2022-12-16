@@ -61,6 +61,14 @@ class SettingsViewModel {
         refreshUiState()
     }
 
+    fun onLastMoveDelaySettingsChanged(lastMoveDelay: Float) {
+        preferenceSettingsStorage.saveSettings(
+            preferenceSettingsStorage.getSettings()
+                .copy(lastMoveDelay = lastMoveDelay)
+        )
+        analyticsEventHandler.logEvent(AnalyticsEvent.LastMoveDelaySliderClicked)
+        refreshUiState()
+    }
     fun settingsBoardStyleClicked() {
         analyticsEventHandler.logEvent(AnalyticsEvent.SettingsBoardStyleClicked)
     }
@@ -76,7 +84,8 @@ fun SettingsUiState.toSettingsData(): SettingsData {
         showPlayerRating = showPlayerRating,
         showBoardCoordinates = showBoardCoordinates,
         showPlayerName = showPlayerName,
-        shouldFlipBoard = flipBoard
+        shouldFlipBoard = flipBoard,
+        lastMoveDelay = lastMoveDelay
     )
 }
 
@@ -86,6 +95,7 @@ fun SettingsData.toSettingsState(): SettingsUiState {
         showPlayerRating = showPlayerRating,
         showBoardCoordinates = showBoardCoordinates,
         showPlayerName = showPlayerName,
-        flipBoard = shouldFlipBoard
+        flipBoard = shouldFlipBoard,
+        lastMoveDelay = lastMoveDelay
     )
 }

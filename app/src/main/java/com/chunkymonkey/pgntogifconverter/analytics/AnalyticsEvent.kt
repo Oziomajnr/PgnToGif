@@ -22,6 +22,7 @@ sealed class AnalyticsEvent(val title: String) {
     object SettingsShowPlayerRatingClicked : AnalyticsEvent("SettingsShowPlayerRatingClicked")
     object SettingsFlipBoardClicked : AnalyticsEvent("SettingsFlipBoardClicked")
     object MoveDelaySliderClicked : AnalyticsEvent("MoveDelaySliderClicked")
+    object LastMoveDelaySliderClicked : AnalyticsEvent("LastMoveDelaySliderClicked")
 }
 
 
@@ -32,3 +33,4 @@ const val showPlayerNameParam = "Show_Player_Name_Param"
 const val showPlayerRatingParam = "Show_Player_Rating_Param"
 const val showBoardCoordinatesParam = "Show_Board_Coordinates"
 const val moveDelayParam = "Move_Delay"
+const val lastMoveDelay = "Last_Move_Delay"

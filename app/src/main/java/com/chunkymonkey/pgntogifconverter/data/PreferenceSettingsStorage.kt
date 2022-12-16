@@ -11,6 +11,7 @@ class PreferenceSettingsStorage(private val preferenceService: PreferenceService
         preferenceService.saveData(showBoardCoordinatesKey, settingsData.showBoardCoordinates)
         preferenceService.saveData(moveDelayKey, settingsData.moveDelay)
         preferenceService.saveData(flipBoardKey, settingsData.shouldFlipBoard)
+        preferenceService.saveData(lastMoveDelay, settingsData.lastMoveDelay)
     }
 
     override fun getSettings(): SettingsData {
@@ -19,13 +20,15 @@ class PreferenceSettingsStorage(private val preferenceService: PreferenceService
         val shouldShowBoardCoordinates =
             preferenceService.getBoolean(showBoardCoordinatesKey, false)
         val moveDelay = preferenceService.getFloat(moveDelayKey, 0.5F)
+        val lastMoveDelay = preferenceService.getFloat(lastMoveDelay, 1F)
         val flipBoard = preferenceService.getBoolean(flipBoardKey, false)
         return SettingsData(
             showPlayerName = shouldShowPlayerName,
             showBoardCoordinates = shouldShowBoardCoordinates,
             showPlayerRating = shouldShowPlayerRating,
             moveDelay = moveDelay,
-            shouldFlipBoard = flipBoard
+            shouldFlipBoard = flipBoard,
+            lastMoveDelay = lastMoveDelay
         )
     }
 
@@ -35,5 +38,6 @@ class PreferenceSettingsStorage(private val preferenceService: PreferenceService
         private const val showBoardCoordinatesKey = "SHOW_BOARD_COORDINATES_KEY"
         private const val moveDelayKey = "MOVE_DELAY_KEY"
         private const val flipBoardKey = "FLIP_BOARD_KEY"
+        private const val lastMoveDelay = "LAST_MOVE_DELAY"
     }
 }

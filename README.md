@@ -14,6 +14,17 @@ https://github.com/videlalvaro/gifsockets/blob/master/src/java/AnimatedGifEncode
 The PGN is parsed using the [library](https://github.com/bhlangonijr/chesslib) mentioned above and the a game object that contains the board position for all the moves is created.
 Each bitmap frame is then created by taking the current board position and representing it on an android View Canvas and converting the resulting canvas to a Bitmap object.
 
+#Demo
+
+![Gif Sample](images/gif_demo.gif "Gif Sample")
+
+<img src="images/sample1.png" alt="Sample 1" height="500"/>
+<img src="images/sample_2.png" alt="Sample 2" height="500"/>
+<img src="images/sample_3.png" alt="Sample 3" height="500"/>
+<img src="images/sample_4.png" alt="Sample 4" height="500"/>
+<img src="images/sample_5.png" alt="Sample 5" height="500"/>
+
+
 ## Possible improvements
 1. Improve the speed of generating the Animated Gifs without compromising the quality of the generated gifs and colour of the cells.
 2. Improve the quality of the codebase, the application has just two screens for now so it does not neccessarily require any particular architecture but the structure of the code could be improved. For example, the dimension of the board could board and the other size calculations could be placed in a separate class in case it has to change. 
