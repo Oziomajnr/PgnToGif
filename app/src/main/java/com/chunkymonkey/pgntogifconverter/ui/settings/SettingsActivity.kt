@@ -186,10 +186,10 @@ fun FlipBoardSetting(settingsViewModel: SettingsViewModel) {
 @Composable
 fun MoveDelaySetting(settingsViewModel: SettingsViewModel) {
 
-    Column(modifier = Modifier.padding(start = 64.dp)) {
+    Column(modifier = Modifier.padding(start = 64.dp, top = 8.dp)) {
         Text(
             text = stringResource(R.string.move_delay_in_seconds),
-            modifier = Modifier.padding(bottom = 8.dp)
+            modifier = Modifier.padding(bottom = 2.dp)
         )
         Text(
             text = stringResource(
@@ -214,10 +214,10 @@ fun MoveDelaySetting(settingsViewModel: SettingsViewModel) {
 @Composable
 fun LastMoveDelay(settingsViewModel: SettingsViewModel) {
 
-    Column(modifier = Modifier.padding(start = 64.dp, top = 4.dp)) {
+    Column(modifier = Modifier.padding(start = 64.dp, top = 8.dp)) {
         Text(
             text = stringResource(R.string.delay_after_last_move_in_seconds),
-            modifier = Modifier.padding(bottom = 8.dp)
+            modifier = Modifier.padding(bottom = 2.dp)
         )
         Text(
             text = stringResource(
