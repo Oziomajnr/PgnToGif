@@ -15,6 +15,7 @@ The PGN is parsed using the [library](https://github.com/bhlangonijr/chesslib) m
 Each bitmap frame is then created by taking the current board position and representing it on an android View Canvas and converting the resulting canvas to a Bitmap object.
 
 #Demo
+
 ![Gif Sample](images/gif_demo.gif "Gif Sample")
 
 <img src="images/sample1.png" alt="Sample 1" height="500"/>
