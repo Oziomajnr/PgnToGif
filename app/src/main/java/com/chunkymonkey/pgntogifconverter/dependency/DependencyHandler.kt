@@ -15,7 +15,7 @@ object DependencyFactory {
         FirebaseAnalyticsEventHandler(getSettingsStorage())
 
     fun getSettingsStorage(): SettingsStorage = PreferenceSettingsStorage(getPreferenceService())
-    fun getPreferenceService(): PreferenceService = PreferenceService(getApplicationContext())
-    fun getApplicationContext(): Context = PgnToGifApplication.application
+    private fun getPreferenceService(): PreferenceService = PreferenceService(getApplicationContext())
+    private fun getApplicationContext(): Context = PgnToGifApplication.application
     fun getPlayerNameHelper(): PlayerNameHelper = DefaultPlayerNameHelper()
 }

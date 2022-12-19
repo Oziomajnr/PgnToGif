@@ -40,17 +40,10 @@ class PgnToGifConverter(
         } else {
             500
         }
-        val blackPlayerName = if (settingsData.showPlayerRating && game.blackPlayer.elo != 0) {
-            "${game.blackPlayer.name} (${game.blackPlayer.elo})"
-        } else {
-            game.blackPlayer.name
-        }
+        val blackPlayerName = playerNameHelper.getBlackPlayerName(game, settingsData)
 
-        val whitePlayerName = if (settingsData.showPlayerRating && game.whitePlayer.elo != 0) {
-            "${game.whitePlayer.name} (${game.whitePlayer.elo})"
-        } else {
-            game.whitePlayer.name
-        }
+        val whitePlayerName = playerNameHelper.getWhitePlayerName(game, settingsData)
+
         val encoder = AnimatedGifEncoder()
         encoder.setSize(bitmapWidth, bitmapHeight)
         encoder.setDelay((settingsData.moveDelay * 1000).roundToInt())

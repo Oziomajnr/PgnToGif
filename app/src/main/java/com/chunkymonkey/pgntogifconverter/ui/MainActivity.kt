@@ -112,11 +112,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         handleFromSystemIntent()
     }
 
-    override fun onResume() {
-        super.onResume()
-        handleFromSystemIntent()
-    }
-
     private fun shareCurrentGif() {
         val shareIntent: Intent = Intent().apply {
             action = Intent.ACTION_SEND
