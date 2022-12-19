@@ -28,6 +28,7 @@ class PgnToGifConverter(private val context: Application) {
     fun createGifFileFromChessGame(game: Game, settingsData: SettingsData): File {
         val board = Board()
         val bos = ByteArrayOutputStream()
+
         val shouldAddName =
             settingsData.showPlayerName
                     && game.blackPlayer.name != null
@@ -70,11 +71,21 @@ class PgnToGifConverter(private val context: Application) {
             }
             encoder.addFrame(
                 if (shouldAddName) {
-                    mergeBoardAndText(
-                        bitmap,
-                        getTextBitmap(blackPlayerName),
-                        getTextBitmap(whitePlayerName)
-                    )
+                    if (settingsData.shouldFlipBoard) {
+                        mergeBoardAndText(
+                            bitmap,
+                            getTextBitmap(whitePlayerName),
+                            getTextBitmap(blackPlayerName)
+
+                        )
+                    } else {
+                        mergeBoardAndText(
+                            bitmap,
+                            getTextBitmap(blackPlayerName),
+                            getTextBitmap(whitePlayerName)
+                        )
+                    }
+
                 } else {
                     bitmap
                 }
