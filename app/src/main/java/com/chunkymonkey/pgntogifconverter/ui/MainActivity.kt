@@ -54,7 +54,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     override val layout = R.layout.activity_main
     val pgnToGifConverter: PgnToGifConverter by lazy {
-        PgnToGifConverter(this.application)
+        PgnToGifConverter(this.application, DependencyFactory.getPlayerNameHelper())
     }
 
     private var job: Job? = null
@@ -112,6 +112,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         handleFromSystemIntent()
     }
 
+    override fun onResume() {
+        super.onResume()
+        handleFromSystemIntent()
+    }
+
     private fun shareCurrentGif() {
         val shareIntent: Intent = Intent().apply {
             action = Intent.ACTION_SEND
@@ -129,9 +134,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         )
     }
 
-    private fun handleFromSystemIntent() {
-        val intentData = intent.data
-        val clipData = intent.clipData
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        handleFromSystemIntent(intent)
+    }
+
+    private fun handleFromSystemIntent(newIntent: Intent? = null) {
+        val intentData = intent.data ?: newIntent?.data
+        val clipData = intent.clipData ?: newIntent?.clipData
         if (intentData != null) {
             analyticsEventHandler.logEvent(AnalyticsEvent.HandlingSystemIntent)
             handleIntent(intentData)

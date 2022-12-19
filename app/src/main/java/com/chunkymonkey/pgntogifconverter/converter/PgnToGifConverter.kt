@@ -19,7 +19,10 @@ import java.util.*
 import kotlin.math.roundToInt
 
 
-class PgnToGifConverter(private val context: Application) {
+class PgnToGifConverter(
+    private val context: Application,
+    private val playerNameHelper: PlayerNameHelper
+) {
     private val paintResource = PaintResource(context)
     private val chessPieceResource = ChessPieceResource(context)
     private val chessBoardToBitmapConverter =
@@ -29,10 +32,8 @@ class PgnToGifConverter(private val context: Application) {
         val board = Board()
         val bos = ByteArrayOutputStream()
 
-        val shouldAddName =
-            settingsData.showPlayerName
-                    && game.blackPlayer.name != null
-                    && game.whitePlayer.name != null
+        val shouldAddName = playerNameHelper.shouldShowPlayerName(game, settingsData)
+
         val bitmapWidth = 500
         val bitmapHeight = if (shouldAddName) {
             560
