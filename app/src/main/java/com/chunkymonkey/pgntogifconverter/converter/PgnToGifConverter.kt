@@ -19,7 +19,10 @@ import java.util.*
 import kotlin.math.roundToInt
 
 
-class PgnToGifConverter(private val context: Application) {
+class PgnToGifConverter(
+    private val context: Application,
+    private val playerNameHelper: PlayerNameHelper
+) {
     private val paintResource = PaintResource(context)
     private val chessPieceResource = ChessPieceResource(context)
     private val chessBoardToBitmapConverter =
@@ -28,27 +31,19 @@ class PgnToGifConverter(private val context: Application) {
     fun createGifFileFromChessGame(game: Game, settingsData: SettingsData): File {
         val board = Board()
         val bos = ByteArrayOutputStream()
-        val shouldAddName =
-            settingsData.showPlayerName
-                    && game.blackPlayer.name != null
-                    && game.whitePlayer.name != null
+
+        val shouldAddName = playerNameHelper.shouldShowPlayerName(game, settingsData)
+
         val bitmapWidth = 500
         val bitmapHeight = if (shouldAddName) {
             560
         } else {
             500
         }
-        val blackPlayerName = if (settingsData.showPlayerRating && game.blackPlayer.elo != 0) {
-            "${game.blackPlayer.name} (${game.blackPlayer.elo})"
-        } else {
-            game.blackPlayer.name
-        }
+        val blackPlayerName = playerNameHelper.getBlackPlayerName(game, settingsData)
 
-        val whitePlayerName = if (settingsData.showPlayerRating && game.whitePlayer.elo != 0) {
-            "${game.whitePlayer.name} (${game.whitePlayer.elo})"
-        } else {
-            game.whitePlayer.name
-        }
+        val whitePlayerName = playerNameHelper.getWhitePlayerName(game, settingsData)
+
         val encoder = AnimatedGifEncoder()
         encoder.setSize(bitmapWidth, bitmapHeight)
         encoder.setDelay((settingsData.moveDelay * 1000).roundToInt())
@@ -70,11 +65,21 @@ class PgnToGifConverter(private val context: Application) {
             }
             encoder.addFrame(
                 if (shouldAddName) {
-                    mergeBoardAndText(
-                        bitmap,
-                        getTextBitmap(blackPlayerName),
-                        getTextBitmap(whitePlayerName)
-                    )
+                    if (settingsData.shouldFlipBoard) {
+                        mergeBoardAndText(
+                            bitmap,
+                            getTextBitmap(whitePlayerName),
+                            getTextBitmap(blackPlayerName)
+
+                        )
+                    } else {
+                        mergeBoardAndText(
+                            bitmap,
+                            getTextBitmap(blackPlayerName),
+                            getTextBitmap(whitePlayerName)
+                        )
+                    }
+
                 } else {
                     bitmap
                 }

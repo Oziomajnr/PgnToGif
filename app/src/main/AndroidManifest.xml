@@ -60,6 +60,7 @@
                 <data android:scheme="file" />
                 <data android:mimeType="application/vnd.chess-pgn" />
                 <data android:mimeType="application/x-chess-pgn" />
+                <data android:mimeType="text/*" />
             </intent-filter>
         </activity>
     </application>
