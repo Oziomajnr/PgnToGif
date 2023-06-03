@@ -1,4 +1,4 @@
-package com.chunkymonkey.pgntogifconverter.ui
+package com.chunkymonkey.pgntogifconverter.ui.home
 
 import android.app.ActivityOptions
 import android.content.Intent
@@ -26,20 +26,17 @@ import com.chunkymonkey.pgntogifconverter.converter.PgnToGifConverter
 import com.chunkymonkey.pgntogifconverter.data.PreferenceSettingsStorage
 import com.chunkymonkey.pgntogifconverter.data.SettingsStorage
 import com.chunkymonkey.pgntogifconverter.preference.PreferenceService
+import com.chunkymonkey.pgntogifconverter.ui.BaseActivity
+import com.chunkymonkey.pgntogifconverter.ui.error.ErrorMessageProvider
+import com.chunkymonkey.pgntogifconverter.ui.error.ErrorMessageProviderImpl
 import com.chunkymonkey.pgntogifconverter.ui.error.ToastUiErrorHandler
 import com.chunkymonkey.pgntogifconverter.ui.error.UiErrorHandler
 import com.chunkymonkey.pgntogifconverter.ui.settings.SettingsActivity
-import com.chunkymonkey.pgntogifconverter.util.ErrorHandler
 import com.chunkymonkey.pgntogifconverter.util.extention.getStrictModeUri
-import com.github.bhlangonijr.chesslib.pgn.PgnHolder
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.lang.Exception
 
 
-class MainActivity : BaseActivity<ActivityMainBinding>() {
+class HomeActivity : BaseActivity<ActivityMainBinding>(), HomeView {
+
 
     private val analyticsEventHandler: AnalyticsEventHandler =
         DependencyFactory.getAnalyticsEventHandler()
@@ -52,12 +49,22 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         PreferenceSettingsStorage(PreferenceService(this.applicationContext))
     }
 
+    private val errorMessageProvider: ErrorMessageProvider by lazy {
+        ErrorMessageProviderImpl(this.applicationContext)
+    }
+
     override val layout = R.layout.activity_main
     val pgnToGifConverter: PgnToGifConverter by lazy {
         PgnToGifConverter(this.application, DependencyFactory.getPlayerNameHelper())
     }
-
-    private var job: Job? = null
+    private val homePresenter: HomePresenter by lazy {
+        HomePresenterImpl(
+            analyticsEventHandler,
+            errorMessageProvider,
+            pgnToGifConverter,
+            settingsStorage
+        )
+    }
 
     private val getContent =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { activityResult: ActivityResult ->
@@ -67,13 +74,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         analyticsEventHandler.initialize()
+        homePresenter.initializeView(this, lifecycleScope)
         binding.createGifButton.setOnClickListener {
             analyticsEventHandler.logEvent(AnalyticsEvent.CreateGifClicked(binding.pgnInput.text.toString()))
             if (binding.pgnInput.text.isNullOrBlank()) {
                 errorMessageHandler.showError(getString(R.string.please_enter_pgn))
             } else {
-                processPgnFile(
-                    binding.pgnInput.text.toString().toFile(
+                homePresenter.processPgnFile(
+                    getCurrentPgnText().toFile(
                         "game.pgn",
                         this.applicationContext
                     )
@@ -101,6 +109,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                 }
             }
         }
+
         binding.saveGif.setOnClickListener {
             analyticsEventHandler.logEvent(AnalyticsEvent.ExportPgnClicked(binding.pgnInput.text.toString()))
             currentFilePath?.let {
@@ -117,7 +126,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             action = Intent.ACTION_SEND
             putExtra(
                 Intent.EXTRA_STREAM,
-                currentFilePath?.getStrictModeUri(this@MainActivity)
+                currentFilePath?.getStrictModeUri(this@HomeActivity)
             )
             type = "image/gif"
         }
@@ -148,53 +157,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                 null
             }
             if (firstItem != null) {
-                processPgnFile(
+                homePresenter.processPgnFile(
                     firstItem.text.toString().toFile(
                         "game.pgn",
                         this.applicationContext
                     )
                 )
             }
-        }
-    }
-
-    private fun processPgnFile(pgnFile: File) {
-        try {
-            analyticsEventHandler.logEvent(AnalyticsEvent.ProcessingPgnFile)
-            val pgn = PgnHolder(
-                pgnFile.absolutePath
-            )
-            pgn.loadPgn()
-            if (pgn.games.firstOrNull() != null) {
-                binding.pgnInput.setText(pgn.toString())
-            }
-            job?.cancel()
-            job = lifecycleScope.launch(Dispatchers.IO) {
-                withContext(Dispatchers.Main) {
-                    binding.progressBar.isVisible = true
-                }
-                val game = pgn.games.firstOrNull()
-                if (game == null) {
-                    errorMessageHandler.showError(getString(R.string.current_pgn_does_not_contain_any_game))
-                } else {
-                    currentFilePath = pgnToGifConverter.createGifFileFromChessGame(
-                        game,
-                        settingsStorage.getSettings()
-                    )
-                }
-
-                withContext(Dispatchers.Main) {
-                    binding.progressBar.isVisible = false
-                    if (currentFilePath != null) {
-                        analyticsEventHandler.logEvent(AnalyticsEvent.LoadingPgnFileToView)
-                        Glide.with(this@MainActivity).load(currentFilePath).into(binding.image)
-                    }
-                }
-            }
-        } catch (ex: Exception) {
-            ErrorHandler.logException(ex)
-            ErrorHandler.logInfo("Failed to parse pgn with value ${binding.pgnInput.text.toString()}")
-            errorMessageHandler.showError(getString(R.string.unable_to_generate_gif))
         }
     }
 
@@ -233,12 +202,32 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     private fun handleIntent(data: Uri) {
         val selectedFile = data.uriToFile(this.applicationContext)
         if (selectedFile != null) {
-            processPgnFile(selectedFile)
+            homePresenter.processPgnFile(selectedFile)
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        job?.cancel()
+        homePresenter.onDestroy()
+    }
+
+    override fun setPgnText(text: String) {
+        binding.pgnInput.setText(text)
+    }
+
+    override fun updateProgressBarVisibility(isVisible: Boolean) {
+        binding.progressBar.isVisible = isVisible
+    }
+
+    override fun showErrorMessage(message: String) {
+        errorMessageHandler.showError(message)
+    }
+
+    override fun getCurrentPgnText(): String {
+        return binding.pgnInput.text.toString()
+    }
+
+    override fun displayGifFromFile(currentFilePath: File) {
+        Glide.with(this@HomeActivity).load(currentFilePath).into(binding.image)
     }
 }
