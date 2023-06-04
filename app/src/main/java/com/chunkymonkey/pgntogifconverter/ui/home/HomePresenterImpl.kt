@@ -69,6 +69,7 @@ class HomePresenterImpl(
     }
 
     override fun onDestroy() {
+        view = null
         job?.cancel()
     }
 
