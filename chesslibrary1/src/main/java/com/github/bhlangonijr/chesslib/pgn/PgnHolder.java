@@ -141,6 +141,8 @@ public class PgnHolder {
             for (Game game : games) {
                 addGame(game);
             }
+        }catch( Exception ex){
+            ex.printStackTrace();
         } finally {
             file.close();
         }

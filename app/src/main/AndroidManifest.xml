@@ -34,7 +34,7 @@
         </provider>
 
         <activity
-            android:name=".ui.MainActivity"
+            android:name=".ui.home.HomeActivity"
             android:exported="true"
             android:launchMode="singleTask">
             <intent-filter>
