@@ -1,4 +1,4 @@
-val compose_version = "1.0.5"
+val composeVersion = "1.0.5"
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -8,13 +8,13 @@ plugins {
 }
 
 android {
-    compileSdkVersion(32)
+    compileSdk = 33
     buildToolsVersion = "30.0.3"
 
     defaultConfig {
         applicationId = "com.chunkymonkey.imagetogifconverter"
-        minSdkVersion(21)
-        targetSdkVersion(32)
+        minSdk = 21
+        targetSdk = 33
         versionCode = 12
         versionName = "1.2.1"
         multiDexEnabled = true
@@ -32,7 +32,6 @@ android {
 
     kotlinOptions {
         jvmTarget = "1.8"
-        useIR = true
     }
 
     buildFeatures {
@@ -49,8 +48,7 @@ android {
         }
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = compose_version
-        kotlinCompilerVersion = "1.5.31"
+        kotlinCompilerExtensionVersion = composeVersion
     }
     packagingOptions {
         resources {
@@ -61,11 +59,11 @@ android {
 
 dependencies {
 
-    implementation("androidx.compose.ui:ui:$compose_version")
-    implementation("androidx.compose.material:material:$compose_version")
-    implementation("androidx.compose.ui:ui-tooling-preview:$compose_version")
+    implementation("androidx.compose.ui:ui:$composeVersion")
+    implementation("androidx.compose.material:material:$composeVersion")
+    implementation("androidx.compose.ui:ui-tooling-preview:$composeVersion")
     implementation("androidx.activity:activity-compose:1.4.0")
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4:$compose_version")
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:$composeVersion")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.1.5")
 
     implementation("androidx.core:core-ktx:1.7.0")
@@ -80,7 +78,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.1")
     implementation(project(":chesslibrary1"))
-    debugImplementation("androidx.compose.ui:ui-tooling:$compose_version")
+    debugImplementation("androidx.compose.ui:ui-tooling:$composeVersion")
     implementation("com.github.alorma:compose-settings-ui:0.7.2")
 
     implementation(platform("com.google.firebase:firebase-bom:29.0.3"))
