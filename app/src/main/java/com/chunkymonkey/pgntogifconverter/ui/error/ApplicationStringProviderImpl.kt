@@ -4,7 +4,7 @@ import android.content.Context
 import com.chunkymonkey.pgntogifconverter.R
 import com.chunkymonkey.pgntogifconverter.ui.ApplicationText
 
-class ErrorMessageProviderImpl(private val applicationContext: Context) : ErrorMessageProvider {
+class ApplicationStringProviderImpl(private val applicationContext: Context) : ApplicationStringProvider {
     override fun getErrorMessage(applicationText: ApplicationText): String {
         return when (applicationText) {
             ApplicationText.PLEASE_LOAD_IN_PGN -> applicationContext.getString(R.string.please_enter_pgn)

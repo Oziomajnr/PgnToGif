@@ -27,8 +27,8 @@ import com.chunkymonkey.pgntogifconverter.data.PreferenceSettingsStorage
 import com.chunkymonkey.pgntogifconverter.data.SettingsStorage
 import com.chunkymonkey.pgntogifconverter.preference.PreferenceService
 import com.chunkymonkey.pgntogifconverter.ui.BaseActivity
-import com.chunkymonkey.pgntogifconverter.ui.error.ErrorMessageProvider
-import com.chunkymonkey.pgntogifconverter.ui.error.ErrorMessageProviderImpl
+import com.chunkymonkey.pgntogifconverter.ui.error.ApplicationStringProvider
+import com.chunkymonkey.pgntogifconverter.ui.error.ApplicationStringProviderImpl
 import com.chunkymonkey.pgntogifconverter.ui.error.ToastUiErrorHandler
 import com.chunkymonkey.pgntogifconverter.ui.error.UiErrorHandler
 import com.chunkymonkey.pgntogifconverter.ui.settings.SettingsActivity
@@ -49,8 +49,8 @@ class HomeActivity : BaseActivity<ActivityMainBinding>(), HomeView {
         PreferenceSettingsStorage(PreferenceService(this.applicationContext))
     }
 
-    private val errorMessageProvider: ErrorMessageProvider by lazy {
-        ErrorMessageProviderImpl(this.applicationContext)
+    private val applicationStringProvider: ApplicationStringProvider by lazy {
+        ApplicationStringProviderImpl(this.applicationContext)
     }
 
     override val layout = R.layout.activity_main
@@ -60,7 +60,7 @@ class HomeActivity : BaseActivity<ActivityMainBinding>(), HomeView {
     private val homePresenter: HomePresenter by lazy {
         HomePresenterImpl(
             analyticsEventHandler,
-            errorMessageProvider,
+            applicationStringProvider,
             pgnToGifConverter,
             settingsStorage
         )

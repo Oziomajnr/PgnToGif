@@ -3,6 +3,6 @@ package com.chunkymonkey.pgntogifconverter.ui.error
 import com.chunkymonkey.pgntogifconverter.ui.ApplicationText
 
 
-interface ErrorMessageProvider {
+interface ApplicationStringProvider {
     fun getErrorMessage(applicationText: ApplicationText): String
 }
