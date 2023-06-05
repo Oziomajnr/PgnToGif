@@ -27,12 +27,28 @@ class FirebaseAnalyticsEventHandler(
                             addParamFromSettings(this, settingsStorage.getSettings())
                         }
                     }
+
                     is AnalyticsEvent.ExportPgnClicked -> {
                         firebaseAnalytics.logEvent(analyticsEvent.title) {
                             param(currentPgnTextParam, analyticsEvent.currentPgnText.take(40))
                             addParamFromSettings(this, settingsStorage.getSettings())
                         }
                     }
+
+                    is AnalyticsEvent.OnNewBoardStyleSelected -> {
+                        firebaseAnalytics.logEvent(analyticsEvent.title) {
+                            param(selectedBoardStyle, analyticsEvent.selectedBoardType)
+                            addParamFromSettings(this, settingsStorage.getSettings())
+                        }
+                    }
+
+                    is AnalyticsEvent.OnNewPieceSetSelected -> {
+                        firebaseAnalytics.logEvent(analyticsEvent.title) {
+                            param(currentPgnTextParam, analyticsEvent.selectedPiece)
+                            addParamFromSettings(this, settingsStorage.getSettings())
+                        }
+                    }
+
                     else -> {
                         firebaseAnalytics.logEvent(analyticsEvent.title) {
                             addParamFromSettings(this, settingsStorage.getSettings())
@@ -52,5 +68,7 @@ class FirebaseAnalyticsEventHandler(
         paramBuilder.param(showBoardCoordinatesParam, settingsData.showBoardCoordinates.toString())
         paramBuilder.param(moveDelayParam, settingsData.moveDelay.toString())
         paramBuilder.param(lastMoveDelay, settingsData.lastMoveDelay.toString())
+        paramBuilder.param(selectedBoardStyle, settingsData.boardStyle.name)
+        paramBuilder.param(selectedPieceStyle, settingsData.pieceSet.name)
     }
 }

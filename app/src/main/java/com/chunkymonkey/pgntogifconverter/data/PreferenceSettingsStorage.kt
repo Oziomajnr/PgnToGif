@@ -13,6 +13,7 @@ class PreferenceSettingsStorage(private val preferenceService: PreferenceService
         preferenceService.saveData(flipBoardKey, settingsData.shouldFlipBoard)
         preferenceService.saveData(lastMoveDelay, settingsData.lastMoveDelay)
         preferenceService.saveData(pieceSetKey, settingsData.pieceSet.name)
+        preferenceService.saveData(boardStyleKey, settingsData.boardStyle.name)
     }
 
     override fun getSettings(): SettingsData {
@@ -24,6 +25,7 @@ class PreferenceSettingsStorage(private val preferenceService: PreferenceService
         val lastMoveDelay = preferenceService.getFloat(lastMoveDelay, 1F)
         val flipBoard = preferenceService.getBoolean(flipBoardKey, false)
         val pieceSet = preferenceService.getString(pieceSetKey, "")
+        val boardStyle = preferenceService.getString(boardStyleKey, "")
         return SettingsData(
             showPlayerName = shouldShowPlayerName,
             showBoardCoordinates = shouldShowBoardCoordinates,
@@ -31,7 +33,8 @@ class PreferenceSettingsStorage(private val preferenceService: PreferenceService
             moveDelay = moveDelay,
             shouldFlipBoard = flipBoard,
             lastMoveDelay = lastMoveDelay,
-            pieceSet = convertPrefToPieceSet(pieceSet)
+            pieceSet = convertPrefToPieceSet(pieceSet),
+            boardStyle = convertPrefToBoardStyle(boardStyle)
         )
     }
 
@@ -45,6 +48,19 @@ class PreferenceSettingsStorage(private val preferenceService: PreferenceService
         }
     }
 
+    private fun convertPrefToBoardStyle(pieceSetPreference: String): BoardStyle {
+        return when (pieceSetPreference) {
+            BoardStyle.Default.name -> BoardStyle.Default
+            BoardStyle.Blue.name -> BoardStyle.Blue
+            BoardStyle.IC.name -> BoardStyle.IC
+            BoardStyle.Purple.name -> BoardStyle.Purple
+            BoardStyle.Green.name -> BoardStyle.Green
+            else -> {
+                BoardStyle.Default
+            }
+        }
+    }
+
     companion object {
         private const val showPlayerNameKey = "SHOW_PLAYER_NAME_KEY"
         private const val showPlayerRatingKey = "SHOW_PLAYER_RATING_KEY"
@@ -53,5 +69,6 @@ class PreferenceSettingsStorage(private val preferenceService: PreferenceService
         private const val flipBoardKey = "FLIP_BOARD_KEY"
         private const val lastMoveDelay = "LAST_MOVE_DELAY"
         private const val pieceSetKey = "PIECE_SET"
+        private const val boardStyleKey = "BOARD_STYLE"
     }
 }

@@ -15,8 +15,21 @@
     <color name="window_background">#EFEBE9</color>
     <color name="transparent">#00000000</color>
 
-    <color name="light_square_color">#F0D9B5</color>
-    <color name="dark_square_color">#946f51</color>
+    <color name="light_square_color_default">#F0D9B5</color>
+    <color name="dark_square_color_default">#B58863</color>
+
+    <color name="light_square_color_blue">#dee3e6</color>
+    <color name="dark_square_color_blue">#8ca2ad</color>
+
+    <color name="light_square_color_green">#ffffdd</color>
+    <color name="dark_square_color_green">#86a666</color>
+
+    <color name="light_square_color_purple">#9f90b0</color>
+    <color name="dark_square_color_purple">#7d4a8d</color>
+
+    <color name="light_square_color_ic">#ececec</color>
+    <color name="dark_square_color_ic">#c1c18e</color>
+
     <color name="kind_attached_colour">#F42C2C</color>
     <color name="highlighted_square_paint">#FCAAE3AC</color>
     <color name="gif_preview_background">@color/window_background</color>

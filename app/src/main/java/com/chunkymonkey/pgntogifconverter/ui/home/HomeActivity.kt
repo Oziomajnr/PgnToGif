@@ -32,7 +32,10 @@ import com.chunkymonkey.pgntogifconverter.ui.error.ApplicationStringProviderImpl
 import com.chunkymonkey.pgntogifconverter.ui.error.ToastUiErrorHandler
 import com.chunkymonkey.pgntogifconverter.ui.error.UiErrorHandler
 import com.chunkymonkey.pgntogifconverter.ui.settings.SettingsActivity
+import com.chunkymonkey.pgntogifconverter.util.ErrorHandler
 import com.chunkymonkey.pgntogifconverter.util.extention.getStrictModeUri
+import com.google.android.play.core.review.ReviewException
+import com.google.android.play.core.review.ReviewManagerFactory
 
 
 class HomeActivity : BaseActivity<ActivityMainBinding>(), HomeView {
@@ -54,17 +57,15 @@ class HomeActivity : BaseActivity<ActivityMainBinding>(), HomeView {
     }
 
     override val layout = R.layout.activity_main
-    val pgnToGifConverter: PgnToGifConverter by lazy {
+    private val pgnToGifConverter: PgnToGifConverter by lazy {
         PgnToGifConverter(this.application, DependencyFactory.getPlayerNameHelper())
     }
     private val homePresenter: HomePresenter by lazy {
         HomePresenterImpl(
-            analyticsEventHandler,
-            applicationStringProvider,
-            pgnToGifConverter,
-            settingsStorage
+            analyticsEventHandler, applicationStringProvider, pgnToGifConverter, settingsStorage
         )
     }
+    val reviewManager by lazy { ReviewManagerFactory.create(this.applicationContext) }
 
     private val getContent =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { activityResult: ActivityResult ->
@@ -82,8 +83,7 @@ class HomeActivity : BaseActivity<ActivityMainBinding>(), HomeView {
             } else {
                 homePresenter.processPgnFile(
                     getCurrentPgnText().toFile(
-                        "game.pgn",
-                        this.applicationContext
+                        "game.pgn", this.applicationContext
                     )
                 )
             }
@@ -119,21 +119,37 @@ class HomeActivity : BaseActivity<ActivityMainBinding>(), HomeView {
             }
         }
         handleFromSystemIntent()
+        val request = reviewManager.requestReviewFlow()
+        request.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                // We got the ReviewInfo object
+                val reviewInfo = task.result
+                val flow = reviewManager.launchReviewFlow(this, reviewInfo)
+                flow.addOnCompleteListener {
+
+                }
+            } else {
+                // There was some problem, log or handle the error code.
+                task.exception?.let {
+                    ErrorHandler.logException(it)
+                    ErrorHandler.logInfo("Review Task failed with code ${(task.exception as ReviewException).errorCode}")
+                }
+
+            }
+        }
     }
 
     private fun shareCurrentGif() {
         val shareIntent: Intent = Intent().apply {
             action = Intent.ACTION_SEND
             putExtra(
-                Intent.EXTRA_STREAM,
-                currentFilePath?.getStrictModeUri(this@HomeActivity)
+                Intent.EXTRA_STREAM, currentFilePath?.getStrictModeUri(this@HomeActivity)
             )
             type = "image/gif"
         }
         startActivity(
             Intent.createChooser(
-                shareIntent,
-                resources.getText(R.string.share)
+                shareIntent, resources.getText(R.string.share)
             )
         )
     }
@@ -159,8 +175,7 @@ class HomeActivity : BaseActivity<ActivityMainBinding>(), HomeView {
             if (firstItem != null) {
                 homePresenter.processPgnFile(
                     firstItem.text.toString().toFile(
-                        "game.pgn",
-                        this.applicationContext
+                        "game.pgn", this.applicationContext
                     )
                 )
             }
@@ -191,8 +206,7 @@ class HomeActivity : BaseActivity<ActivityMainBinding>(), HomeView {
             type = "*/*"
             putExtra(
                 Intent.EXTRA_MIME_TYPES, arrayOf(
-                    "application/vnd.chess-pgn",
-                    "application/x-chess-pgn"
+                    "application/vnd.chess-pgn", "application/x-chess-pgn"
                 )
             )
         }

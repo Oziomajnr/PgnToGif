@@ -7,5 +7,6 @@ data class SettingsData(
     val moveDelay: Float,
     val shouldFlipBoard: Boolean,
     val lastMoveDelay: Float,
-    val pieceSet: PieceSet
+    val pieceSet: PieceSet,
+    val boardStyle: BoardStyle
 )

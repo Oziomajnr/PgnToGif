@@ -5,10 +5,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -51,19 +55,31 @@ fun Parent(settingsViewModel: SettingsViewModel, onBackPressed: () -> Unit = {})
                 content = {
                     val scope = rememberCoroutineScope()
                     val state = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+                    val isBoardStyle = remember { mutableStateOf(false) }
 
                     @Composable
                     fun MainContent() {
-                        Column(modifier = Modifier.padding(end = 16.dp)) {
+                        Column(
+                            modifier = Modifier
+                                .padding(end = 16.dp)
+                                .verticalScroll(rememberScrollState())
+                        ) {
                             ShowPlayerNameSettings(settingsViewModel)
                             ShowPlayerRatingSettings(settingsViewModel)
                             MoveDelaySetting(settingsViewModel)
                             LastMoveDelay(settingsViewModel)
                             FlipBoardSetting(settingsViewModel)
-                            BoardStyleSettings(settingsViewModel) { scope.launch { state.show() } }
+                            BoardStyleSettings(settingsViewModel) {
+                                isBoardStyle.value = true
+                                scope.launch { state.show() }
+                            }
+                            PieceSetSettings(settingsViewModel) {
+                                isBoardStyle.value = false
+                                scope.launch { state.show() }
+                            }
                         }
                     }
-                    FullScreenBottomSheet(state, settingsViewModel) { MainContent() }
+                    SettingsBottomSheet(state, settingsViewModel, isBoardStyle) { MainContent() }
                 }
             )
         }
@@ -144,11 +160,10 @@ fun ShowBoardCoordinateSettings(settingsViewModel: SettingsViewModel) {
     )
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun BoardStyleSettings(
     settingsViewModel: SettingsViewModel,
-    onPieceSettingsVisibleChanges: (Boolean) -> (Unit)
+    onBoardSettingsVisibleChanges: (Boolean) -> (Unit)
 ) {
 
     SettingsMenuLink(
@@ -162,6 +177,28 @@ fun BoardStyleSettings(
         },
         onClick = {
             settingsViewModel.settingsBoardStyleClicked()
+            onBoardSettingsVisibleChanges(true)
+        },
+    )
+}
+
+@Composable
+fun PieceSetSettings(
+    settingsViewModel: SettingsViewModel,
+    onPieceSettingsVisibleChanges: (Boolean) -> (Unit)
+) {
+
+    SettingsMenuLink(
+        title = {
+            Text(text = stringResource(R.string.piece_style))
+        },
+        subtitle = {
+            Text(
+                text = stringResource(R.string.select_style_of_your_piece)
+            )
+        },
+        onClick = {
+            settingsViewModel.settingsPieceSetClicked()
             onPieceSettingsVisibleChanges(true)
         },
         modifier = Modifier.padding(bottom = 20.dp)

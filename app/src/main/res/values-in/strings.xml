@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Catur ke Gif</string>
+    <string name="settings">Pengaturan</string>
+    <string name="share">Bagikan</string>
+    <string name="save">Simpan</string>
+    <string name="generate_gif">Buat Gif</string>
+    <string name="paste_pgn_of_game">Tempelkan Pgn permainan</string>
+    <string name="import_pgn">Impor Pgn</string>
+    <string name="export">Ekspor</string>
+    <string name="unable_to_generate_gif">Tidak dapat membuat gif</string>
+    <string name="please_enter_pgn">Silakan masukkan Pgn</string>
+    <string name="load_in_a_gif">Harap muat dalam GIF</string>
+    <string name="current_pgn_does_not_contain_any_game">PGN yang Anda masukkan tidak valid</string>
+    <string name="hello_blank_fragment">Halo fragmen kosong</string>
+    <string name="title_activity_compose">Aktivitas Komposisi</string>
+    <string name="move_delay_in_seconds">Jeda gerakan dalam detik</string>
+    <string name="delay_after_last_move_in_seconds">Jeda setelah gerakan terakhir</string>
+    <string name="coming_soon">Segera hadir</string>
+    <string name="select_colour_and_material_of_your_board">Pilih warna dan bahan papan Anda</string>
+    <string name="board_style">Gaya Papan</string>
+    <string name="piece_style">Gaya Bidak</string>
+    <string name="select_style_of_your_piece">Pilih gaya bidak Anda</string>
+    <string name="flip_board_title">Balik Papan</string>
+    <string name="flip_board_description">Tampilkan papan dari sisi pemain hitam</string>
+    <string name="show_board_coordinates">Tampilkan koordinat papan</string>
+    <string name="show_rating_if_available">Tampilkan peringkat pemain jika tersedia</string>
+    <string name="show_player_rating">Tampilkan peringkat Pemain</string>
+    <string name="show_player_name_if_available">Tampilkan nama pemain jika tersedia</string>
+    <string name="show_player_names">Tampilkan Nama Pemain</string>
+    <string name="player_ratings">Peringkat Pemain</string>
+    <string name="seconds">%s Detik</string>
+    <string name="select_piece_type">Pilih Tipe Bidak</string>
+    <string name="select_board_style">Pilih Gaya Papan</string>
+
+    <string name="default_piece_type">Default</string>
+    <string name="pirouetti_piece_type">Pirouetti</string>
+    <string name="california_piece_type">California</string>
+    <string name="spatial_piece_type">Spatial</string>
+    <string name="letter_piece_type">Letter</string>
+
+    <string name="board_style_default">Default</string>
+    <string name="board_style_blue">Biru</string>
+    <string name="board_style_purple">Ungu</string>
+    <string name="board_style_ic">IC</string>
+    <string name="board_style_green">Hijau</string>
+</resources>

@@ -1,5 +1,6 @@
 package com.chunkymonkey.pgntogifconverter.ui.settings
 
+import com.chunkymonkey.pgntogifconverter.data.BoardStyle
 import com.chunkymonkey.pgntogifconverter.data.PieceSet
 
 data class SettingsUiState(
@@ -9,5 +10,6 @@ data class SettingsUiState(
     val moveDelay: Float,
     val flipBoard: Boolean,
     val lastMoveDelay: Float,
-    val pieceSet: PieceSet
+    val pieceSet: PieceSet,
+    val boardStyle: BoardStyle
 )

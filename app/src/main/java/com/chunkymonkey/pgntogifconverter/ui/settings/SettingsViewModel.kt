@@ -3,6 +3,7 @@ package com.chunkymonkey.pgntogifconverter.ui.settings
 import androidx.compose.runtime.mutableStateOf
 import com.chunkymonkey.pgntogifconverter.analytics.AnalyticsEvent
 import com.chunkymonkey.pgntogifconverter.analytics.AnalyticsEventHandler
+import com.chunkymonkey.pgntogifconverter.data.BoardStyle
 import com.chunkymonkey.pgntogifconverter.data.PieceSet
 import com.chunkymonkey.pgntogifconverter.data.SettingsData
 import com.chunkymonkey.pgntogifconverter.data.SettingsStorage
@@ -15,10 +16,6 @@ class SettingsViewModel {
 
     val settingsUIState by lazy {
         mutableStateOf(preferenceSettingsStorage.getSettings().toSettingsState())
-    }
-
-    private fun onSettingsStateChanged(newSettingsUiState: SettingsUiState) {
-        preferenceSettingsStorage.saveSettings(newSettingsUiState.toSettingsData())
     }
 
     fun onShowPlayerNameSettingsChange(shouldShowPlayerName: Boolean) {
@@ -69,6 +66,10 @@ class SettingsViewModel {
         refreshUiState()
     }
 
+    fun settingsPieceSetClicked() {
+        analyticsEventHandler.logEvent(AnalyticsEvent.SettingsPieceSetClicked)
+    }
+
     fun settingsBoardStyleClicked() {
         analyticsEventHandler.logEvent(AnalyticsEvent.SettingsBoardStyleClicked)
     }
@@ -80,21 +81,16 @@ class SettingsViewModel {
         analyticsEventHandler.logEvent(AnalyticsEvent.OnNewPieceSetSelected(selectedPieceSet.name))
     }
 
+    fun onNewBoardStyleSelected(boardStyle: BoardStyle) {
+        preferenceSettingsStorage.saveSettings(
+            preferenceSettingsStorage.getSettings().copy(boardStyle = boardStyle)
+        )
+        analyticsEventHandler.logEvent(AnalyticsEvent.OnNewBoardStyleSelected(boardStyle.name))
+    }
+
     private fun refreshUiState() {
         settingsUIState.value = preferenceSettingsStorage.getSettings().toSettingsState()
     }
-}
-
-fun SettingsUiState.toSettingsData(): SettingsData {
-    return SettingsData(
-        moveDelay = moveDelay,
-        showPlayerRating = showPlayerRating,
-        showBoardCoordinates = showBoardCoordinates,
-        showPlayerName = showPlayerName,
-        shouldFlipBoard = flipBoard,
-        lastMoveDelay = lastMoveDelay,
-        pieceSet = pieceSet
-    )
 }
 
 fun SettingsData.toSettingsState(): SettingsUiState {
@@ -105,6 +101,7 @@ fun SettingsData.toSettingsState(): SettingsUiState {
         showPlayerName = showPlayerName,
         flipBoard = shouldFlipBoard,
         lastMoveDelay = lastMoveDelay,
-        pieceSet = pieceSet
+        pieceSet = pieceSet,
+        boardStyle = boardStyle
     )
 }
