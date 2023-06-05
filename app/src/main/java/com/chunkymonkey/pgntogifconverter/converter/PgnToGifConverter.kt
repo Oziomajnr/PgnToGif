@@ -7,7 +7,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import com.chunkymonkey.pgntogifconverter.R
 import com.chunkymonkey.pgntogifconverter.data.SettingsData
-import com.chunkymonkey.pgntogifconverter.resource.ChessPieceResource
+import com.chunkymonkey.pgntogifconverter.dependency.DependencyFactory
+import com.chunkymonkey.pgntogifconverter.resource.ChessPieceResourceProvider
 import com.chunkymonkey.pgntogifconverter.resource.PaintResource
 import com.chunkymonkey.pgntogifconverter.util.AnimatedGifEncoder
 import com.github.bhlangonijr.chesslib.Board
@@ -24,9 +25,9 @@ class PgnToGifConverter(
     private val playerNameHelper: PlayerNameHelper
 ) {
     private val paintResource = PaintResource(context)
-    private val chessPieceResource = ChessPieceResource(context)
+    private val chessPieceResourceProvider = ChessPieceResourceProvider(context, DependencyFactory.getSettingsStorage())
     private val chessBoardToBitmapConverter =
-        ChessBoardToBitmapConverter(paintResource, chessPieceResource)
+        ChessBoardToBitmapConverter(paintResource, chessPieceResourceProvider)
 
     fun createGifFileFromChessGame(game: Game, settingsData: SettingsData): File {
         val board = Board()

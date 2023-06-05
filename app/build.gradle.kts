@@ -3,6 +3,7 @@ plugins {
     id("com.android.application")
     id("kotlin-android")
     id("kotlin-kapt")
+    id("kotlin-parcelize")
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
 }
@@ -63,8 +64,8 @@ android {
 
 dependencies {
 
-    implementation("androidx.compose.ui:ui:1.4.3")
-    implementation("androidx.compose.material:material:1.4.3")
+    implementation("androidx.compose.ui:ui:$composeVersion")
+    implementation("androidx.compose.material:material:1.5.0-beta01")
     implementation("androidx.compose.ui:ui-tooling-preview:$composeVersion")
     implementation("androidx.activity:activity-compose:1.7.2")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:$composeVersion")

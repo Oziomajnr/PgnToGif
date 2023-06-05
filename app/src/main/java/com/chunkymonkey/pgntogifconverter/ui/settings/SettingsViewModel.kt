@@ -3,6 +3,7 @@ package com.chunkymonkey.pgntogifconverter.ui.settings
 import androidx.compose.runtime.mutableStateOf
 import com.chunkymonkey.pgntogifconverter.analytics.AnalyticsEvent
 import com.chunkymonkey.pgntogifconverter.analytics.AnalyticsEventHandler
+import com.chunkymonkey.pgntogifconverter.data.PieceSet
 import com.chunkymonkey.pgntogifconverter.data.SettingsData
 import com.chunkymonkey.pgntogifconverter.data.SettingsStorage
 import com.chunkymonkey.pgntogifconverter.dependency.DependencyFactory
@@ -54,8 +55,7 @@ class SettingsViewModel {
 
     fun onMoveDelaySettingsChange(moveDelay: Float) {
         preferenceSettingsStorage.saveSettings(
-            preferenceSettingsStorage.getSettings()
-                .copy(moveDelay = moveDelay)
+            preferenceSettingsStorage.getSettings().copy(moveDelay = moveDelay)
         )
         analyticsEventHandler.logEvent(AnalyticsEvent.MoveDelaySliderClicked)
         refreshUiState()
@@ -63,14 +63,21 @@ class SettingsViewModel {
 
     fun onLastMoveDelaySettingsChanged(lastMoveDelay: Float) {
         preferenceSettingsStorage.saveSettings(
-            preferenceSettingsStorage.getSettings()
-                .copy(lastMoveDelay = lastMoveDelay)
+            preferenceSettingsStorage.getSettings().copy(lastMoveDelay = lastMoveDelay)
         )
         analyticsEventHandler.logEvent(AnalyticsEvent.LastMoveDelaySliderClicked)
         refreshUiState()
     }
+
     fun settingsBoardStyleClicked() {
         analyticsEventHandler.logEvent(AnalyticsEvent.SettingsBoardStyleClicked)
+    }
+
+    fun onNewPieceSetSelected(selectedPieceSet: PieceSet) {
+        preferenceSettingsStorage.saveSettings(
+            preferenceSettingsStorage.getSettings().copy(pieceSet = selectedPieceSet)
+        )
+        analyticsEventHandler.logEvent(AnalyticsEvent.OnNewPieceSetSelected(selectedPieceSet.name))
     }
 
     private fun refreshUiState() {
@@ -85,7 +92,8 @@ fun SettingsUiState.toSettingsData(): SettingsData {
         showBoardCoordinates = showBoardCoordinates,
         showPlayerName = showPlayerName,
         shouldFlipBoard = flipBoard,
-        lastMoveDelay = lastMoveDelay
+        lastMoveDelay = lastMoveDelay,
+        pieceSet = pieceSet
     )
 }
 
@@ -96,6 +104,7 @@ fun SettingsData.toSettingsState(): SettingsUiState {
         showBoardCoordinates = showBoardCoordinates,
         showPlayerName = showPlayerName,
         flipBoard = shouldFlipBoard,
-        lastMoveDelay = lastMoveDelay
+        lastMoveDelay = lastMoveDelay,
+        pieceSet = pieceSet
     )
 }

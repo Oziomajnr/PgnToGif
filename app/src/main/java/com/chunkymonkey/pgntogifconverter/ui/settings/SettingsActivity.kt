@@ -1,7 +1,6 @@
 package com.chunkymonkey.pgntogifconverter.ui.settings
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
@@ -10,8 +9,8 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -22,6 +21,7 @@ import com.alorma.compose.settings.ui.SettingsSwitch
 import com.chunkymonkey.pgntogifconverter.R
 import com.chunkymonkey.pgntogifconverter.ui.compose.AppScaffold
 import com.chunkymonkey.pgntogifconverter.ui.ui.theme.ImageToGifConverterTheme
+import kotlinx.coroutines.launch
 import java.math.RoundingMode
 
 class SettingsActivity : ComponentActivity() {
@@ -36,6 +36,7 @@ class SettingsActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun Parent(settingsViewModel: SettingsViewModel, onBackPressed: () -> Unit = {}) {
     ImageToGifConverterTheme {
@@ -48,15 +49,21 @@ fun Parent(settingsViewModel: SettingsViewModel, onBackPressed: () -> Unit = {})
                     )
                 },
                 content = {
-                    Column(modifier = Modifier.padding(end = 16.dp)) {
-                        ShowPlayerNameSettings(settingsViewModel)
-                        ShowPlayerRatingSettings(settingsViewModel)
-                        MoveDelaySetting(settingsViewModel)
-                        LastMoveDelay(settingsViewModel)
-                        FlipBoardSetting(settingsViewModel)
-                        BoardStyleSettings(settingsViewModel)
-                    }
+                    val scope = rememberCoroutineScope()
+                    val state = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
 
+                    @Composable
+                    fun MainContent() {
+                        Column(modifier = Modifier.padding(end = 16.dp)) {
+                            ShowPlayerNameSettings(settingsViewModel)
+                            ShowPlayerRatingSettings(settingsViewModel)
+                            MoveDelaySetting(settingsViewModel)
+                            LastMoveDelay(settingsViewModel)
+                            FlipBoardSetting(settingsViewModel)
+                            BoardStyleSettings(settingsViewModel) { scope.launch { state.show() } }
+                        }
+                    }
+                    FullScreenBottomSheet(state, settingsViewModel) { MainContent() }
                 }
             )
         }
@@ -137,9 +144,13 @@ fun ShowBoardCoordinateSettings(settingsViewModel: SettingsViewModel) {
     )
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun BoardStyleSettings(settingsViewModel: SettingsViewModel) {
-    val context = LocalContext.current
+fun BoardStyleSettings(
+    settingsViewModel: SettingsViewModel,
+    onPieceSettingsVisibleChanges: (Boolean) -> (Unit)
+) {
+
     SettingsMenuLink(
         title = {
             Text(text = stringResource(R.string.board_style))
@@ -151,8 +162,7 @@ fun BoardStyleSettings(settingsViewModel: SettingsViewModel) {
         },
         onClick = {
             settingsViewModel.settingsBoardStyleClicked()
-            Toast.makeText(context, context.getString(R.string.coming_soon), Toast.LENGTH_LONG)
-                .show()
+            onPieceSettingsVisibleChanges(true)
         },
         modifier = Modifier.padding(bottom = 20.dp)
     )
@@ -210,6 +220,7 @@ fun MoveDelaySetting(settingsViewModel: SettingsViewModel) {
     }
 
 }
+
 
 @Composable
 fun LastMoveDelay(settingsViewModel: SettingsViewModel) {

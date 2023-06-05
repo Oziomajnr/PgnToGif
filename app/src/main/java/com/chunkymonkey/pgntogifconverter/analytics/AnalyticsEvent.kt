@@ -18,6 +18,9 @@ sealed class AnalyticsEvent(val title: String) {
 
     //Settings Screen event
     object SettingsBoardStyleClicked : AnalyticsEvent("SettingsBoardStyleClicked")
+    data class OnNewPieceSetSelected(val selectedPiece: String) :
+        AnalyticsEvent("SettingsBoardStyleClicked")
+
     object SettingsShowPlayerNameClicked : AnalyticsEvent("SettingsShowPlayerNameClicked")
     object SettingsShowPlayerRatingClicked : AnalyticsEvent("SettingsShowPlayerRatingClicked")
     object SettingsFlipBoardClicked : AnalyticsEvent("SettingsFlipBoardClicked")

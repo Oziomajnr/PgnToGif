@@ -1,7 +1,7 @@
 package com.chunkymonkey.pgntogifconverter.converter
 
 
-import com.chunkymonkey.pgntogifconverter.resource.ChessPieceResource
+import com.chunkymonkey.pgntogifconverter.resource.ChessPieceResourceProvider
 import com.chunkymonkey.pgntogifconverter.resource.PaintResource
 import com.chunkymonkey.pgntogifconverter.util.getCoordinateFromSquare
 
@@ -19,7 +19,7 @@ import com.chunkymonkey.pgntogifconverter.util.getCoordinateFromSquareWithFlippe
 
 class ChessBoardToBitmapConverter(
     private val paintResource: PaintResource,
-    private val chessPieceResource: ChessPieceResource
+    private val chessPieceResourceProvider: ChessPieceResourceProvider
 ) {
     private val boardSize = 505
     private val sizePerSquare = boardSize / 8
@@ -102,7 +102,7 @@ class ChessBoardToBitmapConverter(
                         currentY + sizePerSquare, paintResource.highlightedSquarePaint
                     )
                 }
-                val pieceDrawable = chessPieceResource.getDrawableFromChessPiece(currentPiece)
+                val pieceDrawable = chessPieceResourceProvider.getDrawableFromChessPiece(currentPiece)
 
                 if (pieceDrawable != null) {
                     val bitmap =

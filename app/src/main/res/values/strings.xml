@@ -27,4 +27,6 @@
     <string name="show_player_names">Show Player names</string>
     <string name="player_ratings">Player rating</string>
     <string name="seconds">%s Seconds</string>
+    <string name="select_piece_type">Select Piece Type</string>
+
 </resources>

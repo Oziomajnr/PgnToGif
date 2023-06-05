@@ -12,6 +12,7 @@ class PreferenceSettingsStorage(private val preferenceService: PreferenceService
         preferenceService.saveData(moveDelayKey, settingsData.moveDelay)
         preferenceService.saveData(flipBoardKey, settingsData.shouldFlipBoard)
         preferenceService.saveData(lastMoveDelay, settingsData.lastMoveDelay)
+        preferenceService.saveData(pieceSetKey, settingsData.pieceSet.name)
     }
 
     override fun getSettings(): SettingsData {
@@ -22,14 +23,26 @@ class PreferenceSettingsStorage(private val preferenceService: PreferenceService
         val moveDelay = preferenceService.getFloat(moveDelayKey, 0.5F)
         val lastMoveDelay = preferenceService.getFloat(lastMoveDelay, 1F)
         val flipBoard = preferenceService.getBoolean(flipBoardKey, false)
+        val pieceSet = preferenceService.getString(pieceSetKey, "")
         return SettingsData(
             showPlayerName = shouldShowPlayerName,
             showBoardCoordinates = shouldShowBoardCoordinates,
             showPlayerRating = shouldShowPlayerRating,
             moveDelay = moveDelay,
             shouldFlipBoard = flipBoard,
-            lastMoveDelay = lastMoveDelay
+            lastMoveDelay = lastMoveDelay,
+            pieceSet = convertPrefToPieceSet(pieceSet)
         )
+    }
+
+    private fun convertPrefToPieceSet(pieceSetPreference: String): PieceSet {
+        return when (pieceSetPreference) {
+            PieceSet.Pirouetti.name -> PieceSet.Pirouetti
+            PieceSet.California.name -> PieceSet.California
+            PieceSet.Spatial.name -> PieceSet.Spatial
+            PieceSet.Letter.name -> PieceSet.Letter
+            else -> PieceSet.Default
+        }
     }
 
     companion object {
@@ -39,5 +52,6 @@ class PreferenceSettingsStorage(private val preferenceService: PreferenceService
         private const val moveDelayKey = "MOVE_DELAY_KEY"
         private const val flipBoardKey = "FLIP_BOARD_KEY"
         private const val lastMoveDelay = "LAST_MOVE_DELAY"
+        private const val pieceSetKey = "PIECE_SET"
     }
 }
