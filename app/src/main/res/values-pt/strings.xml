@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Xadrez para GIF</string>
+    <string name="settings">Configurações</string>
+    <string name="share">Compartilhar</string>
+    <string name="save">Salvar</string>
+    <string name="generate_gif">Gerar GIF</string>
+    <string name="paste_pgn_of_game">Cole o PGN do jogo</string>
+    <string name="import_pgn">Importar PGN</string>
+    <string name="export">Exportar</string>
+    <string name="unable_to_generate_gif">Não foi possível gerar o GIF</string>
+    <string name="please_enter_pgn">Por favor, digite o PGN</string>
+    <string name="load_in_a_gif">Por favor, carregue um GIF</string>
+    <string name="current_pgn_does_not_contain_any_game">O PGN digitado é inválido</string>
+    <string name="hello_blank_fragment">Olá, fragmento vazio</string>
+    <string name="title_activity_compose">Atividade de Composição</string>
+    <string name="move_delay_in_seconds">Atraso de movimento em segundos</string>
+    <string name="delay_after_last_move_in_seconds">Atraso após o último movimento</string>
+    <string name="coming_soon">Em breve</string>
+    <string name="select_colour_and_material_of_your_board">Selecione a cor e o material do tabuleiro</string>
+    <string name="board_style">Estilo do Tabuleiro</string>
+    <string name="piece_style">Estilo das Peças</string>
+    <string name="select_style_of_your_piece">Selecione o estilo da peça</string>
+    <string name="flip_board_title">Inverter Tabuleiro</string>
+    <string name="flip_board_description">Mostrar o tabuleiro do lado do jogador preto</string>
+    <string name="show_board_coordinates">Mostrar as coordenadas do tabuleiro</string>
+    <string name="show_rating_if_available">Mostrar a classificação dos jogadores, se disponível</string>
+    <string name="show_player_rating">Mostrar classificação do jogador</string>
+    <string name="show_player_name_if_available">Mostrar os nomes dos jogadores, se disponível</string>
+    <string name="show_player_names">Mostrar nomes dos jogadores</string>
+    <string name="player_ratings">Classificação dos Jogadores</string>
+    <string name="seconds">%s Segundos</string>
+    <string name="select_piece_type">Selecione o Tipo de Peça</string>
+    <string name="select_board_style">Selecione o Estilo do Tabuleiro</string>
+
+    <string name="default_piece_type">Padrão</string>
+    <string name="pirouetti_piece_type">Pirouetti</string>
+    <string name="california_piece_type">Califórnia</string>
+    <string name="spatial_piece_type">Espacial</string>
+    <string name="letter_piece_type">Letra</string>
+
+    <string name="board_style_default">Padrão</string>
+    <string name="board_style_blue">Azul</string>
+    <string name="board_style_purple">Roxo</string>
+    <string name="board_style_ic">IC</string>
+    <string name="board_style_green">Verde</string>
+</resources>

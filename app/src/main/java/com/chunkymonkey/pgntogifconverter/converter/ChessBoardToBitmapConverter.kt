@@ -1,8 +1,8 @@
 package com.chunkymonkey.pgntogifconverter.converter
 
 
-import com.chunkymonkey.pgntogifconverter.resource.ChessPieceResource
-import com.chunkymonkey.pgntogifconverter.resource.PaintResource
+import com.chunkymonkey.pgntogifconverter.resource.ChessPieceResourceProvider
+import com.chunkymonkey.pgntogifconverter.resource.PaintResourceProvider
 import com.chunkymonkey.pgntogifconverter.util.getCoordinateFromSquare
 
 import com.github.bhlangonijr.chesslib.Piece
@@ -18,8 +18,8 @@ import android.graphics.Paint
 import com.chunkymonkey.pgntogifconverter.util.getCoordinateFromSquareWithFlippedBoard
 
 class ChessBoardToBitmapConverter(
-    private val paintResource: PaintResource,
-    private val chessPieceResource: ChessPieceResource
+    private val paintResourceProvider: PaintResourceProvider,
+    private val chessPieceResourceProvider: ChessPieceResourceProvider
 ) {
     private val boardSize = 505
     private val sizePerSquare = boardSize / 8
@@ -73,7 +73,7 @@ class ChessBoardToBitmapConverter(
                         currentX,
                         currentY,
                         currentX + sizePerSquare,
-                        currentY + sizePerSquare, paintResource.kingAttackedPaint
+                        currentY + sizePerSquare, paintResourceProvider.kingAttackedPaint
                     )
                 }
                 val coordinateFrom = if (shouldFlipBoard) {
@@ -91,7 +91,7 @@ class ChessBoardToBitmapConverter(
                         currentX,
                         currentY,
                         currentX + sizePerSquare,
-                        currentY + sizePerSquare, paintResource.highlightedSquarePaint
+                        currentY + sizePerSquare, paintResourceProvider.highlightedSquarePaint
                     )
                 }
                 if (coordinateTo.first == y && coordinateTo.second == x) {
@@ -99,10 +99,11 @@ class ChessBoardToBitmapConverter(
                         currentX,
                         currentY,
                         currentX + sizePerSquare,
-                        currentY + sizePerSquare, paintResource.highlightedSquarePaint
+                        currentY + sizePerSquare, paintResourceProvider.highlightedSquarePaint
                     )
                 }
-                val pieceDrawable = chessPieceResource.getDrawableFromChessPiece(currentPiece)
+                val pieceDrawable =
+                    chessPieceResourceProvider.getDrawableFromChessPiece(currentPiece)
 
                 if (pieceDrawable != null) {
                     val bitmap =
@@ -138,9 +139,9 @@ class ChessBoardToBitmapConverter(
         val xIsOddNumber = x % 2 != 0
         val yIsOddNumber = y % 2 != 0
         return if (xIsOddNumber && yIsOddNumber || !xIsOddNumber && !yIsOddNumber) {
-            paintResource.blackSquarePaint
+            paintResourceProvider.getBlackSquarePaint()
         } else {
-            paintResource.whiteSquarePaint
+            paintResourceProvider.getWhiteSquarePaint()
         }
     }
 }

@@ -18,6 +18,9 @@
     <string name="coming_soon">Coming soon</string>
     <string name="select_colour_and_material_of_your_board">Select the colour and material of your board</string>
     <string name="board_style">Board Style</string>
+    <string name="piece_style">Piece Style</string>
+    <string name="select_style_of_your_piece">Select the style of your piece</string>
+
     <string name="flip_board_title">Flip Board</string>
     <string name="flip_board_description">Show board from black player side</string>
     <string name="show_board_coordinates">Show board coordinates</string>
@@ -27,4 +30,19 @@
     <string name="show_player_names">Show Player names</string>
     <string name="player_ratings">Player rating</string>
     <string name="seconds">%s Seconds</string>
+    <string name="select_piece_type">Select Piece Type</string>
+    <string name="select_board_style">Select Board Style</string>
+
+    <string name="default_piece_type">Default</string>
+    <string name="pirouetti_piece_type">Pirouetti</string>
+    <string name="california_piece_type">California</string>
+    <string name="spatial_piece_type">Spatial</string>
+    <string name="letter_piece_type">Letter</string>
+
+    <string name="board_style_default">Default</string>
+    <string name="board_style_blue">Blue</string>
+    <string name="board_style_purple">Purple</string>
+    <string name="board_style_ic">IC</string>
+    <string name="board_style_green">Green</string>
+
 </resources>

@@ -12,6 +12,8 @@ class PreferenceSettingsStorage(private val preferenceService: PreferenceService
         preferenceService.saveData(moveDelayKey, settingsData.moveDelay)
         preferenceService.saveData(flipBoardKey, settingsData.shouldFlipBoard)
         preferenceService.saveData(lastMoveDelay, settingsData.lastMoveDelay)
+        preferenceService.saveData(pieceSetKey, settingsData.pieceSet.name)
+        preferenceService.saveData(boardStyleKey, settingsData.boardStyle.name)
     }
 
     override fun getSettings(): SettingsData {
@@ -22,14 +24,41 @@ class PreferenceSettingsStorage(private val preferenceService: PreferenceService
         val moveDelay = preferenceService.getFloat(moveDelayKey, 0.5F)
         val lastMoveDelay = preferenceService.getFloat(lastMoveDelay, 1F)
         val flipBoard = preferenceService.getBoolean(flipBoardKey, false)
+        val pieceSet = preferenceService.getString(pieceSetKey, "")
+        val boardStyle = preferenceService.getString(boardStyleKey, "")
         return SettingsData(
             showPlayerName = shouldShowPlayerName,
             showBoardCoordinates = shouldShowBoardCoordinates,
             showPlayerRating = shouldShowPlayerRating,
             moveDelay = moveDelay,
             shouldFlipBoard = flipBoard,
-            lastMoveDelay = lastMoveDelay
+            lastMoveDelay = lastMoveDelay,
+            pieceSet = convertPrefToPieceSet(pieceSet),
+            boardStyle = convertPrefToBoardStyle(boardStyle)
         )
+    }
+
+    private fun convertPrefToPieceSet(pieceSetPreference: String): PieceSet {
+        return when (pieceSetPreference) {
+            PieceSet.Pirouetti.name -> PieceSet.Pirouetti
+            PieceSet.California.name -> PieceSet.California
+            PieceSet.Spatial.name -> PieceSet.Spatial
+            PieceSet.Letter.name -> PieceSet.Letter
+            else -> PieceSet.Default
+        }
+    }
+
+    private fun convertPrefToBoardStyle(pieceSetPreference: String): BoardStyle {
+        return when (pieceSetPreference) {
+            BoardStyle.Default.name -> BoardStyle.Default
+            BoardStyle.Blue.name -> BoardStyle.Blue
+            BoardStyle.IC.name -> BoardStyle.IC
+            BoardStyle.Purple.name -> BoardStyle.Purple
+            BoardStyle.Green.name -> BoardStyle.Green
+            else -> {
+                BoardStyle.Default
+            }
+        }
     }
 
     companion object {
@@ -39,5 +68,7 @@ class PreferenceSettingsStorage(private val preferenceService: PreferenceService
         private const val moveDelayKey = "MOVE_DELAY_KEY"
         private const val flipBoardKey = "FLIP_BOARD_KEY"
         private const val lastMoveDelay = "LAST_MOVE_DELAY"
+        private const val pieceSetKey = "PIECE_SET"
+        private const val boardStyleKey = "BOARD_STYLE"
     }
 }

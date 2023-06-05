@@ -3,6 +3,8 @@ package com.chunkymonkey.pgntogifconverter.ui.settings
 import androidx.compose.runtime.mutableStateOf
 import com.chunkymonkey.pgntogifconverter.analytics.AnalyticsEvent
 import com.chunkymonkey.pgntogifconverter.analytics.AnalyticsEventHandler
+import com.chunkymonkey.pgntogifconverter.data.BoardStyle
+import com.chunkymonkey.pgntogifconverter.data.PieceSet
 import com.chunkymonkey.pgntogifconverter.data.SettingsData
 import com.chunkymonkey.pgntogifconverter.data.SettingsStorage
 import com.chunkymonkey.pgntogifconverter.dependency.DependencyFactory
@@ -14,10 +16,6 @@ class SettingsViewModel {
 
     val settingsUIState by lazy {
         mutableStateOf(preferenceSettingsStorage.getSettings().toSettingsState())
-    }
-
-    private fun onSettingsStateChanged(newSettingsUiState: SettingsUiState) {
-        preferenceSettingsStorage.saveSettings(newSettingsUiState.toSettingsData())
     }
 
     fun onShowPlayerNameSettingsChange(shouldShowPlayerName: Boolean) {
@@ -54,8 +52,7 @@ class SettingsViewModel {
 
     fun onMoveDelaySettingsChange(moveDelay: Float) {
         preferenceSettingsStorage.saveSettings(
-            preferenceSettingsStorage.getSettings()
-                .copy(moveDelay = moveDelay)
+            preferenceSettingsStorage.getSettings().copy(moveDelay = moveDelay)
         )
         analyticsEventHandler.logEvent(AnalyticsEvent.MoveDelaySliderClicked)
         refreshUiState()
@@ -63,30 +60,37 @@ class SettingsViewModel {
 
     fun onLastMoveDelaySettingsChanged(lastMoveDelay: Float) {
         preferenceSettingsStorage.saveSettings(
-            preferenceSettingsStorage.getSettings()
-                .copy(lastMoveDelay = lastMoveDelay)
+            preferenceSettingsStorage.getSettings().copy(lastMoveDelay = lastMoveDelay)
         )
         analyticsEventHandler.logEvent(AnalyticsEvent.LastMoveDelaySliderClicked)
         refreshUiState()
     }
+
+    fun settingsPieceSetClicked() {
+        analyticsEventHandler.logEvent(AnalyticsEvent.SettingsPieceSetClicked)
+    }
+
     fun settingsBoardStyleClicked() {
         analyticsEventHandler.logEvent(AnalyticsEvent.SettingsBoardStyleClicked)
+    }
+
+    fun onNewPieceSetSelected(selectedPieceSet: PieceSet) {
+        preferenceSettingsStorage.saveSettings(
+            preferenceSettingsStorage.getSettings().copy(pieceSet = selectedPieceSet)
+        )
+        analyticsEventHandler.logEvent(AnalyticsEvent.OnNewPieceSetSelected(selectedPieceSet.name))
+    }
+
+    fun onNewBoardStyleSelected(boardStyle: BoardStyle) {
+        preferenceSettingsStorage.saveSettings(
+            preferenceSettingsStorage.getSettings().copy(boardStyle = boardStyle)
+        )
+        analyticsEventHandler.logEvent(AnalyticsEvent.OnNewBoardStyleSelected(boardStyle.name))
     }
 
     private fun refreshUiState() {
         settingsUIState.value = preferenceSettingsStorage.getSettings().toSettingsState()
     }
-}
-
-fun SettingsUiState.toSettingsData(): SettingsData {
-    return SettingsData(
-        moveDelay = moveDelay,
-        showPlayerRating = showPlayerRating,
-        showBoardCoordinates = showBoardCoordinates,
-        showPlayerName = showPlayerName,
-        shouldFlipBoard = flipBoard,
-        lastMoveDelay = lastMoveDelay
-    )
 }
 
 fun SettingsData.toSettingsState(): SettingsUiState {
@@ -96,6 +100,8 @@ fun SettingsData.toSettingsState(): SettingsUiState {
         showBoardCoordinates = showBoardCoordinates,
         showPlayerName = showPlayerName,
         flipBoard = shouldFlipBoard,
-        lastMoveDelay = lastMoveDelay
+        lastMoveDelay = lastMoveDelay,
+        pieceSet = pieceSet,
+        boardStyle = boardStyle
     )
 }

@@ -18,6 +18,13 @@ sealed class AnalyticsEvent(val title: String) {
 
     //Settings Screen event
     object SettingsBoardStyleClicked : AnalyticsEvent("SettingsBoardStyleClicked")
+    object SettingsPieceSetClicked : AnalyticsEvent("SettingsPieceSetClicked")
+    data class OnNewPieceSetSelected(val selectedPiece: String) :
+        AnalyticsEvent("NewPieceSetSelected")
+
+    data class OnNewBoardStyleSelected(val selectedBoardType: String) :
+        AnalyticsEvent("NewBoardStyleSelected")
+
     object SettingsShowPlayerNameClicked : AnalyticsEvent("SettingsShowPlayerNameClicked")
     object SettingsShowPlayerRatingClicked : AnalyticsEvent("SettingsShowPlayerRatingClicked")
     object SettingsFlipBoardClicked : AnalyticsEvent("SettingsFlipBoardClicked")
@@ -27,7 +34,9 @@ sealed class AnalyticsEvent(val title: String) {
 
 
 const val currentPgnTextParam = "Current_Pgn_text"
-const val currentSettings = "Current_Settings"
+const val selectedBoardStyle = "Selected_Board_Style"
+const val selectedPieceStyle = "Selected_Piece_Style"
+
 
 const val showPlayerNameParam = "Show_Player_Name_Param"
 const val showPlayerRatingParam = "Show_Player_Rating_Param"
