@@ -27,6 +27,6 @@ jobs:
       - name: Decode GOOGLE_SERVICES_JSON secret
         env:
           DATA: ${{ secrets.GOOGLE_SERVICES_JSON }}
-        run: echo $DATA > /home/runner/work/PgnToGif/PgnToGif/app/google-services.json
+        run: echo $DATA | base64 --decode > /home/runner/work/PgnToGif/PgnToGif/app/google-services.json
       - name: Build with Gradle
         run: ./gradlew build
