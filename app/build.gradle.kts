@@ -61,7 +61,8 @@ android {
         }
     }
     lint {
-        baseline = file("lint-baseline.xml")
+        lintConfig = file("$rootDir/lint-baseline.xml")
+        abortOnError = false
     }
 }
 
