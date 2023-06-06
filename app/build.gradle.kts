@@ -15,6 +15,7 @@ android {
     buildFeatures {
         buildConfig = true
     }
+
     defaultConfig {
         applicationId = "com.chunkymonkey.imagetogifconverter"
         minSdk = 21
@@ -54,10 +55,13 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = composeVersion
     }
-    packagingOptions {
+    packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
+    }
+    lint {
+        baseline = file("lint-baseline.xml")
     }
 }
 
