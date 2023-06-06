@@ -10,7 +10,6 @@ import org.junit.Test
 
 
 class ApplicationStringProviderImplTest {
-    private lateinit var context: Context
     private val stringProvider: ApplicationStringProvider = FakeApplicationStringProvider()
 
     @Before
@@ -21,30 +20,27 @@ class ApplicationStringProviderImplTest {
     @Test
     fun getErrorMessage_withPleaseLoadInPgnText_returnsCorrectString() {
         val applicationText = ApplicationText.PLEASE_LOAD_IN_PGN
-        val expectedString = context.getString(R.string.please_enter_pgn)
 
         val errorMessage = stringProvider.getErrorMessage(applicationText)
 
-        assertEquals(expectedString, errorMessage)
+        assertEquals("PLEASE_LOAD_IN_PGN", errorMessage)
     }
 
     @Test
     fun getErrorMessage_withUnableToGenerateGifText_returnsCorrectString() {
         val applicationText = ApplicationText.UNABLE_TO_GENERATE_GIF
-        val expectedString = context.getString(R.string.unable_to_generate_gif)
 
         val errorMessage = stringProvider.getErrorMessage(applicationText)
 
-        assertEquals(expectedString, errorMessage)
+        assertEquals("UNABLE_TO_GENERATE_GIF", errorMessage)
     }
 
     @Test
     fun getErrorMessage_withCurrentPgnDoesNotContainAnyGameText_returnsCorrectString() {
         val applicationText = ApplicationText.CURRENT_PGN_DOES_NOT_CONTAIN_ANY_GAME
-        val expectedString = context.getString(R.string.current_pgn_does_not_contain_any_game)
 
         val errorMessage = stringProvider.getErrorMessage(applicationText)
 
-        assertEquals(expectedString, errorMessage)
+        assertEquals("CURRENT_PGN_DOES_NOT_CONTAIN_ANY_GAME", errorMessage)
     }
 }
