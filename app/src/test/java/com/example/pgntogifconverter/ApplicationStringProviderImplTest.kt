@@ -43,4 +43,13 @@ class ApplicationStringProviderImplTest {
 
         assertEquals("CURRENT_PGN_DOES_NOT_CONTAIN_ANY_GAME", errorMessage)
     }
+
+    @Test
+    fun getErrorMessage_withPLEASE_LOAD_IN_GIF_returnsCorrectString() {
+        val applicationText = ApplicationText.PLEASE_LOAD_IN_GIF
+
+        val errorMessage = stringProvider.getErrorMessage(applicationText)
+
+        assertEquals("PLEASE_LOAD_IN_GIF", errorMessage)
+    }
 }
