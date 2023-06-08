@@ -8,4 +8,5 @@ interface HomeView {
     fun showErrorMessage(message: String)
     fun getCurrentPgnText(): String
     fun displayGifFromFile(currentFilePath: File)
+    fun shareCurrentGif(file: File)
 }

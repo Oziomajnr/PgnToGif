@@ -8,6 +8,7 @@ interface HomePresenter {
     fun processPgnFile(pgnFile: File)
     fun initializeView(view: HomeView, coroutineScope: CoroutineScope)
     fun onDestroy()
+    fun shareCurrentGif()
 }
 
 

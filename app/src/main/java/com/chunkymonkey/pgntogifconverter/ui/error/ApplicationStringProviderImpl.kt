@@ -10,6 +10,7 @@ class ApplicationStringProviderImpl(private val applicationContext: Context) : A
             ApplicationText.PLEASE_LOAD_IN_PGN -> applicationContext.getString(R.string.please_enter_pgn)
             ApplicationText.UNABLE_TO_GENERATE_GIF -> applicationContext.getString(R.string.unable_to_generate_gif)
             ApplicationText.CURRENT_PGN_DOES_NOT_CONTAIN_ANY_GAME -> applicationContext.getString(R.string.current_pgn_does_not_contain_any_game)
+            ApplicationText.PLEASE_LOAD_IN_GIF ->  applicationContext.getString(R.string.load_in_a_gif)
         }
     }
 }
