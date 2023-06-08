@@ -1,5 +1,6 @@
 package com.chunkymonkey.pgntogifconverter.ui.home
 
+import com.chunkymonkey.pgntogifconverter.R
 import com.chunkymonkey.pgntogifconverter.analytics.AnalyticsEvent
 import com.chunkymonkey.pgntogifconverter.analytics.AnalyticsEventHandler
 import com.chunkymonkey.pgntogifconverter.converter.PgnToGifConverter
@@ -43,8 +44,7 @@ class HomePresenterImpl(
                     view?.showErrorMessage(applicationStringProvider.getErrorMessage(ApplicationText.CURRENT_PGN_DOES_NOT_CONTAIN_ANY_GAME))
                 } else {
                     currentFilePath = pgnToGifConverter.createGifFileFromChessGame(
-                        game,
-                        settingsStorage.getSettings()
+                        game, settingsStorage.getSettings()
                     )
                 }
 
@@ -71,6 +71,14 @@ class HomePresenterImpl(
     override fun onDestroy() {
         view = null
         job?.cancel()
+    }
+
+    override fun shareCurrentGif() {
+        currentFilePath?.let {
+            view?.shareCurrentGif(it)
+        } ?: run {
+            view?.showErrorMessage(applicationStringProvider.getErrorMessage(ApplicationText.PLEASE_LOAD_IN_GIF))
+        }
     }
 
 }

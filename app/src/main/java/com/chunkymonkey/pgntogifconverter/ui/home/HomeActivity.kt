@@ -27,6 +27,7 @@ import com.chunkymonkey.pgntogifconverter.data.PreferenceSettingsStorage
 import com.chunkymonkey.pgntogifconverter.data.SettingsStorage
 import com.chunkymonkey.pgntogifconverter.preference.PreferenceService
 import com.chunkymonkey.pgntogifconverter.ui.BaseActivity
+import com.chunkymonkey.pgntogifconverter.ui.DefaultNavigator
 import com.chunkymonkey.pgntogifconverter.ui.error.ApplicationStringProvider
 import com.chunkymonkey.pgntogifconverter.ui.error.ApplicationStringProviderImpl
 import com.chunkymonkey.pgntogifconverter.ui.error.ToastUiErrorHandler
@@ -111,12 +112,7 @@ class HomeActivity : BaseActivity<ActivityMainBinding>(), HomeView {
         }
 
         binding.saveGif.setOnClickListener {
-            analyticsEventHandler.logEvent(AnalyticsEvent.ExportPgnClicked(binding.pgnInput.text.toString()))
-            currentFilePath?.let {
-                shareCurrentGif()
-            } ?: run {
-                errorMessageHandler.showError(getString(R.string.load_in_a_gif))
-            }
+            homePresenter.shareCurrentGif()
         }
         handleFromSystemIntent()
         val request = reviewManager.requestReviewFlow()
@@ -139,19 +135,8 @@ class HomeActivity : BaseActivity<ActivityMainBinding>(), HomeView {
         }
     }
 
-    private fun shareCurrentGif() {
-        val shareIntent: Intent = Intent().apply {
-            action = Intent.ACTION_SEND
-            putExtra(
-                Intent.EXTRA_STREAM, currentFilePath?.getStrictModeUri(this@HomeActivity)
-            )
-            type = "image/gif"
-        }
-        startActivity(
-            Intent.createChooser(
-                shareIntent, resources.getText(R.string.share)
-            )
-        )
+    override fun shareCurrentGif(file: File) {
+        DefaultNavigator.shareCurrentGif(file, this)
     }
 
     override fun onNewIntent(intent: Intent?) {
