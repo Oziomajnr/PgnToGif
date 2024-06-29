@@ -1,5 +1,6 @@
 package com.chunkymonkey.pgntogifconverter.util
 
+import android.util.Log
 import com.chunkymonkey.pgntogifconverter.BuildConfig
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 
@@ -14,6 +15,9 @@ class ErrorHandler {
         }
 
         fun logInfo(message: String) {
+            if (BuildConfig.DEBUG) {
+                Log.d("Log Info", message)
+            }
             FirebaseCrashlytics.getInstance().log(message)
         }
     }

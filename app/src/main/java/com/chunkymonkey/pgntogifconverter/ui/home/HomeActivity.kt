@@ -33,10 +33,6 @@ import com.chunkymonkey.pgntogifconverter.ui.error.ApplicationStringProviderImpl
 import com.chunkymonkey.pgntogifconverter.ui.error.ToastUiErrorHandler
 import com.chunkymonkey.pgntogifconverter.ui.error.UiErrorHandler
 import com.chunkymonkey.pgntogifconverter.ui.settings.SettingsActivity
-import com.chunkymonkey.pgntogifconverter.util.ErrorHandler
-import com.chunkymonkey.pgntogifconverter.util.extention.getStrictModeUri
-import com.google.android.play.core.review.ReviewException
-import com.google.android.play.core.review.ReviewManagerFactory
 
 
 class HomeActivity : BaseActivity<ActivityMainBinding>(), HomeView {
@@ -45,7 +41,6 @@ class HomeActivity : BaseActivity<ActivityMainBinding>(), HomeView {
     private val analyticsEventHandler: AnalyticsEventHandler =
         DependencyFactory.getAnalyticsEventHandler()
 
-    private var currentFilePath: File? = null
     private val errorMessageHandler: UiErrorHandler by lazy {
         ToastUiErrorHandler(this)
     }
@@ -66,7 +61,6 @@ class HomeActivity : BaseActivity<ActivityMainBinding>(), HomeView {
             analyticsEventHandler, applicationStringProvider, pgnToGifConverter, settingsStorage
         )
     }
-    val reviewManager by lazy { ReviewManagerFactory.create(this.applicationContext) }
 
     private val getContent =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { activityResult: ActivityResult ->
@@ -115,24 +109,6 @@ class HomeActivity : BaseActivity<ActivityMainBinding>(), HomeView {
             homePresenter.shareCurrentGif()
         }
         handleFromSystemIntent()
-        val request = reviewManager.requestReviewFlow()
-        request.addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                // We got the ReviewInfo object
-                val reviewInfo = task.result
-                val flow = reviewManager.launchReviewFlow(this, reviewInfo)
-                flow.addOnCompleteListener {
-
-                }
-            } else {
-                // There was some problem, log or handle the error code.
-                task.exception?.let {
-                    ErrorHandler.logException(it)
-                    ErrorHandler.logInfo("Review Task failed with code ${(task.exception as ReviewException).errorCode}")
-                }
-
-            }
-        }
     }
 
     override fun shareCurrentGif(file: File) {

@@ -86,7 +86,6 @@ dependencies {
     implementation(project(":chesslibrary1"))
     debugImplementation("androidx.compose.ui:ui-tooling:$composeVersion")
     implementation("com.github.alorma:compose-settings-ui:0.7.2")
-    implementation("com.google.android.play:review:2.0.1")
     implementation("com.google.android.play:app-update-ktx:2.1.0")
 
     implementation(platform("com.google.firebase:firebase-bom:29.0.3"))
