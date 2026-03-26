@@ -193,6 +193,31 @@ class ChessCoreUnitTest : FunSpec({
         game.moves.size shouldBe 3
     }
 
+    test("stripBraceComments handles Lichess %clk and ECO comments without regex") {
+        val stripped = PgnParser.stripBraceComments(
+            "2. Bc4 { [%clk 0:00:59] } { C23 Bishop's Opening } 2... Nc6"
+        )
+        (stripped.contains("{")) shouldBe false
+        (stripped.contains("clk")) shouldBe false
+        (stripped.contains("C23")) shouldBe false
+        stripped.replace(Regex("\\s+"), " ").trim() shouldBe "2. Bc4 2... Nc6"
+    }
+
+    test("PGN parses Lichess move text with %clk and brace comments") {
+        val pgn = """
+            [Event "Hourly Bullet Arena"]
+            [White "W"]
+            [Black "B"]
+            [Result "0-1"]
+
+            1. e4 { [%clk 0:01:00] } 1... e5 { [%clk 0:01:00] } 2. Bc4 { [%clk 0:00:59] } { C23 Bishop's Opening } 2... Nc6 { [%clk 0:01:00] } 0-1
+        """.trimIndent()
+
+        val game = kotlinx.coroutines.runBlocking { PgnParser.parse(pgn) }
+        game.result shouldBe GameResult.BLACK_WON
+        game.moves.size shouldBe 4
+    }
+
     test("boardToArray returns 65 elements") {
         val board = Board()
         val arr = board.boardToArray()
@@ -241,5 +266,25 @@ class ChessCoreUnitTest : FunSpec({
         GameResult.fromNotation("0-1") shouldBe GameResult.BLACK_WON
         GameResult.fromNotation("1/2-1/2") shouldBe GameResult.DRAW
         GameResult.fromNotation("*") shouldBe GameResult.ONGOING
+    }
+
+    test("Knight attack mask for G6 matches chess geometry (no attack on D4)") {
+        (Bitboard.knightAttacks[Square.G6.ordinal] and Square.D4.bb) shouldBe 0L
+    }
+
+    test("SAN encode/decode all legals (property failure FEN)") {
+        val fen = "r1bqkbn1/pp1p1p1r/n1p3Np/4p3/1P3P1P/8/P1PPP1P1/RNBQKB1R w KQq - 1 7"
+        val board = Board()
+        board.loadFromFen(fen)
+        for (move in board.legalMoves()) {
+            val copy = Board()
+            copy.loadFromFen(fen)
+            val san = SanDecoder.encodeSan(copy, move)
+            copy.undoMove()
+            val decoded = SanDecoder.decodeSan(copy, san, copy.sideToMove)
+            decoded.from shouldBe move.from
+            decoded.to shouldBe move.to
+            decoded.promotion shouldBe move.promotion
+        }
     }
 })

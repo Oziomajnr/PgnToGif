@@ -149,14 +149,44 @@ object PgnParser {
     }
 
     private fun normalizeText(text: String): String {
-        var result = text
-        // Remove comments in braces
-        result = result.replace(Regex("\\{[^}]*}"), " ")
+        var result = stripBraceComments(text)
         // Remove variations in parens (non-recursive for simplicity)
         result = removeVariations(result)
         // Collapse whitespace
         result = result.replace(Regex("\\s+"), " ").trim()
         return result
+    }
+
+    /**
+     * Strip `{...}` comments without using a regex: Android's ICU regex rejects patterns like `\{[^}]*}`
+     * (Android ICU throws PatternSyntaxException for that pattern). Nested braces are balanced.
+     */
+    internal fun stripBraceComments(text: String): String {
+        val sb = StringBuilder(text.length)
+        var i = 0
+        while (i < text.length) {
+            if (text[i] != '{') {
+                sb.append(text[i])
+                i++
+                continue
+            }
+            val start = i
+            var depth = 1
+            i++
+            while (i < text.length && depth > 0) {
+                when (text[i++]) {
+                    '{' -> depth++
+                    '}' -> depth--
+                }
+            }
+            if (depth == 0) {
+                sb.append(' ')
+            } else {
+                sb.append(text, start, text.length)
+                break
+            }
+        }
+        return sb.toString()
     }
 
     private fun removeVariations(text: String): String {

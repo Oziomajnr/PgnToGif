@@ -89,6 +89,16 @@ object SanDecoder {
 
                 if (location.length < 2) {
                     var xfrom = board.squareAttackedByPieceType(to, board.sideToMove, fromPiece)
+                    // Match encodeSan: only squares with isMoveLegal(..., false) to `to` (not raw geometry).
+                    var rem = xfrom
+                    while (rem != 0L) {
+                        val sqIdx = Bitboard.bitScanForward(rem)
+                        rem = Bitboard.extractLsb(rem)
+                        val sq = Square.squareAt(sqIdx)
+                        if (!board.isMoveLegal(Move(sq, to, promotion), false)) {
+                            xfrom = xfrom xor sq.bb
+                        }
+                    }
                     if (location.isNotEmpty()) {
                         if (location[0].isDigit()) {
                             val irank = location[0].digitToInt()
@@ -223,9 +233,14 @@ object SanDecoder {
     private fun lastSequence(s: String, len: Int): String =
         if (s.length >= len) s.substring(s.length - len) else s
 
-    private fun afterSequence(s: String, seq: String, len: Int = 0): String {
-        val idx = s.indexOf(seq)
-        return if (idx >= 0) s.substring(idx + seq.length + len) else ""
+    /** Same as chesslib StringUtil.afterSequence(str, seq, size): substring of [size] chars after [seq]. */
+    private fun afterSequence(s: String, seq: String, size: Int): String {
+        val found = s.indexOf(seq)
+        if (found < 0) return ""
+        val idx = found + seq.length
+        if (idx == 0) return ""
+        val end = (idx + size).coerceAtMost(s.length)
+        return s.substring(idx, end)
     }
 
     private fun beforeSequence(s: String, seq: String): String {
