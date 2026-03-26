@@ -1,6 +1,7 @@
 package com.chunkymonkey.pgntogifconverter.ui.settings
 
 import com.chunkymonkey.pgntogifconverter.data.BoardStyle
+import com.chunkymonkey.pgntogifconverter.data.HighlightStyle
 import com.chunkymonkey.pgntogifconverter.data.PieceSet
 
 data class SettingsUiState(
@@ -11,5 +12,16 @@ data class SettingsUiState(
     val flipBoard: Boolean,
     val lastMoveDelay: Float,
     val pieceSet: PieceSet,
-    val boardStyle: BoardStyle
+    val boardStyle: BoardStyle,
+    val highlightStyle: HighlightStyle = HighlightStyle.Green,
+    val gifQuality: Int = 10,
+    val gifLoopCount: Int = 0,
+    val boardResolution: Int = 504,
+    val showGameResult: Boolean = true,
+    val soundEffectsEnabled: Boolean = false,
+    val mp4AudioEnabled: Boolean = true,
+    val mp4SoundMove: Boolean = true,
+    val mp4SoundCapture: Boolean = true,
+    val mp4SoundCheck: Boolean = true,
+    val mp4SoundCastle: Boolean = true,
 )

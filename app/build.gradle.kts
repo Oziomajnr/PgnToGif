@@ -1,4 +1,6 @@
 val composeVersion = "1.4.3"
+// Compose Compiler 1.5.8 matches Kotlin 1.9.22 (see compose-kotlin compatibility)
+val composeCompilerVersion = "1.5.8"
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -9,8 +11,7 @@ plugins {
 
 android {
     namespace = "com.chunkymonkey.pgntogifconverter"
-    compileSdk = 33
-    buildToolsVersion = "33.0.0"
+    compileSdk = 35
 
     buildFeatures {
         buildConfig = true
@@ -19,7 +20,7 @@ android {
     defaultConfig {
         applicationId = "com.chunkymonkey.imagetogifconverter"
         minSdk = 21
-        targetSdk = 33
+        targetSdk = 35
         versionCode = 15
         versionName = "1.3.1"
         multiDexEnabled = true
@@ -53,7 +54,7 @@ android {
         }
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = composeVersion
+        kotlinCompilerExtensionVersion = composeCompilerVersion
     }
     packaging {
         resources {
@@ -72,6 +73,7 @@ dependencies {
     implementation("androidx.compose.material:material:1.5.0-beta01")
     implementation("androidx.compose.ui:ui-tooling-preview:$composeVersion")
     implementation("androidx.activity:activity-compose:1.7.2")
+    implementation("androidx.navigation:navigation-compose:2.7.7")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:$composeVersion")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
 
@@ -88,6 +90,8 @@ dependencies {
     implementation("com.github.alorma:compose-settings-ui:0.7.2")
     implementation("com.google.android.play:review:2.0.1")
     implementation("com.google.android.play:app-update-ktx:2.1.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.caverock:androidsvg:1.4")
 
     implementation(platform("com.google.firebase:firebase-bom:29.0.3"))
     implementation("com.google.firebase:firebase-analytics-ktx")

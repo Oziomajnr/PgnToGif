@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+      google-services.json in this repo uses a placeholder API key for local builds.
+      Without this, Crashlytics logs E FirebaseCrashlytics: Error fetching settings
+      and Analytics spams W FA: Failed to retrieve Firebase Instance Id.
+      Release builds should use a real google-services.json and can enable collection via release manifest if needed.
+    -->
+    <application>
+        <meta-data
+            android:name="firebase_crashlytics_collection_enabled"
+            android:value="false" />
+        <meta-data
+            android:name="firebase_analytics_collection_enabled"
+            android:value="false" />
+    </application>
+</manifest>

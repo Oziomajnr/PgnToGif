@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "pieceFamilies": [
+    { "id": "cburnett", "name": "Cburnett" },
+    { "id": "merida", "name": "Merida" },
+    { "id": "alpha", "name": "Alpha" }
+  ],
+  "boardThemes": [
+    { "id": "brown", "name": "Brown", "light": "#f0d9b5", "dark": "#b58863" },
+    { "id": "green", "name": "Green", "light": "#edf3e3", "dark": "#8ca666" },
+    { "id": "blue-marble", "name": "Blue marble", "light": "#dee3e6", "dark": "#8ca2ad" }
+  ]
+}

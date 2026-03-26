@@ -2,29 +2,88 @@ package com.chunkymonkey.pgntogifconverter.resource
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
 import com.chunkymonkey.pgntogifconverter.data.PieceSet
-import com.chunkymonkey.pgntogifconverter.data.PreferenceSettingsStorage
 import com.chunkymonkey.pgntogifconverter.data.SettingsStorage
+import com.chunkymonkey.pgntogifconverter.lichess.LichessPieceDownloader
+import com.chunkymonkey.pgntogifconverter.lichess.LichessPieceSvgLoader
 import com.github.bhlangonijr.chesslib.Piece
+import com.github.bhlangonijr.chesslib.PieceType
+import com.github.bhlangonijr.chesslib.Side
+import java.io.File
 
 class ChessPieceResourceProvider(
     val context: Context, private val settingsStorage: SettingsStorage
 ) {
-    fun getDrawableFromChessPiece(chessPiece: Piece): Drawable? {
+    /**
+     * Returns a map of Piece → Bitmap pre-rasterized at [sizePerSquare].
+     * Built once per generation call; NONE maps to null.
+     */
+    fun buildPieceBitmapCache(sizePerSquare: Int): Map<Piece, Bitmap?> {
+        val pieceSet = settingsStorage.getSettings().pieceSet
+        return when (pieceSet) {
+            is PieceSet.Lichess -> buildLichessPieceBitmapCache(pieceSet.familyId, sizePerSquare)
+            else -> pieceToDrawableMap(context, pieceSet).mapValues { (_, resId) ->
+                resId?.let {
+                    ContextCompat.getDrawable(context, it)?.toBitmap(sizePerSquare, sizePerSquare)
+                }
+            }
+        }
+    }
 
+    private fun buildLichessPieceBitmapCache(familyId: String, sizePerSquare: Int): Map<Piece, Bitmap?> {
+        val downloader = LichessPieceDownloader(context)
+        if (!downloader.isPieceFamilyInstalled(familyId)) {
+            return pieceToDrawableMap(context, PieceSet.Default).mapValues { (_, resId) ->
+                resId?.let {
+                    ContextCompat.getDrawable(context, it)?.toBitmap(sizePerSquare, sizePerSquare)
+                }
+            }
+        }
+        val dir = downloader.pieceFamilyDir(familyId)
+        val result = mutableMapOf<Piece, Bitmap?>()
+        for (p in Piece.values()) {
+            if (p == Piece.NONE) {
+                result[p] = null
+                continue
+            }
+            val base = pieceToSvgBaseName(p)
+            val file = File(dir, "$base.svg")
+            result[p] = LichessPieceSvgLoader.svgFileToBitmap(file, sizePerSquare)
+        }
+        return result
+    }
+
+    private fun pieceToSvgBaseName(piece: Piece): String {
+        val prefix = if (piece.pieceSide == Side.WHITE) "w" else "b"
+        val letter = when (piece.pieceType) {
+            PieceType.PAWN -> "P"
+            PieceType.KNIGHT -> "N"
+            PieceType.BISHOP -> "B"
+            PieceType.ROOK -> "R"
+            PieceType.QUEEN -> "Q"
+            PieceType.KING -> "K"
+            else -> "P"
+        }
+        return "$prefix$letter"
+    }
+
+    fun getDrawableFromChessPiece(chessPiece: Piece): Drawable? {
+        val pieceSet = settingsStorage.getSettings().pieceSet
+        if (pieceSet is PieceSet.Lichess) return null
         return pieceToDrawableMap(
-            context, settingsStorage.getSettings().pieceSet
+            context, pieceSet
         )[chessPiece]?.let {
-            ContextCompat.getDrawable(
-                context, it
-            )
+            ContextCompat.getDrawable(context, it)
         }
     }
 
     companion object {
         fun pieceToDrawableMap(context: Context, pieceSet: PieceSet) = when (pieceSet) {
+            is PieceSet.Lichess -> emptyMap()
             PieceSet.Default -> mapOf(
                 Pair(
                     Piece.BLACK_BISHOP, getDrawableResourceId(context, "ic_bb")
@@ -86,4 +145,3 @@ class ChessPieceResourceProvider(
 
     }
 }
-

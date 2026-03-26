@@ -44,4 +44,49 @@
     <string name="board_style_purple">Ungu</string>
     <string name="board_style_ic">IC</string>
     <string name="board_style_green">Hijau</string>
+    <string name="board_style_maple">Maple</string>
+    <string name="board_style_wood">Kayu</string>
+    <string name="board_style_canvas">Kanvas</string>
+    <string name="board_style_metal">Metal</string>
+
+    <string name="lichess_section">Lichess</string>
+    <string name="lichess_download">Unduh</string>
+    <string name="lichess_downloaded">Terunduh</string>
+
+    <string name="highlight_color">Warna Sorotan</string>
+    <string name="save_to_device">Simpan ke Perangkat</string>
+    <string name="load">Muat</string>
+    <string name="paste_or_type_pgn">Tempel atau ketik PGN di sini</string>
+    <string name="no_gif_to_save">Buat GIF terlebih dahulu</string>
+    <string name="gif_saved">GIF berhasil disimpan</string>
+    <string name="gif_save_failed">Gagal menyimpan GIF</string>
+    <string name="pick_custom_color">Pilih Warna Kustom</string>
+    <string name="cancel">Batal</string>
+
+    <string name="gif_quality">Kualitas GIF</string>
+    <string name="gif_quality_description">Nilai lebih rendah = kualitas lebih baik, ukuran file lebih besar</string>
+    <string name="gif_loop_count">Jumlah Pengulangan GIF</string>
+    <string name="gif_loop_infinite">Tak terbatas</string>
+    <string name="gif_loop_times">%d kali</string>
+    <string name="board_resolution">Resolusi Papan</string>
+    <string name="board_resolution_value">%d px</string>
+    <string name="show_game_result">Tampilkan Hasil Permainan</string>
+    <string name="show_game_result_description">Tampilkan hasil pada frame terakhir</string>
+    <string name="sound_effects">Efek Suara</string>
+    <string name="sound_effects_description">Putar suara selama pemutaran papan</string>
+
+    <string name="clipboard_pgn_detected">PGN terdeteksi di papan klip</string>
+    <string name="clipboard_load">Muat</string>
+    <string name="recent_games">Permainan Terbaru</string>
+    <string name="no_recent_games">Tidak ada permainan terbaru</string>
+    <string name="start_from_here">Mulai GIF dari sini</string>
+    <string name="export_as_mp4">Ekspor sebagai MP4</string>
+    <string name="share_mp4">Bagikan MP4</string>
+    <string name="mp4_saved">MP4 berhasil disimpan</string>
+    <string name="mp4_save_failed">Gagal menyimpan MP4</string>
+    <string name="generating_mp4">Membuat MP4…</string>
+    <string name="auto_play">Putar otomatis</string>
+    <string name="clear_recent">Hapus</string>
+    <string name="dismiss">Tutup</string>
+    <string name="done">Selesai</string>
 </resources>
