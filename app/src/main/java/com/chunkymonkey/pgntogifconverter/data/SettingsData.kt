@@ -8,5 +8,11 @@ data class SettingsData(
     val shouldFlipBoard: Boolean,
     val lastMoveDelay: Float,
     val pieceSet: PieceSet,
-    val boardStyle: BoardStyle
+    val boardStyle: BoardStyle,
+    val highlightStyle: HighlightStyle = HighlightStyle.Green,
+    val gifQuality: Int = 10,
+    val gifLoopCount: Int = 0,
+    val boardResolution: Int = 504,
+    val showGameResult: Boolean = true,
+    val startFromMoveIndex: Int = 0
 )

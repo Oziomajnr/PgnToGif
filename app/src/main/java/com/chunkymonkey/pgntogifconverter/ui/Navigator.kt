@@ -8,13 +8,12 @@ import java.io.File
 
 
 object DefaultNavigator {
-     fun shareCurrentGif(file: File, context: Context) {
-        val shareIntent: Intent = Intent().apply {
-            action = Intent.ACTION_SEND
-            putExtra(
-                Intent.EXTRA_STREAM, file.getStrictModeUri(context)
-            )
+    fun shareCurrentGif(file: File, context: Context) {
+        val uri = file.getStrictModeUri(context) ?: return
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
             type = "image/gif"
+            putExtra(Intent.EXTRA_STREAM, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
         context.startActivity(
             Intent.createChooser(
@@ -23,4 +22,17 @@ object DefaultNavigator {
         )
     }
 
+    fun shareMp4(file: File, context: Context) {
+        val uri = file.getStrictModeUri(context) ?: return
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "video/mp4"
+            putExtra(Intent.EXTRA_STREAM, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        context.startActivity(
+            Intent.createChooser(
+                shareIntent, context.resources.getText(R.string.share)
+            )
+        )
+    }
 }

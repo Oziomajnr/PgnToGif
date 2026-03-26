@@ -1,134 +1,146 @@
 package com.chunkymonkey.pgntogifconverter.converter
 
 import android.app.Application
-import android.graphics.*
 import android.os.Environment
-import androidx.core.content.ContextCompat
-import androidx.core.content.res.ResourcesCompat
-import com.chunkymonkey.pgntogifconverter.R
 import com.chunkymonkey.pgntogifconverter.data.SettingsData
 import com.chunkymonkey.pgntogifconverter.dependency.DependencyFactory
 import com.chunkymonkey.pgntogifconverter.resource.ChessPieceResourceProvider
 import com.chunkymonkey.pgntogifconverter.resource.PaintResourceProvider
 import com.chunkymonkey.pgntogifconverter.util.AnimatedGifEncoder
 import com.github.bhlangonijr.chesslib.Board
+import com.github.bhlangonijr.chesslib.Square
 import com.github.bhlangonijr.chesslib.game.Game
-import java.io.ByteArrayOutputStream
+import com.github.bhlangonijr.chesslib.move.Move
 import java.io.File
 import java.io.FileOutputStream
 import java.util.*
 import kotlin.math.roundToInt
 
-
 class PgnToGifConverter(
-    private val context: Application,
+    val context: Application,
     private val playerNameHelper: PlayerNameHelper
 ) {
-    private val paintResourceProvider = PaintResourceProvider(context, DependencyFactory.getSettingsStorage())
-    private val chessPieceResourceProvider = ChessPieceResourceProvider(context, DependencyFactory.getSettingsStorage())
-    private val chessBoardToBitmapConverter =
-        ChessBoardToBitmapConverter(paintResourceProvider, chessPieceResourceProvider)
-
-    fun createGifFileFromChessGame(game: Game, settingsData: SettingsData): File {
+    fun createGifFileFromChessGame(
+        game: Game,
+        settingsData: SettingsData,
+        startFromMove: Int = 0
+    ): File {
         val board = Board()
-        val bos = ByteArrayOutputStream()
+
+        val settingsStorage = DependencyFactory.getSettingsStorage()
+        val paintResourceProvider = PaintResourceProvider(context, settingsStorage)
+        val chessPieceResourceProvider = ChessPieceResourceProvider(context, settingsStorage)
+        val converter = ChessBoardToBitmapConverter(
+            paintResourceProvider, chessPieceResourceProvider, settingsData.boardResolution
+        )
 
         val shouldAddName = playerNameHelper.shouldShowPlayerName(game, settingsData)
 
-        val bitmapWidth = 500
-        val bitmapHeight = if (shouldAddName) {
-            560
-        } else {
-            500
-        }
         val blackPlayerName = playerNameHelper.getBlackPlayerName(game, settingsData)
-
         val whitePlayerName = playerNameHelper.getWhitePlayerName(game, settingsData)
 
-        val encoder = AnimatedGifEncoder()
-        encoder.setSize(bitmapWidth, bitmapHeight)
-        encoder.setDelay((settingsData.moveDelay * 1000).roundToInt())
-        encoder.setRepeat(1)
-        encoder.setQuality(7)
-        encoder.start(bos)
-
-        game.loadMoveText()
-        val moves = game.halfMoves
-        moves.forEachIndexed { index, move ->
-            board.doMove(move)
-            val bitmap = chessBoardToBitmapConverter.createBitmapFromChessBoard(
-                board,
-                move,
-                settingsData.shouldFlipBoard
-            )
-            if (index == moves.lastIndex) {
-                encoder.setDelay((settingsData.lastMoveDelay * 1000).roundToInt())
+        val topName: String?
+        val bottomName: String?
+        if (shouldAddName) {
+            if (settingsData.shouldFlipBoard) {
+                topName = whitePlayerName
+                bottomName = blackPlayerName
+            } else {
+                topName = blackPlayerName
+                bottomName = whitePlayerName
             }
-            encoder.addFrame(
-                if (shouldAddName) {
-                    if (settingsData.shouldFlipBoard) {
-                        mergeBoardAndText(
-                            bitmap,
-                            getTextBitmap(whitePlayerName),
-                            getTextBitmap(blackPlayerName)
-
-                        )
-                    } else {
-                        mergeBoardAndText(
-                            bitmap,
-                            getTextBitmap(blackPlayerName),
-                            getTextBitmap(whitePlayerName)
-                        )
-                    }
-
-                } else {
-                    bitmap
-                }
-            )
+        } else {
+            topName = null
+            bottomName = null
         }
 
-        encoder.finish()
-        val currentFilePath =
-            File(
-                context.getExternalFilesDir(Environment.DIRECTORY_PICTURES),
-                "PgnToChessGifs" + Date().time.toString() + ".gif"
+        val frameWidth = converter.frameWidth()
+        val frameHeight = converter.frameHeight(shouldAddName)
+
+        val currentFilePath = File(
+            context.getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+            "PgnToChessGifs${Date().time}.gif"
+        )
+
+        FileOutputStream(currentFilePath).use { fos ->
+            val encoder = AnimatedGifEncoder()
+            encoder.setSize(frameWidth, frameHeight)
+            encoder.setDelay((settingsData.moveDelay * 1000).roundToInt())
+            encoder.setRepeat(settingsData.gifLoopCount)
+            encoder.setQuality(settingsData.gifQuality)
+            encoder.start(fos)
+
+            game.loadMoveText()
+            val moves = game.halfMoves
+            val effectiveStart = startFromMove.coerceIn(0, moves.size)
+
+            for (i in 0 until effectiveStart) {
+                board.doMove(moves[i])
+            }
+
+            val noMove = Move(Square.NONE, Square.NONE)
+            encoder.addFrame(
+                converter.createBitmapFromChessBoard(
+                    board, noMove, settingsData.shouldFlipBoard,
+                    settingsData.showBoardCoordinates, topName, bottomName
+                )
             )
-        val outStream =
-            FileOutputStream(currentFilePath)
-        outStream.write(bos.toByteArray())
-        outStream.close()
+
+            val gameResult = if (settingsData.showGameResult) {
+                extractGameResult(game)
+            } else null
+
+            for (i in effectiveStart until moves.size) {
+                board.doMove(moves[i])
+                if (i == moves.lastIndex) {
+                    encoder.setDelay((settingsData.lastMoveDelay * 1000).roundToInt())
+                }
+                val isLastMove = i == moves.lastIndex
+                encoder.addFrame(
+                    converter.createBitmapFromChessBoard(
+                        board, moves[i], settingsData.shouldFlipBoard,
+                        settingsData.showBoardCoordinates, topName, bottomName,
+                        gameResult = if (isLastMove) gameResult else null
+                    )
+                )
+            }
+
+            encoder.finish()
+        }
+
         return currentFilePath
     }
 
-    private fun getTextBitmap(playerName: String): Bitmap {
-        val finalBitmap =
-            Bitmap.createBitmap(500, 30, Bitmap.Config.ARGB_8888)
-
-        val canvas = Canvas(finalBitmap)
-        val paint = Paint()
-        val textColor = ContextCompat.getColor(context, R.color.player_name_text_color)
-        val textBackgroundColor =
-            ContextCompat.getColor(context, R.color.player_name_background_color)
-        paint.color = textBackgroundColor
-        paint.style = Paint.Style.FILL
-        canvas.drawPaint(paint)
-        paint.typeface = ResourcesCompat.getFont(context, R.font.roboto_bolditalic)
-        paint.color = textColor
-        paint.textSize = 25F
-        canvas.drawText(playerName, 10F, 25F, paint)
-        canvas.drawBitmap(finalBitmap, 0F, 0F, null)
-        return finalBitmap
+    private fun extractGameResult(game: Game): String? {
+        return try {
+            val result = game.result?.description
+            when {
+                result == null -> null
+                result.contains("1-0") || result.contains("White wins") -> "1-0"
+                result.contains("0-1") || result.contains("Black wins") -> "0-1"
+                result.contains("1/2") || result.contains("Draw") -> "½-½"
+                else -> {
+                    val resultProp = game.property?.get("Result")
+                    when (resultProp) {
+                        "1-0" -> "1-0"
+                        "0-1" -> "0-1"
+                        "1/2-1/2" -> "½-½"
+                        else -> null
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            try {
+                val resultProp = game.property?.get("Result")
+                when (resultProp) {
+                    "1-0" -> "1-0"
+                    "0-1" -> "0-1"
+                    "1/2-1/2" -> "½-½"
+                    else -> null
+                }
+            } catch (e2: Exception) {
+                null
+            }
+        }
     }
-
-    private fun mergeBoardAndText(bmp1: Bitmap, bmp2: Bitmap, bmp3: Bitmap): Bitmap {
-        val bmOverlay = Bitmap.createBitmap(bmp1.width, bmp1.height + 60, bmp1.config)
-        val canvas = Canvas(bmOverlay)
-        canvas.drawBitmap(bmp1, 0f, 25f, null)
-        canvas.drawBitmap(bmp2, 0f, 0f, null)
-        canvas.drawBitmap(bmp3, 0f, 530f, null)
-        bmp1.recycle()
-        bmp2.recycle()
-        return bmOverlay
-    }
-
 }

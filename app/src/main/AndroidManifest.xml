@@ -14,12 +14,6 @@
         android:requestLegacyExternalStorage="true"
         android:supportsRtl="true"
         android:theme="@style/Theme.ImageToGifConverter">
-        <activity
-            android:name=".ui.settings.SettingsActivity"
-            android:exported="true"
-            android:label="@string/title_activity_compose"
-            android:theme="@style/Theme.ImageToGifConverter.NoActionBar" />
-
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.chunkymonkey.imagetogifconverter.provider"
@@ -35,7 +29,8 @@
         <activity
             android:name=".ui.home.HomeActivity"
             android:exported="true"
-            android:launchMode="singleTask">
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.ImageToGifConverter.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

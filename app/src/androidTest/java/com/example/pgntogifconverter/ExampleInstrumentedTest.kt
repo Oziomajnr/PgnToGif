@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.example.imagetogifconverter", appContext.packageName)
+        assertEquals("com.chunkymonkey.imagetogifconverter", appContext.packageName)
     }
 }

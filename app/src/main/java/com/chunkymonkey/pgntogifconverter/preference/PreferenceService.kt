@@ -18,11 +18,16 @@ class PreferenceService(val context: Context) {
         sharedPreference.edit().putString(key, value).commit()
     }
 
-    /**
-     * Gets boolean value with key and returns default if key is absent
-     */
+    fun saveData(key: String, value: Int) {
+        sharedPreference.edit().putInt(key, value).apply()
+    }
+
+    fun saveData(key: String, value: Long) {
+        sharedPreference.edit().putLong(key, value).apply()
+    }
+
     fun getBoolean(key: String, default: Boolean): Boolean {
-        return sharedPreference.getBoolean(key, false)
+        return sharedPreference.getBoolean(key, default)
     }
 
     fun getFloat(key: String, default: Float): Float {
@@ -31,5 +36,13 @@ class PreferenceService(val context: Context) {
 
     fun getString(key: String, default: String): String {
         return sharedPreference.getString(key, default)!!
+    }
+
+    fun getInt(key: String, default: Int): Int {
+        return sharedPreference.getInt(key, default)
+    }
+
+    fun getLong(key: String, default: Long): Long {
+        return sharedPreference.getLong(key, default)
     }
 }

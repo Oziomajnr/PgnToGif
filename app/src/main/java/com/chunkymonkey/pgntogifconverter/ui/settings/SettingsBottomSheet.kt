@@ -2,6 +2,7 @@ package com.chunkymonkey.pgntogifconverter.ui.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,22 +11,31 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -33,6 +43,9 @@ import androidx.compose.ui.unit.dp
 import com.chunkymonkey.pgntogifconverter.R
 import com.chunkymonkey.pgntogifconverter.data.BoardStyle
 import com.chunkymonkey.pgntogifconverter.data.PieceSet
+import com.chunkymonkey.pgntogifconverter.lichess.LichessBoardThemeColors
+import com.chunkymonkey.pgntogifconverter.lichess.LichessPieceDownloader
+import com.chunkymonkey.pgntogifconverter.lichess.LichessThemeCatalog
 import kotlinx.coroutines.launch
 
 @ExperimentalMaterialApi
@@ -44,13 +57,26 @@ fun SettingsBottomSheet(
     sheetContent: @Composable () -> (Unit)
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val selectedPieceSet = remember {
-        mutableStateOf(settingsViewModel.settingsUIState.value.pieceSet)
-    }
+    val context = LocalContext.current
+    val pieceDownloader = remember { LichessPieceDownloader(context) }
 
-    val selectedBoardStyle = remember {
-        mutableStateOf(settingsViewModel.settingsUIState.value.boardStyle)
+    val currentPiece = settingsViewModel.settingsUIState.value.pieceSet
+    val currentBoard = settingsViewModel.settingsUIState.value.boardStyle
+    var selectedPieceSet by remember(currentPiece) { mutableStateOf(currentPiece) }
+    var selectedBoardStyle by remember(currentBoard) { mutableStateOf(currentBoard) }
+
+    var busyPieceId by remember { mutableStateOf<String?>(null) }
+    var busyBoardId by remember { mutableStateOf<String?>(null) }
+    var downloadError by remember { mutableStateOf<String?>(null) }
+
+    var catalogSeq by remember { mutableIntStateOf(0) }
+    LaunchedEffect(Unit) {
+        LichessThemeCatalog.syncIfStale()
+        catalogSeq++
     }
+    val lichessPieceList = remember(catalogSeq) { LichessThemeCatalog.pieceFamilies() }
+    val lichessBoardList = remember(catalogSeq) { LichessThemeCatalog.boardThemes() }
+
     val items = setOf(
         PieceSetUiData(
             PieceSet.Default,
@@ -71,7 +97,7 @@ fun SettingsBottomSheet(
         ), PieceSetUiData(
             PieceSet.Letter,
             R.drawable.letter_piece_set_sample,
-            stringResource(id = R.string.spatial_piece_type)
+            stringResource(id = R.string.letter_piece_type)
         )
     )
 
@@ -106,9 +132,32 @@ fun SettingsBottomSheet(
             R.color.light_square_color_purple,
             R.color.dark_square_color_purple,
             R.drawable.board_style_purple
+        ), BoardStyleUiData(
+            BoardStyle.Maple,
+            stringResource(id = R.string.board_style_maple),
+            R.color.light_square_color_maple,
+            R.color.dark_square_color_maple,
+            R.drawable.board_style_maple
+        ), BoardStyleUiData(
+            BoardStyle.Wood,
+            stringResource(id = R.string.board_style_wood),
+            R.color.light_square_color_wood,
+            R.color.dark_square_color_wood,
+            R.drawable.board_style_wood
+        ), BoardStyleUiData(
+            BoardStyle.Canvas,
+            stringResource(id = R.string.board_style_canvas),
+            R.color.light_square_color_canvas,
+            R.color.dark_square_color_canvas,
+            R.drawable.board_style_canvas
+        ), BoardStyleUiData(
+            BoardStyle.Metal,
+            stringResource(id = R.string.board_style_metal),
+            R.color.light_square_color_metal,
+            R.color.dark_square_color_metal,
+            R.drawable.board_style_metal
         )
     )
-
 
     ModalBottomSheetLayout(sheetShape = RoundedCornerShape(16.dp),
         sheetState = state,
@@ -136,24 +185,99 @@ fun SettingsBottomSheet(
                     boardStyleUiData.forEach {
                         ListItem(
                             text = it.title, image = it.drawable, modifier = Modifier.clickable {
-                                selectedBoardStyle.value = it.boardStyle
-                            }, it.boardStyle == selectedBoardStyle.value
+                                selectedBoardStyle = it.boardStyle
+                            }, it.boardStyle == selectedBoardStyle
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                    Divider(modifier = Modifier.padding(vertical = 12.dp))
+                    Text(
+                        text = stringResource(R.string.lichess_section),
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(bottom = 8.dp),
+                    )
+                    lichessBoardList.forEach { theme ->
+                        val installed =
+                            LichessBoardThemeColors.isBoardThemeInstalled(context, theme.id)
+                        val selected =
+                            selectedBoardStyle == BoardStyle.Lichess(theme.id)
+                        LichessBoardThemeRow(
+                            theme = theme,
+                            selected = selected,
+                            installed = installed,
+                            busy = busyBoardId == theme.id,
+                            downloadsIdle = busyPieceId == null && busyBoardId == null,
+                            onSelect = {
+                                selectedBoardStyle = BoardStyle.Lichess(theme.id)
+                            },
+                            onDownload = {
+                                downloadError = null
+                                coroutineScope.launch {
+                                    busyBoardId = theme.id
+                                    val result =
+                                        settingsViewModel.installLichessBoardTheme(theme.id)
+                                    busyBoardId = null
+                                    result.onFailure { e -> downloadError = e.message }
+                                }
+                            },
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                     }
                 } else {
-
                     items.forEach { pieceSet ->
                         ListItem(
                             text = pieceSet.title,
                             image = pieceSet.resourceId,
                             modifier = Modifier.clickable {
-                                selectedPieceSet.value = pieceSet.pieceSet
+                                selectedPieceSet = pieceSet.pieceSet
                             },
-                            pieceSet.pieceSet == selectedPieceSet.value
+                            pieceSet.pieceSet == selectedPieceSet
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                     }
+                    Divider(modifier = Modifier.padding(vertical = 12.dp))
+                    Text(
+                        text = stringResource(R.string.lichess_section),
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(bottom = 8.dp),
+                    )
+                    lichessPieceList.forEach { family ->
+                        val installed = pieceDownloader.isPieceFamilyInstalled(family.id)
+                        val selected =
+                            selectedPieceSet == PieceSet.Lichess(family.id)
+                        LichessPieceFamilyRow(
+                            family = family,
+                            selected = selected,
+                            installed = installed,
+                            busy = busyPieceId == family.id,
+                            downloadsIdle = busyPieceId == null && busyBoardId == null,
+                            onSelect = {
+                                if (installed) {
+                                    selectedPieceSet = PieceSet.Lichess(family.id)
+                                }
+                            },
+                            onDownload = {
+                                downloadError = null
+                                coroutineScope.launch {
+                                    busyPieceId = family.id
+                                    val result =
+                                        settingsViewModel.downloadLichessPieceFamily(family.id)
+                                    busyPieceId = null
+                                    result.onFailure { e -> downloadError = e.message }
+                                }
+                            },
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                }
+
+                downloadError?.let { err ->
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = err,
+                        color = MaterialTheme.colors.error,
+                        style = MaterialTheme.typography.caption,
+                    )
                 }
 
                 Column(
@@ -162,9 +286,9 @@ fun SettingsBottomSheet(
                     Button(
                         onClick = {
                             if (boardStyle.value) {
-                                settingsViewModel.onNewBoardStyleSelected(selectedBoardStyle.value)
+                                settingsViewModel.onNewBoardStyleSelected(selectedBoardStyle)
                             } else {
-                                settingsViewModel.onNewPieceSetSelected(selectedPieceSet.value)
+                                settingsViewModel.onNewPieceSetSelected(selectedPieceSet)
                             }
 
                             coroutineScope.launch { state.hide() }
@@ -179,6 +303,123 @@ fun SettingsBottomSheet(
         }) {
         BoxWithConstraints {
             sheetContent()
+        }
+    }
+}
+
+@Composable
+private fun LichessPieceFamilyRow(
+    family: LichessThemeCatalog.PieceFamily,
+    selected: Boolean,
+    installed: Boolean,
+    busy: Boolean,
+    downloadsIdle: Boolean,
+    onSelect: () -> Unit,
+    onDownload: () -> Unit,
+) {
+    val nameBg = if (selected) Color.LightGray else Color.Transparent
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(nameBg)
+            .padding(horizontal = 8.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = family.displayName,
+            style = MaterialTheme.typography.subtitle1,
+            modifier = Modifier
+                .weight(1f)
+                .clickable(enabled = installed) { onSelect() },
+        )
+        if (!installed) {
+            Button(
+                onClick = onDownload,
+                enabled = downloadsIdle,
+            ) {
+                if (busy) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(18.dp),
+                        strokeWidth = 2.dp,
+                    )
+                } else {
+                    Text(stringResource(R.string.lichess_download))
+                }
+            }
+        } else {
+            Text(
+                text = stringResource(R.string.lichess_downloaded),
+                style = MaterialTheme.typography.caption,
+                color = MaterialTheme.colors.primary,
+                modifier = Modifier.padding(start = 8.dp),
+            )
+        }
+    }
+}
+
+@Composable
+private fun LichessBoardThemeRow(
+    theme: LichessThemeCatalog.BoardTheme,
+    selected: Boolean,
+    installed: Boolean,
+    busy: Boolean,
+    downloadsIdle: Boolean,
+    onSelect: () -> Unit,
+    onDownload: () -> Unit,
+) {
+    val rowBg = if (selected) Color.LightGray else Color.Transparent
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(rowBg)
+            .padding(horizontal = 8.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Row(
+            modifier = Modifier
+                .weight(1f)
+                .clickable { onSelect() },
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(28.dp)
+                    .background(Color(theme.lightArgb)),
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Box(
+                modifier = Modifier
+                    .size(28.dp)
+                    .background(Color(theme.darkArgb)),
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = theme.displayName,
+                style = MaterialTheme.typography.subtitle1,
+                modifier = Modifier.weight(1f),
+            )
+        }
+        if (!installed) {
+            Button(
+                onClick = onDownload,
+                enabled = downloadsIdle,
+            ) {
+                if (busy) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(18.dp),
+                        strokeWidth = 2.dp,
+                    )
+                } else {
+                    Text(stringResource(R.string.lichess_download))
+                }
+            }
+        } else {
+            Text(
+                text = stringResource(R.string.lichess_downloaded),
+                style = MaterialTheme.typography.caption,
+                color = MaterialTheme.colors.primary,
+                modifier = Modifier.padding(start = 8.dp),
+            )
         }
     }
 }

@@ -44,5 +44,50 @@
     <string name="board_style_purple">Purple</string>
     <string name="board_style_ic">IC</string>
     <string name="board_style_green">Green</string>
+    <string name="board_style_maple">Maple</string>
+    <string name="board_style_wood">Wood</string>
+    <string name="board_style_canvas">Canvas</string>
+    <string name="board_style_metal">Metal</string>
+
+    <string name="lichess_section">Lichess</string>
+    <string name="lichess_download">Download</string>
+    <string name="lichess_downloaded">Downloaded</string>
+
+    <string name="highlight_color">Highlight Color</string>
+    <string name="save_to_device">Save to Device</string>
+    <string name="load">Load</string>
+    <string name="paste_or_type_pgn">Paste or type PGN here</string>
+    <string name="no_gif_to_save">Generate a GIF first</string>
+    <string name="gif_saved">GIF saved successfully</string>
+    <string name="gif_save_failed">Failed to save GIF</string>
+    <string name="pick_custom_color">Pick Custom Color</string>
+    <string name="cancel">Cancel</string>
+
+    <string name="gif_quality">GIF Quality</string>
+    <string name="gif_quality_description">Lower value = better quality, larger file size</string>
+    <string name="gif_loop_count">GIF Loop Count</string>
+    <string name="gif_loop_infinite">Infinite</string>
+    <string name="gif_loop_times">%d times</string>
+    <string name="board_resolution">Board Resolution</string>
+    <string name="board_resolution_value">%d px</string>
+    <string name="show_game_result">Show Game Result</string>
+    <string name="show_game_result_description">Display result on the final frame</string>
+    <string name="sound_effects">Sound Effects</string>
+    <string name="sound_effects_description">Play sounds during board playback</string>
+
+    <string name="clipboard_pgn_detected">PGN detected in clipboard</string>
+    <string name="clipboard_load">Load</string>
+    <string name="recent_games">Recent Games</string>
+    <string name="no_recent_games">No recent games</string>
+    <string name="start_from_here">Start GIF from here</string>
+    <string name="export_as_mp4">Export as MP4</string>
+    <string name="share_mp4">Share MP4</string>
+    <string name="mp4_saved">MP4 saved successfully</string>
+    <string name="mp4_save_failed">Failed to save MP4</string>
+    <string name="generating_mp4">Generating MP4…</string>
+
+    <string name="auto_play">Auto-play</string>
+    <string name="clear_recent">Clear</string>
+    <string name="dismiss">Dismiss</string>
 
 </resources>

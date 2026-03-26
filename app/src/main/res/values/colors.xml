@@ -30,11 +30,29 @@
     <color name="light_square_color_ic">#ececec</color>
     <color name="dark_square_color_ic">#c1c18e</color>
 
+    <color name="light_square_color_maple">#E8CEAB</color>
+    <color name="dark_square_color_maple">#BC7944</color>
+
+    <color name="light_square_color_wood">#D8B892</color>
+    <color name="dark_square_color_wood">#A87548</color>
+
+    <color name="light_square_color_canvas">#D7DAE5</color>
+    <color name="dark_square_color_canvas">#547388</color>
+
+    <color name="light_square_color_metal">#C9C9C9</color>
+    <color name="dark_square_color_metal">#7B7B7B</color>
+
     <color name="kind_attached_colour">#F42C2C</color>
     <color name="highlighted_square_paint">#FCAAE3AC</color>
+    <color name="highlight_from_square">#669BC700</color>
+    <color name="highlight_to_square">#999BC700</color>
     <color name="gif_preview_background">@color/window_background</color>
 
-    <color name="player_name_background_color">#170D05</color>
-    <color name="player_name_text_color">#DCD4CE</color>
+    <color name="board_border_color">#2C2016</color>
+    <color name="player_name_background_color">#1E1410</color>
+    <color name="player_name_text_color">#E8E0D8</color>
+
+    <color name="game_result_overlay">#CC000000</color>
+    <color name="game_result_text">#FFFFFFFF</color>
 
 </resources>
