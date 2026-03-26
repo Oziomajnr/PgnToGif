@@ -3,6 +3,9 @@
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel target="1.7">
       <module name="ImageToGifConverter.app" target="19" />
+      <module name="ImageToGifConverter.chesscore" target="17" />
+      <module name="ImageToGifConverter.chesscore.main" target="17" />
+      <module name="ImageToGifConverter.chesscore.test" target="17" />
       <module name="ImageToGifConverter.chesslibrary1" target="1.8" />
       <module name="ImageToGifConverter.chesslibrary1.main" target="1.8" />
       <module name="ImageToGifConverter.chesslibrary1.test" target="1.8" />

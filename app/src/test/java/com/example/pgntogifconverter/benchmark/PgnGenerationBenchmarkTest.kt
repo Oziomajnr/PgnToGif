@@ -1,7 +1,7 @@
 package com.example.pgntogifconverter.benchmark
 
-import com.github.bhlangonijr.chesslib.pgn.PgnHolder
-import org.junit.Assert.assertEquals
+import com.chunkymonkey.chesscore.PgnParser
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
@@ -24,45 +24,39 @@ class PgnGenerationBenchmarkTest {
     }
 
     @Test
-    fun benchmark_pgnParsing_singleRun_parsesSuccessfully() {
-        val holder = PgnHolder("benchmark")
+    fun benchmark_pgnParsing_singleRun_parsesSuccessfully() = runBlocking {
         val startMs = System.currentTimeMillis()
-        holder.loadPgn(longPgnString)
+        val parsed = PgnParser.parse(longPgnString)
         val elapsedMs = System.currentTimeMillis() - startMs
 
-        assertEquals(1, holder.games.size)
-        val game = holder.games.first()
-        assertNotNull(game)
-        assertNotNull(game.halfMoves)
-        assert(game.halfMoves.size >= 200) { "Expected 200+ half-moves in long game, got ${game.halfMoves.size}" }
+        assertNotNull(parsed)
+        val moves = parsed.moves
+        assert(moves.size >= 200) { "Expected 200+ half-moves in long game, got ${moves.size}" }
 
-        println("[BENCHMARK] Single parse: ${game.halfMoves.size} half-moves in ${elapsedMs}ms (${game.halfMoves.size / maxOf(1, elapsedMs)} moves/ms)")
+        println("[BENCHMARK] Single parse: ${moves.size} half-moves in ${elapsedMs}ms (${moves.size / maxOf(1, elapsedMs)} moves/ms)")
     }
 
     @Test
-    fun benchmark_pgnParsing_multipleRuns_reportsAverageTime() {
+    fun benchmark_pgnParsing_multipleRuns_reportsAverageTime() = runBlocking {
         val warmupRuns = 3
         val benchmarkRuns = 10
 
         repeat(warmupRuns) {
-            val h = PgnHolder("warmup")
-            h.loadPgn(longPgnString)
+            PgnParser.parse(longPgnString)
         }
 
         val timesMs = mutableListOf<Long>()
-        repeat(benchmarkRuns) { i ->
-            val holder = PgnHolder("run_$i")
+        repeat(benchmarkRuns) {
             val startMs = System.currentTimeMillis()
-            holder.loadPgn(longPgnString)
+            PgnParser.parse(longPgnString)
             val elapsedMs = System.currentTimeMillis() - startMs
             timesMs.add(elapsedMs)
-            assertEquals(1, holder.games.size)
         }
 
         val avgMs = timesMs.average()
         val minMs = timesMs.minOrNull() ?: 0L
         val maxMs = timesMs.maxOrNull() ?: 0L
-        val halfMoveCount = PgnHolder("count").apply { loadPgn(longPgnString) }.games.first().halfMoves.size
+        val halfMoveCount = PgnParser.parse(longPgnString).moves.size
 
         println("[BENCHMARK] PGN parsing (Hikaru vs Rybka long game):")
         println("  Runs: $benchmarkRuns | Half-moves: $halfMoveCount")
@@ -74,19 +68,15 @@ class PgnGenerationBenchmarkTest {
     }
 
     @Test
-    fun benchmark_pgnParsing_loadMoveText_measuresFullParseAndLoad() {
-        val holder = PgnHolder("loadMoveText")
-        holder.loadPgn(longPgnString)
-        val game = holder.games.first()
-
+    fun benchmark_pgnParsing_movesAvailableAfterParse_noExtraLoadStep() = runBlocking {
         val startMs = System.currentTimeMillis()
-        game.loadMoveText()
+        val parsed = PgnParser.parse(longPgnString)
         val elapsedMs = System.currentTimeMillis() - startMs
-        val moveCount = game.halfMoves.size
+        val moveCount = parsed.moves.size
 
-        println("[BENCHMARK] loadMoveText(): $moveCount half-moves loaded in ${elapsedMs}ms")
+        println("[BENCHMARK] PgnParser.parse() (moves included): $moveCount half-moves in ${elapsedMs}ms")
 
         assert(moveCount >= 200)
-        assert(elapsedMs < 5_000) { "loadMoveText should complete in under 5s (got ${elapsedMs}ms)" }
+        assert(elapsedMs < 5_000) { "parse should complete in under 5s (got ${elapsedMs}ms)" }
     }
 }

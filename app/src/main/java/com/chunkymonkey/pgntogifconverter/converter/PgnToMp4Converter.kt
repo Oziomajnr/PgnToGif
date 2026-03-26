@@ -12,10 +12,10 @@ import com.chunkymonkey.pgntogifconverter.data.SettingsData
 import com.chunkymonkey.pgntogifconverter.dependency.DependencyFactory
 import com.chunkymonkey.pgntogifconverter.resource.ChessPieceResourceProvider
 import com.chunkymonkey.pgntogifconverter.resource.PaintResourceProvider
-import com.github.bhlangonijr.chesslib.Board
-import com.github.bhlangonijr.chesslib.Square
-import com.github.bhlangonijr.chesslib.game.Game
-import com.github.bhlangonijr.chesslib.move.Move
+import com.chunkymonkey.chesscore.Board
+import com.chunkymonkey.chesscore.Move
+import com.chunkymonkey.chesscore.ParsedGame
+import com.chunkymonkey.chesscore.Square
 import java.io.File
 import java.util.*
 import kotlin.math.roundToInt
@@ -25,7 +25,7 @@ class PgnToMp4Converter(
     private val playerNameHelper: PlayerNameHelper
 ) {
     fun createMp4FileFromChessGame(
-        game: Game,
+        game: ParsedGame,
         settingsData: SettingsData,
         startFromMove: Int = 0
     ): File {
@@ -52,8 +52,7 @@ class PgnToMp4Converter(
             topName = null; bottomName = null
         }
 
-        game.loadMoveText()
-        val moves = game.halfMoves
+        val moves = game.moves
         val effectiveStart = startFromMove.coerceIn(0, moves.size)
 
         val frames = mutableListOf<Bitmap>()
@@ -252,14 +251,19 @@ class PgnToMp4Converter(
         return Pair(track, started)
     }
 
-    private fun extractGameResult(game: Game): String? {
+    private fun extractGameResult(game: ParsedGame): String? {
         return try {
-            val resultProp = game.property?.get("Result")
-            when (resultProp) {
-                "1-0" -> "1-0"
-                "0-1" -> "0-1"
-                "1/2-1/2" -> "½-½"
-                else -> null
+            val desc = game.result.description
+            when {
+                desc.contains("1-0") || desc.contains("White wins") -> "1-0"
+                desc.contains("0-1") || desc.contains("Black wins") -> "0-1"
+                desc.contains("1/2") || desc.contains("Draw") -> "½-½"
+                else -> when (game.headers["Result"]) {
+                    "1-0" -> "1-0"
+                    "0-1" -> "0-1"
+                    "1/2-1/2" -> "½-½"
+                    else -> null
+                }
             }
         } catch (e: Exception) {
             null

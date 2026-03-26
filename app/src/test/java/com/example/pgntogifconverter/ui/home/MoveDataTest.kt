@@ -1,8 +1,8 @@
 package com.example.pgntogifconverter.ui.home
 
 import com.chunkymonkey.pgntogifconverter.ui.home.MoveData
-import com.github.bhlangonijr.chesslib.Square
-import com.github.bhlangonijr.chesslib.move.Move
+import com.chunkymonkey.chesscore.Move
+import com.chunkymonkey.chesscore.Square
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue

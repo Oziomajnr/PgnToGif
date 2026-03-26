@@ -1,6 +1,6 @@
 package com.chunkymonkey.pgntogifconverter.ui.home
 
-import com.github.bhlangonijr.chesslib.move.Move
+import com.chunkymonkey.chesscore.Move
 
 data class MoveData(
     val index: Int,

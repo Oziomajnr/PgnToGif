@@ -12,11 +12,12 @@ import com.chunkymonkey.pgntogifconverter.resource.PaintResourceProvider
 import com.chunkymonkey.pgntogifconverter.ui.ApplicationText
 import com.chunkymonkey.pgntogifconverter.ui.error.ApplicationStringProvider
 import com.chunkymonkey.pgntogifconverter.util.ErrorHandler
-import com.github.bhlangonijr.chesslib.Board
-import com.github.bhlangonijr.chesslib.Square
-import com.github.bhlangonijr.chesslib.game.Game
-import com.github.bhlangonijr.chesslib.move.Move
-import com.github.bhlangonijr.chesslib.pgn.PgnHolder
+import com.chunkymonkey.chesscore.Board
+import com.chunkymonkey.chesscore.Move
+import com.chunkymonkey.chesscore.ParsedGame
+import com.chunkymonkey.chesscore.PgnParseException
+import com.chunkymonkey.chesscore.PgnParser
+import com.chunkymonkey.chesscore.Square
 import kotlinx.coroutines.*
 import java.io.File
 
@@ -32,7 +33,7 @@ class HomePresenterImpl(
     private var job: Job? = null
     private var coroutineScope: CoroutineScope? = null
 
-    private var currentGame: Game? = null
+    private var currentGame: ParsedGame? = null
     private var parsedMoves: List<MoveData> = emptyList()
     private var currentMoveIndex: Int = -1
     private var lastMp4File: File? = null
@@ -60,14 +61,17 @@ class HomePresenterImpl(
                     showLoading("Loading PGN…")
                 }
 
-                val pgn = PgnHolder(pgnFile.absolutePath)
-                pgn.loadPgn()
-
-                withContext(Dispatchers.Main) {
-                    if (pgn.games.firstOrNull() != null) view?.setPgnText(pgn.toString())
+                val pgnText = pgnFile.readText()
+                val game = try {
+                    PgnParser.parse(pgnText)
+                } catch (_: PgnParseException) {
+                    null
                 }
 
-                val game = pgn.games.firstOrNull()
+                withContext(Dispatchers.Main) {
+                    if (game != null) view?.setPgnText(pgnText)
+                }
+
                 if (game == null) {
                     withContext(Dispatchers.Main) {
                         view?.showErrorMessage(
@@ -78,8 +82,7 @@ class HomePresenterImpl(
                 } else {
                     lastMp4File = null
                     currentGame = game
-                    game.loadMoveText()
-                    val halfMoves = game.halfMoves
+                    val halfMoves = game.moves
                     val moveDataList = halfMoves.mapIndexed { index, move ->
                         MoveData(
                             index = index,
@@ -258,7 +261,7 @@ class HomePresenterImpl(
 
     override fun getParsedMoves(): List<MoveData> = parsedMoves
 
-    override fun getCurrentGame(): Game? = currentGame
+    override fun getCurrentGame(): ParsedGame? = currentGame
 
     private suspend fun renderBoardAtCurrentPosition() {
         val board = Board()
