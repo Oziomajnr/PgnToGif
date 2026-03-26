@@ -184,9 +184,13 @@ fun SettingsBottomSheet(
                 if (boardStyle.value) {
                     boardStyleUiData.forEach {
                         ListItem(
-                            text = it.title, image = it.drawable, modifier = Modifier.clickable {
+                            text = it.title,
+                            image = it.drawable,
+                            modifier = Modifier.clickable {
                                 selectedBoardStyle = it.boardStyle
-                            }, it.boardStyle == selectedBoardStyle
+                                settingsViewModel.onNewBoardStyleSelected(it.boardStyle)
+                            },
+                            it.boardStyle == selectedBoardStyle
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                     }
@@ -209,6 +213,7 @@ fun SettingsBottomSheet(
                             downloadsIdle = busyPieceId == null && busyBoardId == null,
                             onSelect = {
                                 selectedBoardStyle = BoardStyle.Lichess(theme.id)
+                                settingsViewModel.onNewBoardStyleSelected(BoardStyle.Lichess(theme.id))
                             },
                             onDownload = {
                                 downloadError = null
@@ -218,6 +223,10 @@ fun SettingsBottomSheet(
                                         settingsViewModel.installLichessBoardTheme(theme.id)
                                     busyBoardId = null
                                     result.onFailure { e -> downloadError = e.message }
+                                    result.onSuccess {
+                                        selectedBoardStyle = BoardStyle.Lichess(theme.id)
+                                        settingsViewModel.onNewBoardStyleSelected(BoardStyle.Lichess(theme.id))
+                                    }
                                 }
                             },
                         )
@@ -230,6 +239,7 @@ fun SettingsBottomSheet(
                             image = pieceSet.resourceId,
                             modifier = Modifier.clickable {
                                 selectedPieceSet = pieceSet.pieceSet
+                                settingsViewModel.onNewPieceSetSelected(pieceSet.pieceSet)
                             },
                             pieceSet.pieceSet == selectedPieceSet
                         )
@@ -254,6 +264,7 @@ fun SettingsBottomSheet(
                             onSelect = {
                                 if (installed) {
                                     selectedPieceSet = PieceSet.Lichess(family.id)
+                                    settingsViewModel.onNewPieceSetSelected(PieceSet.Lichess(family.id))
                                 }
                             },
                             onDownload = {
@@ -264,6 +275,10 @@ fun SettingsBottomSheet(
                                         settingsViewModel.downloadLichessPieceFamily(family.id)
                                     busyPieceId = null
                                     result.onFailure { e -> downloadError = e.message }
+                                    result.onSuccess {
+                                        selectedPieceSet = PieceSet.Lichess(family.id)
+                                        settingsViewModel.onNewPieceSetSelected(PieceSet.Lichess(family.id))
+                                    }
                                 }
                             },
                         )
@@ -280,24 +295,13 @@ fun SettingsBottomSheet(
                     )
                 }
 
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
+                Button(
+                    onClick = { coroutineScope.launch { state.hide() } },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp),
                 ) {
-                    Button(
-                        onClick = {
-                            if (boardStyle.value) {
-                                settingsViewModel.onNewBoardStyleSelected(selectedBoardStyle)
-                            } else {
-                                settingsViewModel.onNewPieceSetSelected(selectedPieceSet)
-                            }
-
-                            coroutineScope.launch { state.hide() }
-                        }, modifier = Modifier
-                            .padding(vertical = 16.dp)
-                            .align(Alignment.End)
-                    ) {
-                        Text(text = stringResource(R.string.save))
-                    }
+                    Text(text = stringResource(R.string.done))
                 }
             }
         }) {

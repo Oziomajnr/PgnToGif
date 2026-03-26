@@ -95,6 +95,8 @@ fun Parent(settingsViewModel: SettingsViewModel, onBackPressed: () -> Unit = {})
                             GifLoopCountSetting(settingsViewModel)
                             BoardResolutionSetting(settingsViewModel)
                             ShowGameResultSetting(settingsViewModel)
+                            Divider(modifier = Modifier.padding(vertical = 8.dp))
+                            Mp4AudioSettings(settingsViewModel)
                         }
                     }
                     SettingsBottomSheet(state, settingsViewModel, isBoardStyle) { MainContent() }
@@ -404,6 +406,60 @@ fun ShowGameResultSetting(settingsViewModel: SettingsViewModel) {
             settingsViewModel.onShowGameResultChanged(it)
         }
     )
+}
+
+@Composable
+fun Mp4AudioSettings(settingsViewModel: SettingsViewModel) {
+    Text(
+        text = stringResource(R.string.mp4_audio_section),
+        modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 4.dp),
+        fontWeight = FontWeight.Bold,
+    )
+    val master = rememberBooleanSettingState(settingsViewModel.settingsUIState.value.mp4AudioEnabled)
+    SettingsSwitch(
+        title = {
+            Text(
+                modifier = Modifier.padding(start = Dp(0f)),
+                text = stringResource(R.string.mp4_audio_enable)
+            )
+        },
+        subtitle = {
+            Text(
+                modifier = Modifier.padding(start = Dp(0f)),
+                text = stringResource(R.string.mp4_audio_enable_description)
+            )
+        },
+        state = master,
+        onCheckedChange = { settingsViewModel.onMp4AudioEnabledChanged(it) },
+    )
+    if (settingsViewModel.settingsUIState.value.mp4AudioEnabled) {
+        Column(modifier = Modifier.padding(start = 32.dp)) {
+            val m = rememberBooleanSettingState(settingsViewModel.settingsUIState.value.mp4SoundMove)
+            SettingsSwitch(
+                title = { Text(stringResource(R.string.mp4_sound_move)) },
+                state = m,
+                onCheckedChange = { settingsViewModel.onMp4SoundMoveChanged(it) },
+            )
+            val cap = rememberBooleanSettingState(settingsViewModel.settingsUIState.value.mp4SoundCapture)
+            SettingsSwitch(
+                title = { Text(stringResource(R.string.mp4_sound_capture)) },
+                state = cap,
+                onCheckedChange = { settingsViewModel.onMp4SoundCaptureChanged(it) },
+            )
+            val chk = rememberBooleanSettingState(settingsViewModel.settingsUIState.value.mp4SoundCheck)
+            SettingsSwitch(
+                title = { Text(stringResource(R.string.mp4_sound_check)) },
+                state = chk,
+                onCheckedChange = { settingsViewModel.onMp4SoundCheckChanged(it) },
+            )
+            val cas = rememberBooleanSettingState(settingsViewModel.settingsUIState.value.mp4SoundCastle)
+            SettingsSwitch(
+                title = { Text(stringResource(R.string.mp4_sound_castle)) },
+                state = cas,
+                onCheckedChange = { settingsViewModel.onMp4SoundCastleChanged(it) },
+            )
+        }
+    }
 }
 
 @Composable

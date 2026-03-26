@@ -1,57 +1,74 @@
 package com.chunkymonkey.pgntogifconverter.audio
 
+import android.content.Context
 import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioManager
 import android.media.AudioTrack
-import kotlin.math.sin
+import android.media.MediaPlayer
 
-class ChessSoundPlayer {
+class ChessSoundPlayer(private val context: Context) {
 
+    private val app = context.applicationContext
     private var released = false
+    private val useLichess = LichessSoundFiles.hasBundledSet(app)
 
-    fun playMoveSound() {
-        if (released) return
-        playTone(500.0, 60)
-    }
+    fun playMoveSound() = playType(MoveSoundType.Move)
 
-    fun playCaptureSound() {
-        if (released) return
-        playTone(350.0, 100)
-    }
+    fun playCaptureSound() = playType(MoveSoundType.Capture)
 
-    fun playCheckSound() {
-        if (released) return
-        playTone(700.0, 120)
-    }
+    fun playCheckSound() = playType(MoveSoundType.Check)
 
-    fun playCastleSound() {
-        if (released) return
-        playTone(400.0, 80)
-        playTone(500.0, 80)
-    }
+    fun playCastleSound() = playType(MoveSoundType.Castle)
 
     fun playGameEndSound() {
         if (released) return
-        playTone(600.0, 150)
+        if (useLichess) {
+            playAsset(LichessSoundFiles.VICTORY)
+        } else {
+            playSamples(ChessSoundSynthesizer.tone(600.0, 150))
+        }
     }
 
     fun release() {
         released = true
     }
 
-    private fun playTone(frequencyHz: Double, durationMs: Int) {
+    private fun playType(type: MoveSoundType) {
+        if (released) return
+        if (useLichess) {
+            playAsset(LichessSoundFiles.assetPathFor(type))
+        } else {
+            playSamples(ChessSoundSynthesizer.synthesize(type))
+        }
+    }
+
+    private fun playAsset(assetPath: String) {
+        Thread {
+            if (released) return@Thread
+            try {
+                val mp = MediaPlayer()
+                val afd = app.assets.openFd(assetPath)
+                mp.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
+                afd.close()
+                mp.setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_GAME)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .build()
+                )
+                mp.prepare()
+                mp.setOnCompletionListener { it.release() }
+                mp.start()
+            } catch (_: Exception) {
+            }
+        }.start()
+    }
+
+    private fun playSamples(samples: ShortArray) {
         Thread {
             try {
-                val sampleRate = 22050
-                val numSamples = sampleRate * durationMs / 1000
-                val samples = ShortArray(numSamples)
-                for (i in 0 until numSamples) {
-                    val t = i.toDouble() / sampleRate
-                    val fade = 1.0 - i.toDouble() / numSamples
-                    samples[i] = (Short.MAX_VALUE * sin(2.0 * Math.PI * frequencyHz * t) * fade * 0.5).toInt()
-                        .coerceIn(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt()).toShort()
-                }
+                val sampleRate = ChessSoundSynthesizer.SAMPLE_RATE
                 val bufferSize = samples.size * 2
                 val audioTrack = AudioTrack(
                     AudioAttributes.Builder()
@@ -69,10 +86,12 @@ class ChessSoundPlayer {
                 )
                 audioTrack.write(samples, 0, samples.size)
                 audioTrack.play()
+                val durationMs = samples.size * 1000 / sampleRate
                 Thread.sleep(durationMs.toLong() + 30)
                 audioTrack.stop()
                 audioTrack.release()
-            } catch (_: Exception) {}
+            } catch (_: Exception) {
+            }
         }.start()
     }
 }

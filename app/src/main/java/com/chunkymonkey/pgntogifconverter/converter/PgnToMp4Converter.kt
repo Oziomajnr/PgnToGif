@@ -7,6 +7,7 @@ import android.media.MediaCodecInfo
 import android.media.MediaFormat
 import android.media.MediaMuxer
 import android.os.Environment
+import com.chunkymonkey.pgntogifconverter.audio.ChessSoundSynthesizer
 import com.chunkymonkey.pgntogifconverter.data.SettingsData
 import com.chunkymonkey.pgntogifconverter.dependency.DependencyFactory
 import com.chunkymonkey.pgntogifconverter.resource.ChessPieceResourceProvider
@@ -56,6 +57,7 @@ class PgnToMp4Converter(
         val effectiveStart = startFromMove.coerceIn(0, moves.size)
 
         val frames = mutableListOf<Bitmap>()
+        val moveSans = mutableListOf<String>()
 
         for (i in 0 until effectiveStart) {
             board.doMove(moves[i])
@@ -73,6 +75,7 @@ class PgnToMp4Converter(
 
         for (i in effectiveStart until moves.size) {
             board.doMove(moves[i])
+            moveSans.add(moves[i].san ?: "")
             val isLastMove = i == moves.lastIndex
             frames.add(
                 converter.createBitmapFromChessBoard(
@@ -83,22 +86,77 @@ class PgnToMp4Converter(
             )
         }
 
-        return encodeFramesToMp4(frames, settingsData)
+        return encodeFramesToMp4(frames, settingsData, moveSans)
     }
 
     private fun encodeFramesToMp4(
         frames: List<Bitmap>,
-        settingsData: SettingsData
+        settingsData: SettingsData,
+        moveSans: List<String>,
     ): File {
         val sampleBitmap = frames.first()
         val width = alignTo16(sampleBitmap.width)
         val height = alignTo16(sampleBitmap.height)
 
-        val outputFile = File(
+        val finalOut = File(
             context.getExternalFilesDir(Environment.DIRECTORY_MOVIES),
             "ChessGame_${Date().time}.mp4"
         )
 
+        val tempVideo = File(context.cacheDir, "ptg_vid_${System.nanoTime()}.mp4")
+        try {
+            encodeVideoOnly(frames, settingsData, width, height, tempVideo)
+
+            if (!settingsData.mp4AudioEnabled) {
+                tempVideo.copyTo(finalOut, overwrite = true)
+                return finalOut
+            }
+
+            val moveDelayMs = (settingsData.moveDelay * 1000).roundToInt().toLong()
+            val lastMoveDelayMs = (settingsData.lastMoveDelay * 1000).roundToInt().toLong()
+            val framesPerMove = ((moveDelayMs * FPS) / 1000).toInt().coerceAtLeast(1)
+            val framesPerLastMove = ((lastMoveDelayMs * FPS) / 1000).toInt().coerceAtLeast(1)
+            val frameIntervalNs = 1_000_000_000L / FPS
+
+            val totalNs = Mp4AudioTimeline.totalDurationNs(
+                frames.size, framesPerMove, framesPerLastMove, frameIntervalNs
+            )
+            val sampleRate = ChessSoundSynthesizer.SAMPLE_RATE
+            val totalSamples = ((totalNs * sampleRate) / 1_000_000_000L).toInt() + sampleRate / 10
+            val events = mutableListOf<Pair<Int, ShortArray>>()
+            for (f in 1 until frames.size) {
+                val san = moveSans.getOrNull(f - 1) ?: continue
+                val pcm = ChessSoundSynthesizer.pcmForSanIfEnabled(san, settingsData, context) ?: continue
+                val startNs = Mp4AudioTimeline.frameStartNs(
+                    f, frames.size, framesPerMove, framesPerLastMove, frameIntervalNs
+                )
+                val startSample = ((startNs * sampleRate) / 1_000_000_000L).toInt().coerceAtLeast(0)
+                if (startSample < totalSamples) {
+                    events.add(startSample to pcm)
+                }
+            }
+            val pcm = ChessSoundSynthesizer.mixAtOffsets(totalSamples, events)
+
+            val tempAudio = File(context.cacheDir, "ptg_aud_${System.nanoTime()}.mp4")
+            try {
+                AudioPcmToAacM4a.encode(pcm, sampleRate, tempAudio)
+                Mp4VideoAudioMerger.merge(tempVideo, tempAudio, finalOut)
+            } finally {
+                tempAudio.delete()
+            }
+            return finalOut
+        } finally {
+            tempVideo.delete()
+        }
+    }
+
+    private fun encodeVideoOnly(
+        frames: List<Bitmap>,
+        settingsData: SettingsData,
+        width: Int,
+        height: Int,
+        outputFile: File,
+    ) {
         val format = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, width, height)
         format.setInteger(
             MediaFormat.KEY_COLOR_FORMAT,
@@ -154,8 +212,6 @@ class PgnToMp4Converter(
                 muxer.release()
             } catch (_: Exception) {}
         }
-
-        return outputFile
     }
 
     private fun drainEncoderOutput(

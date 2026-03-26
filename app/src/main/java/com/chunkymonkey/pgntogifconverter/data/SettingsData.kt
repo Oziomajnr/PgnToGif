@@ -14,5 +14,10 @@ data class SettingsData(
     val gifLoopCount: Int = 0,
     val boardResolution: Int = 504,
     val showGameResult: Boolean = true,
-    val startFromMoveIndex: Int = 0
+    val startFromMoveIndex: Int = 0,
+    val mp4AudioEnabled: Boolean = true,
+    val mp4SoundMove: Boolean = true,
+    val mp4SoundCapture: Boolean = true,
+    val mp4SoundCheck: Boolean = true,
+    val mp4SoundCastle: Boolean = true,
 )

@@ -24,6 +24,11 @@ class PreferenceSettingsStorage(private val preferenceService: PreferenceService
         preferenceService.saveData(boardResolutionKey, settingsData.boardResolution)
         preferenceService.saveData(showGameResultKey, settingsData.showGameResult)
         preferenceService.saveData(startFromMoveKey, settingsData.startFromMoveIndex)
+        preferenceService.saveData(mp4AudioEnabledKey, settingsData.mp4AudioEnabled)
+        preferenceService.saveData(mp4SoundMoveKey, settingsData.mp4SoundMove)
+        preferenceService.saveData(mp4SoundCaptureKey, settingsData.mp4SoundCapture)
+        preferenceService.saveData(mp4SoundCheckKey, settingsData.mp4SoundCheck)
+        preferenceService.saveData(mp4SoundCastleKey, settingsData.mp4SoundCastle)
     }
 
     override fun getSettings(): SettingsData {
@@ -42,6 +47,11 @@ class PreferenceSettingsStorage(private val preferenceService: PreferenceService
         val boardResolution = preferenceService.getInt(boardResolutionKey, 504)
         val showGameResult = preferenceService.getBoolean(showGameResultKey, true)
         val startFromMove = preferenceService.getInt(startFromMoveKey, 0)
+        val mp4AudioEnabled = preferenceService.getBoolean(mp4AudioEnabledKey, true)
+        val mp4SoundMove = preferenceService.getBoolean(mp4SoundMoveKey, true)
+        val mp4SoundCapture = preferenceService.getBoolean(mp4SoundCaptureKey, true)
+        val mp4SoundCheck = preferenceService.getBoolean(mp4SoundCheckKey, true)
+        val mp4SoundCastle = preferenceService.getBoolean(mp4SoundCastleKey, true)
         return SettingsData(
             showPlayerName = shouldShowPlayerName,
             showBoardCoordinates = shouldShowBoardCoordinates,
@@ -56,7 +66,12 @@ class PreferenceSettingsStorage(private val preferenceService: PreferenceService
             gifLoopCount = gifLoopCount,
             boardResolution = boardResolution,
             showGameResult = showGameResult,
-            startFromMoveIndex = startFromMove
+            startFromMoveIndex = startFromMove,
+            mp4AudioEnabled = mp4AudioEnabled,
+            mp4SoundMove = mp4SoundMove,
+            mp4SoundCapture = mp4SoundCapture,
+            mp4SoundCheck = mp4SoundCheck,
+            mp4SoundCastle = mp4SoundCastle,
         )
     }
 
@@ -123,6 +138,11 @@ class PreferenceSettingsStorage(private val preferenceService: PreferenceService
         private const val boardResolutionKey = "BOARD_RESOLUTION"
         private const val showGameResultKey = "SHOW_GAME_RESULT"
         private const val startFromMoveKey = "START_FROM_MOVE"
+        private const val mp4AudioEnabledKey = "MP4_AUDIO_ENABLED"
+        private const val mp4SoundMoveKey = "MP4_SOUND_MOVE"
+        private const val mp4SoundCaptureKey = "MP4_SOUND_CAPTURE"
+        private const val mp4SoundCheckKey = "MP4_SOUND_CHECK"
+        private const val mp4SoundCastleKey = "MP4_SOUND_CASTLE"
         private const val LICHESS_PREFIX = "lichess:"
     }
 }

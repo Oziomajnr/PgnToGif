@@ -73,7 +73,7 @@ class HomeActivity : AppCompatActivity(), HomeView {
     private val recentGamesStorage: RecentGamesStorage by lazy {
         RecentGamesStorage(PreferenceService(this.applicationContext))
     }
-    private val chessSoundPlayer: ChessSoundPlayer by lazy { ChessSoundPlayer() }
+    private val chessSoundPlayer: ChessSoundPlayer by lazy { ChessSoundPlayer(this@HomeActivity) }
 
     private val getContent =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { activityResult: ActivityResult ->

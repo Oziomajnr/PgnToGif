@@ -89,5 +89,14 @@
     <string name="auto_play">Auto-play</string>
     <string name="clear_recent">Clear</string>
     <string name="dismiss">Dismiss</string>
+    <string name="done">Done</string>
+
+    <string name="mp4_audio_section">MP4 export audio</string>
+    <string name="mp4_audio_enable">Include audio in MP4</string>
+    <string name="mp4_audio_enable_description">Mix move sounds into exported video</string>
+    <string name="mp4_sound_move">Quiet move sound</string>
+    <string name="mp4_sound_capture">Capture sound</string>
+    <string name="mp4_sound_check">Check sound</string>
+    <string name="mp4_sound_castle">Castle sound</string>
 
 </resources>
