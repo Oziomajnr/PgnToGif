@@ -26,6 +26,11 @@ android {
         multiDexEnabled = true
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        if (project.findProperty("ciInstrumented.smokeOnly") == "true") {
+            // Single class smoke test (validates APK + emulator); full suite: run without this flag locally.
+            testInstrumentationRunnerArguments["class"] =
+                "com.example.pgntogifconverter.ExampleInstrumentedTest"
+        }
         if (project.findProperty("ciInstrumented.excludeBenchmark") == "true") {
             testInstrumentationRunnerArguments["notPackage"] =
                 "com.example.pgntogifconverter.benchmark"

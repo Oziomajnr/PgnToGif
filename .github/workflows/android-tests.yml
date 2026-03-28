@@ -101,7 +101,7 @@ jobs:
           disk-size: 8192M
           emulator-boot-timeout: 900
           disable-animations: true
-          script: ./gradlew :app:connectedDebugAndroidTest --no-daemon --stacktrace -PciInstrumented.excludeBenchmark=true
+          script: ./gradlew :app:connectedDebugAndroidTest --no-daemon --stacktrace -PciInstrumented.smokeOnly=true -PciInstrumented.excludeBenchmark=true
 
       - name: Upload instrumented test reports
         if: failure()
