@@ -90,7 +90,9 @@ jobs:
       - name: Ensure Android AVD directories exist
         run: mkdir -p "$ANDROID_AVD_HOME"
 
-      # Skip PgnGenerationBenchmarkInstrumentedTest: full GIF generation is too slow for PR CI.
+      # On-device smoke: validates APK install + Activity on emulator. Full suite is heavy on free
+      # runners (GIF gen, bitmap tests); run locally: ./gradlew :app:connectedDebugAndroidTest
+      # Skip PgnGenerationBenchmarkInstrumentedTest via Gradle when not using smokeOnly.
       - name: Run instrumented tests on emulator
         uses: reactivecircus/android-emulator-runner@v2.37.0
         with:
@@ -101,7 +103,7 @@ jobs:
           disk-size: 8192M
           emulator-boot-timeout: 900
           disable-animations: true
-          script: ./gradlew :app:connectedDebugAndroidTest --no-daemon --stacktrace -PciInstrumented.excludeBenchmark=true
+          script: ./gradlew :app:connectedDebugAndroidTest --no-daemon --stacktrace -PciInstrumented.smokeOnly=true -PciInstrumented.excludeBenchmark=true
 
       - name: Upload instrumented test reports
         if: failure()
