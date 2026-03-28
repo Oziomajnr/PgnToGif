@@ -14,7 +14,7 @@ concurrency:
 jobs:
   unit-tests:
     name: Unit tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 25
 
     steps:
@@ -53,8 +53,12 @@ jobs:
 
   instrumented-tests:
     name: Instrumented (UI) tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 45
+    env:
+      ANDROID_USER_HOME: /home/runner/.android
+      ANDROID_EMULATOR_HOME: /home/runner/.android
+      ANDROID_AVD_HOME: /home/runner/.android/avd
 
     steps:
       - uses: actions/checkout@v4
@@ -77,18 +81,24 @@ jobs:
             echo "$DATA" | base64 --decode > app/google-services.json
           fi
 
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Ensure Android AVD directories exist
+        run: mkdir -p "$ANDROID_AVD_HOME"
+
       # Skip PgnGenerationBenchmarkInstrumentedTest: full GIF generation is too slow for PR CI.
       - name: Run instrumented tests on emulator
-        uses: reactivecircus/android-emulator-runner@v2
+        uses: reactivecircus/android-emulator-runner@v2.37.0
         with:
           api-level: 30
+          target: google_apis
           arch: x86_64
           disable-animations: true
-          disk-size: 6000M
-          heap-size: 512M
-          script: |
-            ./gradlew :app:connectedDebugAndroidTest --no-daemon --stacktrace \
-              -Pandroid.testInstrumentationRunnerArguments.notPackage=com.example.pgntogifconverter.benchmark
+          script: ./gradlew :app:connectedDebugAndroidTest --no-daemon --stacktrace -PciInstrumented.excludeBenchmark=true
 
       - name: Upload instrumented test reports
         if: failure()

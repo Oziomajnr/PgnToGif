@@ -26,6 +26,10 @@ android {
         multiDexEnabled = true
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        if (project.findProperty("ciInstrumented.excludeBenchmark") == "true") {
+            testInstrumentationRunnerArguments["notPackage"] =
+                "com.example.pgntogifconverter.benchmark"
+        }
         vectorDrawables {
             useSupportLibrary = true
         }
