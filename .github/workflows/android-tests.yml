@@ -54,11 +54,12 @@ jobs:
   instrumented-tests:
     name: Instrumented (UI) tests
     runs-on: ubuntu-22.04
-    timeout-minutes: 45
+    timeout-minutes: 60
     env:
       ANDROID_USER_HOME: /home/runner/.android
       ANDROID_EMULATOR_HOME: /home/runner/.android
       ANDROID_AVD_HOME: /home/runner/.android/avd
+      GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4096m -Dkotlin.daemon.jvm.options=-Xmx2048m"
 
     steps:
       - uses: actions/checkout@v4
@@ -97,6 +98,9 @@ jobs:
           api-level: 30
           target: google_apis
           arch: x86_64
+          ram-size: 2048M
+          disk-size: 8192M
+          emulator-boot-timeout: 900
           disable-animations: true
           script: ./gradlew :app:connectedDebugAndroidTest --no-daemon --stacktrace -PciInstrumented.excludeBenchmark=true
 

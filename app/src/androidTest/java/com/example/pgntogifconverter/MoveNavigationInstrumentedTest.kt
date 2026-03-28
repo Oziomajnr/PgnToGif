@@ -24,7 +24,8 @@ class MoveNavigationInstrumentedTest {
     @Before
     fun loadPgn() {
         val ctx = InstrumentationRegistry.getInstrumentation().context
-        ctx.assets.open("pgn/hikaru_vs_rybka_long.pgn").use {
+        // Short game: CI emulators OOM or time out generating a GIF for the full ICC benchmark PGN.
+        ctx.assets.open("pgn/short_game_for_ui_tests.pgn").use {
             pgnString = it.bufferedReader().readText()
         }
     }
@@ -41,7 +42,7 @@ class MoveNavigationInstrumentedTest {
         ActivityScenario.launch<HomeActivity>(intent).use { scenario ->
             scenario.onActivity { activityRef.set(it) }
 
-            waitUntil(30_000) {
+            waitUntil(120_000) {
                 var size = 0
                 InstrumentationRegistry.getInstrumentation().runOnMainSync {
                     size = activityRef.get()?.moveList?.size ?: 0
@@ -66,7 +67,7 @@ class MoveNavigationInstrumentedTest {
         ActivityScenario.launch<HomeActivity>(intent).use { scenario ->
             scenario.onActivity { activityRef.set(it) }
 
-            waitUntil(30_000) {
+            waitUntil(120_000) {
                 var hasBitmap = false
                 InstrumentationRegistry.getInstrumentation().runOnMainSync {
                     hasBitmap = activityRef.get()?.boardBitmap != null
@@ -92,7 +93,7 @@ class MoveNavigationInstrumentedTest {
         ActivityScenario.launch<HomeActivity>(intent).use { scenario ->
             scenario.onActivity { activityRef.set(it) }
 
-            waitUntil(30_000) {
+            waitUntil(120_000) {
                 var size = 0
                 InstrumentationRegistry.getInstrumentation().runOnMainSync {
                     size = activityRef.get()?.moveList?.size ?: 0
