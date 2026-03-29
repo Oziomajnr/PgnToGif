@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # Poll GitHub Actions for the latest "Android Tests" workflow run (low rate to avoid API limits).
+# Prefer ./scripts/watch_android_tests_run.sh (uses `gh run watch`) or enable
+# .github/workflows/android-tests-notify.yml with CI_NOTIFY_WEBHOOK_URL for push alerts.
 # Usage: REPO=owner/repo POLL_SEC=90 ./scripts/poll_android_tests_run.sh [max_polls]
 set -euo pipefail
 REPO="${REPO:-Oziomajnr/PgnToGif}"
