@@ -49,6 +49,9 @@ concurrency:
 jobs:
   instrumentation:
     name: Instrumentation (Firebase Test Lab)
+    # Manual runs always execute (clear error if secret missing). Push to main is skipped until
+    # FIREBASE_TEST_LAB_SA_JSON is configured, so the branch stays green while you set up GCP.
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && secrets.FIREBASE_TEST_LAB_SA_JSON != '')
     runs-on: ubuntu-22.04
     timeout-minutes: 45
     permissions:
