@@ -132,7 +132,8 @@ jobs:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
           packageName: com.chunkymonkey.imagetogifconverter
           releaseFiles: app/build/outputs/bundle/release/app-release.aab
-          tracks: alpha
+          # v1 action expects `track`, not `tracks` (see action.yml valid inputs).
+          track: alpha
           releaseName: v${{ steps.release_prep.outputs.new_version }}
           whatsNewDirectory: distribution/whatsnew
           mappingFile: app/build/outputs/mapping/release/mapping.txt
