@@ -10,9 +10,9 @@ import com.chunkymonkey.pgntogifconverter.data.PieceSet
 import com.chunkymonkey.pgntogifconverter.data.SettingsStorage
 import com.chunkymonkey.pgntogifconverter.lichess.LichessPieceDownloader
 import com.chunkymonkey.pgntogifconverter.lichess.LichessPieceSvgLoader
-import com.github.bhlangonijr.chesslib.Piece
-import com.github.bhlangonijr.chesslib.PieceType
-import com.github.bhlangonijr.chesslib.Side
+import com.chunkymonkey.chesscore.Piece
+import com.chunkymonkey.chesscore.PieceType
+import com.chunkymonkey.chesscore.Side
 import java.io.File
 
 class ChessPieceResourceProvider(
@@ -45,7 +45,7 @@ class ChessPieceResourceProvider(
         }
         val dir = downloader.pieceFamilyDir(familyId)
         val result = mutableMapOf<Piece, Bitmap?>()
-        for (p in Piece.values()) {
+        for (p in Piece.allPieces) {
             if (p == Piece.NONE) {
                 result[p] = null
                 continue

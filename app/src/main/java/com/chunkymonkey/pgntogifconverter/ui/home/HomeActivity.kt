@@ -40,6 +40,7 @@ import com.chunkymonkey.pgntogifconverter.ui.error.UiErrorHandler
 import com.chunkymonkey.pgntogifconverter.ui.settings.SettingsScreen
 import com.chunkymonkey.pgntogifconverter.ui.ui.theme.ImageToGifConverterTheme
 import com.chunkymonkey.pgntogifconverter.util.ErrorHandler
+import com.chunkymonkey.pgntogifconverter.util.TestProcess
 import com.chunkymonkey.pgntogifconverter.util.extention.toFile
 import com.chunkymonkey.pgntogifconverter.util.extention.uriToFile
 import com.google.android.play.core.review.ReviewException
@@ -439,6 +440,7 @@ class HomeActivity : AppCompatActivity(), HomeView {
     // --- In-app review ---
 
     private fun requestInAppReview() {
+        if (TestProcess.isInstrumentedTest()) return
         val request = reviewManager.requestReviewFlow()
         request.addOnCompleteListener { task ->
             if (task.isSuccessful) {

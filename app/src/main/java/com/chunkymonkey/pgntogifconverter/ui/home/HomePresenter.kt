@@ -15,5 +15,5 @@ interface HomePresenter {
     fun generateMp4()
     fun generateMp4FromMove(startIndex: Int)
     fun getParsedMoves(): List<MoveData>
-    fun getCurrentGame(): com.github.bhlangonijr.chesslib.game.Game?
+    fun getCurrentGame(): com.chunkymonkey.chesscore.ParsedGame?
 }

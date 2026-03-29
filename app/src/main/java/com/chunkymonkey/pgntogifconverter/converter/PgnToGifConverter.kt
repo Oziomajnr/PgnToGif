@@ -7,10 +7,10 @@ import com.chunkymonkey.pgntogifconverter.dependency.DependencyFactory
 import com.chunkymonkey.pgntogifconverter.resource.ChessPieceResourceProvider
 import com.chunkymonkey.pgntogifconverter.resource.PaintResourceProvider
 import com.chunkymonkey.pgntogifconverter.util.AnimatedGifEncoder
-import com.github.bhlangonijr.chesslib.Board
-import com.github.bhlangonijr.chesslib.Square
-import com.github.bhlangonijr.chesslib.game.Game
-import com.github.bhlangonijr.chesslib.move.Move
+import com.chunkymonkey.chesscore.Board
+import com.chunkymonkey.chesscore.Move
+import com.chunkymonkey.chesscore.ParsedGame
+import com.chunkymonkey.chesscore.Square
 import java.io.File
 import java.io.FileOutputStream
 import java.util.*
@@ -21,7 +21,7 @@ class PgnToGifConverter(
     private val playerNameHelper: PlayerNameHelper
 ) {
     fun createGifFileFromChessGame(
-        game: Game,
+        game: ParsedGame,
         settingsData: SettingsData,
         startFromMove: Int = 0
     ): File {
@@ -70,8 +70,7 @@ class PgnToGifConverter(
             encoder.setQuality(settingsData.gifQuality)
             encoder.start(fos)
 
-            game.loadMoveText()
-            val moves = game.halfMoves
+            val moves = game.moves
             val effectiveStart = startFromMove.coerceIn(0, moves.size)
 
             for (i in 0 until effectiveStart) {
@@ -111,16 +110,15 @@ class PgnToGifConverter(
         return currentFilePath
     }
 
-    private fun extractGameResult(game: Game): String? {
+    private fun extractGameResult(game: ParsedGame): String? {
         return try {
-            val result = game.result?.description
+            val result = game.result.description
             when {
-                result == null -> null
                 result.contains("1-0") || result.contains("White wins") -> "1-0"
                 result.contains("0-1") || result.contains("Black wins") -> "0-1"
                 result.contains("1/2") || result.contains("Draw") -> "½-½"
                 else -> {
-                    val resultProp = game.property?.get("Result")
+                    val resultProp = game.headers["Result"]
                     when (resultProp) {
                         "1-0" -> "1-0"
                         "0-1" -> "0-1"
@@ -131,7 +129,7 @@ class PgnToGifConverter(
             }
         } catch (e: Exception) {
             try {
-                val resultProp = game.property?.get("Result")
+                val resultProp = game.headers["Result"]
                 when (resultProp) {
                     "1-0" -> "1-0"
                     "0-1" -> "0-1"

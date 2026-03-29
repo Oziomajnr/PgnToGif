@@ -2,6 +2,7 @@ package com.chunkymonkey.pgntogifconverter
 
 import android.app.Application
 import com.chunkymonkey.pgntogifconverter.lichess.LichessThemeCatalog
+import com.chunkymonkey.pgntogifconverter.util.TestProcess
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -17,6 +18,7 @@ class PgnToGifApplication : Application() {
         super.onCreate()
         LichessThemeCatalog.init(this)
         applicationScope.launch(Dispatchers.IO) {
+            if (TestProcess.isInstrumentedTest()) return@launch
             LichessThemeCatalog.syncIfStale()
         }
         // Debug builds use placeholder google-services.json; keep Crashlytics off to avoid noisy logcat.

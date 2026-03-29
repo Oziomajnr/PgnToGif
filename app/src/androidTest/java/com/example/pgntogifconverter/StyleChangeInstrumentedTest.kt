@@ -10,10 +10,10 @@ import com.chunkymonkey.pgntogifconverter.data.PreferenceSettingsStorage
 import com.chunkymonkey.pgntogifconverter.preference.PreferenceService
 import com.chunkymonkey.pgntogifconverter.resource.ChessPieceResourceProvider
 import com.chunkymonkey.pgntogifconverter.resource.PaintResourceProvider
-import com.github.bhlangonijr.chesslib.Board
-import com.github.bhlangonijr.chesslib.Piece
-import com.github.bhlangonijr.chesslib.Square
-import com.github.bhlangonijr.chesslib.move.Move
+import com.chunkymonkey.chesscore.Board
+import com.chunkymonkey.chesscore.Move
+import com.chunkymonkey.chesscore.Piece
+import com.chunkymonkey.chesscore.Square
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull

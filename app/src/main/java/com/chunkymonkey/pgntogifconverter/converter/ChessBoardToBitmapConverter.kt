@@ -4,11 +4,11 @@ import com.chunkymonkey.pgntogifconverter.resource.ChessPieceResourceProvider
 import com.chunkymonkey.pgntogifconverter.resource.PaintResourceProvider
 import com.chunkymonkey.pgntogifconverter.util.getCoordinateFromSquare
 
-import com.github.bhlangonijr.chesslib.Piece
-import com.github.bhlangonijr.chesslib.Side
-import com.github.bhlangonijr.chesslib.Square
-import com.github.bhlangonijr.chesslib.move.Move
-import com.github.bhlangonijr.chesslib.Board
+import com.chunkymonkey.chesscore.Board
+import com.chunkymonkey.chesscore.Move
+import com.chunkymonkey.chesscore.Piece
+import com.chunkymonkey.chesscore.Side
+import com.chunkymonkey.chesscore.Square
 
 import android.graphics.Bitmap
 import android.graphics.Canvas

@@ -1,0 +1,184 @@
+# Runs instrumentation tests on Firebase Test Lab (real Google-hosted devices / virtual devices).
+#
+# ── One-time Google Cloud / Firebase setup ───────────────────────────────────
+# 1) Firebase console: add Android app if needed; note the Google Cloud project id
+#    (Project settings → General → Project ID).
+# 2) Enable APIs (Google Cloud console → APIs & Services → Enable APIs):
+#    - Cloud Testing API
+#    - Cloud Tool Results API
+#    (Opening Test Lab in Firebase may prompt to enable these.)
+# 3) IAM → Service accounts → Create (e.g. "github-ftl-ci") → Grant roles, for example:
+#    - Firebase Test Lab Admin   (firebase.testLab.admin)
+#    - Service Account User      (iam.serviceAccountUser) on the project if required by your org
+#    Less ideal but common for small teams: Editor on the project (broader than necessary).
+# 4) Keys → Add key → JSON. Store the ENTIRE JSON as GitHub Actions secret:
+#    FIREBASE_TEST_LAB_SA_JSON
+#    (Repository → Settings → Secrets and variables → Actions.)
+#    Optional: Workload Identity Federation (no long-lived key) — see
+#    https://github.com/google-github-actions/auth#readme
+# 5) Billing: Blaze may be required for some device types; ARM virtual devices have free
+#    daily quotas — see https://firebase.google.com/pricing
+#
+# ── Triggers ─────────────────────────────────────────────────────────────────
+# - workflow_dispatch: choose device spec + timeout in the UI
+# - push to main: default virtual device (API 30) after each merge
+#
+# View results: Firebase console → Test Lab, or follow the https://console.firebase.google.com
+# link printed near the end of the gcloud log. This workflow also uploads the gcloud log artifact.
+
+name: Firebase Test Lab
+
+on:
+  workflow_dispatch:
+    inputs:
+      device_spec:
+        description: "Single --device value (model,version,locale,orientation)"
+        required: true
+        default: "model=MediumPhone.arm,version=30,locale=en,orientation=portrait"
+      timeout:
+        description: "Per-matrix timeout (gcloud duration, e.g. 30m)"
+        required: true
+        default: "30m"
+  push:
+    branches: [main]
+
+concurrency:
+  group: firebase-test-lab-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  instrumentation:
+    name: Instrumentation (Firebase Test Lab)
+    # Manual runs always execute (clear error if secret missing). Push to main is skipped until
+    # FIREBASE_TEST_LAB_SA_JSON is configured, so the branch stays green while you set up GCP.
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && secrets.FIREBASE_TEST_LAB_SA_JSON != '')
+    runs-on: ubuntu-22.04
+    timeout-minutes: 45
+    permissions:
+      contents: read
+
+    env:
+      # Default when event is not workflow_dispatch
+      FTL_DEVICE_SPEC: "model=MediumPhone.arm,version=30,locale=en,orientation=portrait"
+      FTL_TIMEOUT: "30m"
+
+    steps:
+      - name: Apply workflow_dispatch inputs
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          echo "FTL_DEVICE_SPEC=${{ inputs.device_spec }}" >> "$GITHUB_ENV"
+          echo "FTL_TIMEOUT=${{ inputs.timeout }}" >> "$GITHUB_ENV"
+
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Decode google-services.json from secret (optional)
+        env:
+          DATA: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -n "$DATA" ]; then
+            echo "$DATA" | base64 --decode > app/google-services.json
+          fi
+
+      - name: Build debug + androidTest APKs
+        run: |
+          ./gradlew :app:assembleDebug :app:assembleDebugAndroidTest \
+            -PciInstrumented.excludeBenchmark=true \
+            --no-daemon --stacktrace
+
+      - name: Verify APK outputs
+        run: |
+          test -f app/build/outputs/apk/debug/app-debug.apk
+          test -f app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+          ls -la app/build/outputs/apk/debug/
+          ls -la app/build/outputs/apk/androidTest/debug/
+
+      - name: Upload APK artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ftl-apks
+          path: |
+            app/build/outputs/apk/debug/app-debug.apk
+            app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+
+      - name: Validate service account secret
+        env:
+          SA_JSON: ${{ secrets.FIREBASE_TEST_LAB_SA_JSON }}
+        run: |
+          if [ -z "$SA_JSON" ]; then
+            echo "::error::Missing repository secret FIREBASE_TEST_LAB_SA_JSON. See comments at top of this workflow file."
+            exit 1
+          fi
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASE_TEST_LAB_SA_JSON }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Set gcloud project from service account
+        env:
+          SA_JSON: ${{ secrets.FIREBASE_TEST_LAB_SA_JSON }}
+        run: |
+          PROJECT_ID="$(echo "$SA_JSON" | jq -r .project_id)"
+          if [ -z "$PROJECT_ID" ] || [ "$PROJECT_ID" = "null" ]; then
+            echo "::error::Could not read project_id from FIREBASE_TEST_LAB_SA_JSON"
+            exit 1
+          fi
+          echo "PROJECT_ID=$PROJECT_ID" >> "$GITHUB_ENV"
+          gcloud config set project "$PROJECT_ID"
+
+      - name: Run instrumentation on Firebase Test Lab
+        id: ftl_run
+        run: |
+          set -euo pipefail
+          set -o pipefail
+          gcloud firebase test android run \
+            --type instrumentation \
+            --app app/build/outputs/apk/debug/app-debug.apk \
+            --test app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk \
+            --device "$FTL_DEVICE_SPEC" \
+            --timeout "$FTL_TIMEOUT" \
+            --client-details "matrixLabel=gh-${{ github.run_id }},sha=${GITHUB_SHA:0:7},ref=${GITHUB_REF_NAME}" \
+            2>&1 | tee ftl-output.txt
+
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "## Firebase Test Lab"
+            echo ""
+            echo "- **Project:** \`$PROJECT_ID\`"
+            echo "- **Device:** \`$FTL_DEVICE_SPEC\`"
+            echo "- **Timeout:** \`$FTL_TIMEOUT\`"
+            echo ""
+            echo "Open **Firebase console → Quality → Test Lab** for detailed results, logs, and video (virtual devices)."
+            echo "The gcloud output above (and the uploaded artifact) includes a link to this matrix when available."
+            echo ""
+            if [ -f ftl-output.txt ]; then
+              echo "### Last lines of gcloud output"
+              echo ""
+              echo '```'
+              tail -100 ftl-output.txt
+              echo '```'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload gcloud log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: firebase-test-lab-gcloud-log
+          path: ftl-output.txt
+          if-no-files-found: ignore

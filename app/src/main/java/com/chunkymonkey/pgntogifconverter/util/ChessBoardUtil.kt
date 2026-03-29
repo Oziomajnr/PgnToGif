@@ -1,6 +1,6 @@
 package com.chunkymonkey.pgntogifconverter.util
 
-import com.github.bhlangonijr.chesslib.Square
+import com.chunkymonkey.chesscore.Square
 
 fun getCoordinateFromSquare(square: Square): Pair<Int, Int> {
     val array = square.value().toCharArray()

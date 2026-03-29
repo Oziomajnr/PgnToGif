@@ -1,0 +1,115 @@
+# Unit tests (JVM) + instrumented UI tests (emulator).
+name: Android Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: android-tests-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit-tests:
+    name: Unit tests
+    runs-on: ubuntu-22.04
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Decode google-services.json from secret (optional)
+        env:
+          DATA: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -n "$DATA" ]; then
+            echo "$DATA" | base64 --decode > app/google-services.json
+          fi
+
+      - name: Run JVM unit tests
+        run: ./gradlew :chesscore:test :app:testDebugUnitTest --no-daemon --stacktrace
+
+      # Always upload so you can inspect HTML/XML on green runs too (Artifacts tab on the workflow run).
+      - name: Upload unit test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-reports
+          path: |
+            app/build/reports/tests/
+            chesscore/build/reports/tests/
+          if-no-files-found: ignore
+
+  instrumented-tests:
+    name: Instrumented (UI) tests
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    env:
+      ANDROID_USER_HOME: /home/runner/.android
+      ANDROID_EMULATOR_HOME: /home/runner/.android
+      ANDROID_AVD_HOME: /home/runner/.android/avd
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Decode google-services.json from secret (optional)
+        env:
+          DATA: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -n "$DATA" ]; then
+            echo "$DATA" | base64 --decode > app/google-services.json
+          fi
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Ensure Android AVD directories exist
+        run: mkdir -p "$ANDROID_AVD_HOME"
+
+      # Full on-device suite except benchmark (GIF gen too slow for PR CI). Move tests use short PGN.
+      - name: Run instrumented tests on emulator
+        uses: reactivecircus/android-emulator-runner@v2.37.0
+        with:
+          api-level: 30
+          target: google_apis
+          arch: x86_64
+          ram-size: 2048M
+          disk-size: 8192M
+          emulator-boot-timeout: 900
+          disable-animations: true
+          script: ./gradlew :app:connectedDebugAndroidTest --no-daemon --stacktrace -PciInstrumented.excludeBenchmark=true
+
+      - name: Upload instrumented test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: instrumented-test-reports
+          path: |
+            app/build/reports/androidTests/
+            app/build/outputs/androidTest-results/
+          if-no-files-found: ignore

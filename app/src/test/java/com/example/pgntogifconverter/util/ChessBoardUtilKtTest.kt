@@ -2,7 +2,7 @@ package com.example.pgntogifconverter.util
 
 import com.chunkymonkey.pgntogifconverter.util.getCoordinateFromSquare
 import com.chunkymonkey.pgntogifconverter.util.getCoordinateFromSquareWithFlippedBoard
-import com.github.bhlangonijr.chesslib.Square
+import com.chunkymonkey.chesscore.Square
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
