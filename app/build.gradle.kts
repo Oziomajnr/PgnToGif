@@ -19,10 +19,12 @@ val releaseKeystorePath: String? =
     System.getenv("RELEASE_KEYSTORE_FILE")?.takeIf { it.isNotBlank() }
         ?: keystoreProperties.getProperty("storeFile")?.takeIf { it.isNotBlank() }
             ?.let { rootProject.file(it).canonicalPath }
-val releaseStorePassword = envOrKeystoreProp("RELEASE_KEYSTORE_PASSWORD", "storePassword")
+// Either RELEASE_KEYSTORE_PASSWORD or RELEASE_KEY_PASSWORD may supply the keystore password (CI often sets both the same).
+val releaseKeyPasswordFromEnv = envOrKeystoreProp("RELEASE_KEY_PASSWORD", "keyPassword")
+val releaseStorePassword =
+    envOrKeystoreProp("RELEASE_KEYSTORE_PASSWORD", "storePassword") ?: releaseKeyPasswordFromEnv
 val releaseKeyAlias = envOrKeystoreProp("RELEASE_KEY_ALIAS", "keyAlias").orEmpty()
-val releaseKeyPassword =
-    envOrKeystoreProp("RELEASE_KEY_PASSWORD", "keyPassword") ?: releaseStorePassword
+val releaseKeyPassword = releaseKeyPasswordFromEnv ?: releaseStorePassword
 
 val releaseSigningConfigured =
     !releaseKeystorePath.isNullOrBlank() && !releaseStorePassword.isNullOrBlank() && releaseKeyAlias.isNotBlank()
