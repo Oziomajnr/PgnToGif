@@ -19,3 +19,4 @@ local.properties
 # Release signing — never commit
 upload-keystore.jks
 upload_certificate.pem
+keystore.properties

@@ -1,9 +1,31 @@
+import java.util.Properties
+
 val composeVersion = "1.4.3"
 // Compose Compiler 1.5.8 matches Kotlin 1.9.22 (see compose-kotlin compatibility)
 val composeCompilerVersion = "1.5.8"
 
-/** Set in CI (e.g. GitHub Actions) to sign release bundles; omit locally if you sign via Studio. */
-val releaseKeystorePath = System.getenv("RELEASE_KEYSTORE_FILE")
+val keystoreProperties = Properties()
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.inputStream().use { keystoreProperties.load(it) }
+}
+
+fun envOrKeystoreProp(envName: String, propName: String): String? =
+    System.getenv(envName)?.takeIf { it.isNotBlank() }
+        ?: keystoreProperties.getProperty(propName)?.takeIf { it.isNotBlank() }
+
+/** CI: set RELEASE_KEYSTORE_* env vars. Local: optional root keystore.properties (see keystore.properties.example). */
+val releaseKeystorePath: String? =
+    System.getenv("RELEASE_KEYSTORE_FILE")?.takeIf { it.isNotBlank() }
+        ?: keystoreProperties.getProperty("storeFile")?.takeIf { it.isNotBlank() }
+            ?.let { rootProject.file(it).canonicalPath }
+val releaseStorePassword = envOrKeystoreProp("RELEASE_KEYSTORE_PASSWORD", "storePassword")
+val releaseKeyAlias = envOrKeystoreProp("RELEASE_KEY_ALIAS", "keyAlias").orEmpty()
+val releaseKeyPassword =
+    envOrKeystoreProp("RELEASE_KEY_PASSWORD", "keyPassword") ?: releaseStorePassword
+
+val releaseSigningConfigured =
+    !releaseKeystorePath.isNullOrBlank() && !releaseStorePassword.isNullOrBlank() && releaseKeyAlias.isNotBlank()
 
 plugins {
     id("com.android.application")
@@ -59,12 +81,12 @@ android {
     }
 
     signingConfigs {
-        if (!releaseKeystorePath.isNullOrEmpty()) {
+        if (releaseSigningConfigured) {
             create("release") {
                 storeFile = file(releaseKeystorePath!!)
-                storePassword = System.getenv("RELEASE_KEYSTORE_PASSWORD")
-                keyAlias = System.getenv("RELEASE_KEY_ALIAS") ?: ""
-                keyPassword = System.getenv("RELEASE_KEY_PASSWORD")
+                storePassword = releaseStorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
             }
         }
     }
@@ -75,7 +97,7 @@ android {
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             )
-            if (!releaseKeystorePath.isNullOrEmpty()) {
+            if (releaseSigningConfigured) {
                 signingConfig = signingConfigs.getByName("release")
             }
         }
