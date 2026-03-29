@@ -41,8 +41,9 @@ jobs:
       - name: Run JVM unit tests
         run: ./gradlew :chesscore:test :app:testDebugUnitTest --no-daemon --stacktrace
 
+      # Always upload so you can inspect HTML/XML on green runs too (Artifacts tab on the workflow run).
       - name: Upload unit test reports
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: unit-test-reports
@@ -104,7 +105,7 @@ jobs:
           script: ./gradlew :app:connectedDebugAndroidTest --no-daemon --stacktrace -PciInstrumented.excludeBenchmark=true
 
       - name: Upload instrumented test reports
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: instrumented-test-reports
