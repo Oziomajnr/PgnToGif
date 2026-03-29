@@ -20,3 +20,4 @@ local.properties
 upload-keystore.jks
 upload_certificate.pem
 keystore.properties
+.signing.env
