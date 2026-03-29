@@ -49,9 +49,8 @@ concurrency:
 jobs:
   instrumentation:
     name: Instrumentation (Firebase Test Lab)
-    # Manual runs always execute (clear error if secret missing). Push to main is skipped until
-    # FIREBASE_TEST_LAB_SA_JSON is configured, so the branch stays green while you set up GCP.
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && secrets.FIREBASE_TEST_LAB_SA_JSON != '')
+    # Do not use `secrets` in job-level `if` — GitHub forbids it and the run fails with no jobs.
+    # Push without FIREBASE_TEST_LAB_SA_JSON is skipped inside the job via the gate step.
     runs-on: ubuntu-22.04
     timeout-minutes: 45
     permissions:
@@ -69,9 +68,37 @@ jobs:
           echo "FTL_DEVICE_SPEC=${{ inputs.device_spec }}" >> "$GITHUB_ENV"
           echo "FTL_TIMEOUT=${{ inputs.timeout }}" >> "$GITHUB_ENV"
 
+      - name: Gate — run FTL or skip push when secret missing
+        id: gate
+        env:
+          SA: ${{ secrets.FIREBASE_TEST_LAB_SA_JSON }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "run_ftl=true" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event_name }}" = "push" ]; then
+            if [ -n "$SA" ]; then
+              echo "run_ftl=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "run_ftl=false" >> "$GITHUB_OUTPUT"
+              echo "Skipping Firebase Test Lab on push: FIREBASE_TEST_LAB_SA_JSON is not set."
+            fi
+          else
+            echo "run_ftl=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Skipped summary
+        if: steps.gate.outputs.run_ftl != 'true'
+        run: |
+          {
+            echo "## Firebase Test Lab"
+            echo "Skipped. For automatic runs on push, add the \`FIREBASE_TEST_LAB_SA_JSON\` repository secret."
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - uses: actions/checkout@v4
+        if: steps.gate.outputs.run_ftl == 'true'
 
       - name: Set up JDK 17
+        if: steps.gate.outputs.run_ftl == 'true'
         uses: actions/setup-java@v4
         with:
           java-version: "17"
@@ -79,9 +106,11 @@ jobs:
           cache: gradle
 
       - name: Grant execute permission for gradlew
+        if: steps.gate.outputs.run_ftl == 'true'
         run: chmod +x gradlew
 
       - name: Decode google-services.json from secret (optional)
+        if: steps.gate.outputs.run_ftl == 'true'
         env:
           DATA: ${{ secrets.GOOGLE_SERVICES_JSON }}
         run: |
@@ -90,12 +119,14 @@ jobs:
           fi
 
       - name: Build debug + androidTest APKs
+        if: steps.gate.outputs.run_ftl == 'true'
         run: |
           ./gradlew :app:assembleDebug :app:assembleDebugAndroidTest \
             -PciInstrumented.excludeBenchmark=true \
             --no-daemon --stacktrace
 
       - name: Verify APK outputs
+        if: steps.gate.outputs.run_ftl == 'true'
         run: |
           test -f app/build/outputs/apk/debug/app-debug.apk
           test -f app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
@@ -103,6 +134,7 @@ jobs:
           ls -la app/build/outputs/apk/androidTest/debug/
 
       - name: Upload APK artifacts
+        if: steps.gate.outputs.run_ftl == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: ftl-apks
@@ -111,6 +143,7 @@ jobs:
             app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
 
       - name: Validate service account secret
+        if: steps.gate.outputs.run_ftl == 'true'
         env:
           SA_JSON: ${{ secrets.FIREBASE_TEST_LAB_SA_JSON }}
         run: |
@@ -120,14 +153,17 @@ jobs:
           fi
 
       - name: Authenticate to Google Cloud
+        if: steps.gate.outputs.run_ftl == 'true'
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.FIREBASE_TEST_LAB_SA_JSON }}
 
       - name: Set up gcloud
+        if: steps.gate.outputs.run_ftl == 'true'
         uses: google-github-actions/setup-gcloud@v2
 
       - name: Set gcloud project from service account
+        if: steps.gate.outputs.run_ftl == 'true'
         env:
           SA_JSON: ${{ secrets.FIREBASE_TEST_LAB_SA_JSON }}
         run: |
@@ -140,6 +176,7 @@ jobs:
           gcloud config set project "$PROJECT_ID"
 
       - name: Run instrumentation on Firebase Test Lab
+        if: steps.gate.outputs.run_ftl == 'true'
         id: ftl_run
         run: |
           set -euo pipefail
@@ -154,7 +191,7 @@ jobs:
             2>&1 | tee ftl-output.txt
 
       - name: Job summary
-        if: always()
+        if: always() && steps.gate.outputs.run_ftl == 'true'
         run: |
           {
             echo "## Firebase Test Lab"
@@ -176,7 +213,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload gcloud log
-        if: always()
+        if: always() && steps.gate.outputs.run_ftl == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: firebase-test-lab-gcloud-log
