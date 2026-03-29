@@ -1,6 +1,10 @@
 val composeVersion = "1.4.3"
 // Compose Compiler 1.5.8 matches Kotlin 1.9.22 (see compose-kotlin compatibility)
 val composeCompilerVersion = "1.5.8"
+
+/** Set in CI (e.g. GitHub Actions) to sign release bundles; omit locally if you sign via Studio. */
+val releaseKeystorePath = System.getenv("RELEASE_KEYSTORE_FILE")
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -45,12 +49,26 @@ android {
         compose = true
     }
 
+    signingConfigs {
+        if (!releaseKeystorePath.isNullOrEmpty()) {
+            create("release") {
+                storeFile = file(releaseKeystorePath!!)
+                storePassword = System.getenv("RELEASE_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("RELEASE_KEY_ALIAS") ?: ""
+                keyPassword = System.getenv("RELEASE_KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             )
+            if (!releaseKeystorePath.isNullOrEmpty()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
     composeOptions {
