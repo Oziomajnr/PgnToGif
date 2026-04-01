@@ -8,8 +8,9 @@ import java.io.File
 
 
 object DefaultNavigator {
-    fun shareCurrentGif(file: File, context: Context) {
-        val uri = file.getStrictModeUri(context) ?: return
+    /** @return true if the share sheet was started */
+    fun shareCurrentGif(file: File, context: Context): Boolean {
+        val uri = file.getStrictModeUri(context) ?: return false
         val shareIntent = Intent(Intent.ACTION_SEND).apply {
             type = "image/gif"
             putExtra(Intent.EXTRA_STREAM, uri)
@@ -20,10 +21,12 @@ object DefaultNavigator {
                 shareIntent, context.resources.getText(R.string.share)
             )
         )
+        return true
     }
 
-    fun shareMp4(file: File, context: Context) {
-        val uri = file.getStrictModeUri(context) ?: return
+    /** @return true if the share sheet was started */
+    fun shareMp4(file: File, context: Context): Boolean {
+        val uri = file.getStrictModeUri(context) ?: return false
         val shareIntent = Intent(Intent.ACTION_SEND).apply {
             type = "video/mp4"
             putExtra(Intent.EXTRA_STREAM, uri)
@@ -34,5 +37,6 @@ object DefaultNavigator {
                 shareIntent, context.resources.getText(R.string.share)
             )
         )
+        return true
     }
 }
