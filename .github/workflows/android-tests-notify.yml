@@ -1,0 +1,34 @@
+# Event-driven notification when "Android Tests" finishes — no client-side polling.
+# Set repo secret CI_NOTIFY_WEBHOOK_URL. Payload is Slack-style {"text":...} unless the URL
+# contains "discord.com/api/webhooks", then {"content":...} is used for Discord.
+#
+# If the secret is unset, the job no-ops (skipped steps).
+
+name: Android Tests notify
+
+on:
+  workflow_run:
+    workflows: ["Android Tests"]
+    types: [completed]
+
+jobs:
+  notify:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: POST completion to webhook
+        env:
+          WEBHOOK_URL: ${{ secrets.CI_NOTIFY_WEBHOOK_URL }}
+          CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          HTML_URL: ${{ github.event.workflow_run.html_url }}
+          NAME: ${{ github.event.workflow_run.name }}
+          BRANCH: ${{ github.event.workflow_run.head_branch }}
+        run: |
+          if [ -z "$WEBHOOK_URL" ]; then
+            echo "CI_NOTIFY_WEBHOOK_URL not set; skipping notify."
+            exit 0
+          fi
+          MSG="${NAME} on ${BRANCH}: *${CONCLUSION}* ${HTML_URL}"
+          payload=$(python3 -c "import json,os; u=os.environ['WEBHOOK_URL']; m=os.environ['MSG']; k=('content' if 'discord.com/api/webhooks' in u else 'text'); print(json.dumps({k:m}))")
+          curl -fsS -X POST "$WEBHOOK_URL" \
+            -H 'Content-Type: application/json' \
+            -d "$payload"
