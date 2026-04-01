@@ -32,6 +32,7 @@ import com.chunkymonkey.pgntogifconverter.data.RecentGamesStorage
 import com.chunkymonkey.pgntogifconverter.data.SettingsStorage
 import com.chunkymonkey.pgntogifconverter.dependency.DependencyFactory
 import com.chunkymonkey.pgntogifconverter.preference.PreferenceService
+import com.chunkymonkey.pgntogifconverter.review.InAppReviewPromptController
 import com.chunkymonkey.pgntogifconverter.ui.DefaultNavigator
 import com.chunkymonkey.pgntogifconverter.ui.error.ApplicationStringProvider
 import com.chunkymonkey.pgntogifconverter.ui.error.ApplicationStringProviderImpl
@@ -71,6 +72,9 @@ class HomeActivity : AppCompatActivity(), HomeView {
         )
     }
     private val reviewManager by lazy { ReviewManagerFactory.create(this.applicationContext) }
+    private val inAppReviewPromptController by lazy {
+        InAppReviewPromptController(PreferenceService(applicationContext))
+    }
     private val recentGamesStorage: RecentGamesStorage by lazy {
         RecentGamesStorage(PreferenceService(this.applicationContext))
     }
@@ -210,7 +214,6 @@ class HomeActivity : AppCompatActivity(), HomeView {
         }
 
         handleFromSystemIntent()
-        requestInAppReview()
         checkClipboardForPgn()
     }
 
@@ -320,6 +323,7 @@ class HomeActivity : AppCompatActivity(), HomeView {
                 }
             }
             errorMessageHandler.showError(getString(R.string.gif_saved))
+            onValuableActionCompleted()
         } catch (e: Exception) {
             ErrorHandler.logException(e)
             errorMessageHandler.showError(getString(R.string.gif_save_failed))
@@ -335,6 +339,7 @@ class HomeActivity : AppCompatActivity(), HomeView {
                 }
             }
             errorMessageHandler.showError(getString(R.string.mp4_saved))
+            onValuableActionCompleted()
         } catch (e: Exception) {
             ErrorHandler.logException(e)
             errorMessageHandler.showError(getString(R.string.mp4_save_failed))
@@ -344,12 +349,16 @@ class HomeActivity : AppCompatActivity(), HomeView {
     // --- HomeView implementation ---
 
     override fun shareCurrentGif(file: File) {
-        DefaultNavigator.shareCurrentGif(file, this)
+        if (DefaultNavigator.shareCurrentGif(file, this)) {
+            onValuableActionCompleted()
+        }
     }
 
     override fun shareMp4(file: File) {
         mp4File = file
-        DefaultNavigator.shareMp4(file, this)
+        if (DefaultNavigator.shareMp4(file, this)) {
+            onValuableActionCompleted()
+        }
     }
 
     override fun setPgnText(text: String) {
@@ -437,20 +446,28 @@ class HomeActivity : AppCompatActivity(), HomeView {
         getContent.launch(filePickerIntent)
     }
 
-    // --- In-app review ---
+    // --- In-app review (Play In-App Review API; throttled after saves/shares) ---
 
-    private fun requestInAppReview() {
+    private fun onValuableActionCompleted() {
         if (TestProcess.isInstrumentedTest()) return
+        inAppReviewPromptController.recordValuableAction()
+        maybeRequestInAppReview()
+    }
+
+    private fun maybeRequestInAppReview() {
+        if (TestProcess.isInstrumentedTest()) return
+        if (!inAppReviewPromptController.shouldOfferReview(System.currentTimeMillis())) return
         val request = reviewManager.requestReviewFlow()
         request.addOnCompleteListener { task ->
             if (task.isSuccessful) {
+                inAppReviewPromptController.markReviewFlowLaunched(System.currentTimeMillis())
                 reviewManager.launchReviewFlow(this, task.result)
             } else {
-                task.exception?.let {
-                    ErrorHandler.logException(it)
-                    ErrorHandler.logInfo(
-                        "Review Task failed with code ${(task.exception as ReviewException).errorCode}"
-                    )
+                task.exception?.let { ex ->
+                    ErrorHandler.logException(ex)
+                    if (ex is ReviewException) {
+                        ErrorHandler.logInfo("Review Task failed with code ${ex.errorCode}")
+                    }
                 }
             }
         }
